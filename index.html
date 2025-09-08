@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Slot Game - White Spin Wheel</title>
+    <style>
+        /* خطوط للعرض (ضمن CSS فقط دون تعديل HTML) */
+        
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&family=Orbitron:wght@500;700&display=swap');
+         :root {
+            /* حجم زر السبن والمسافة بينه وبين الصور */
+            --spin-size: 110px;
+            --spin-gap: 10px;
+            /* ألوان الماكينة بأسلوب Ancient Egypt */
+            --gold-dk: #7a4f02;
+            --gold: #e3b653;
+            --gold-hi: #ffe69a;
+            --burgundy-1: #2b0715;
+            --burgundy-2: #4a0b22;
+            --burgundy-3: #6e1030;
+            --grid-gold: rgba(255, 215, 120, .35);
+            --grid-gold-soft: rgba(255, 215, 120, .22);
+            /* ألوان شاشة الأرقام */
+            --led-amber: #ffd66d;
+            --led-amber-deep: #ffb200;
+            --led-cyan: #79f6ff;
+            --hud-bg: #0b0e12;
+            --hud-glass: rgba(255, 255, 255, .06);
+            --hud-stroke: rgba(255, 215, 120, .58);
+            /* مقياس استجابة عام: لا يمسّ الـJS */
+            --frame-pad: 40px;
+            /* مقياس من 0.28 (جوال صغير) إلى 1 (شاشة كبيرة) */
+            --frame-scale: clamp(0.28, calc((100vw - var(--frame-pad)) / 1100), 1);
+            /* تحجيم زر السبن تلقائياً */
+            --spin-size: clamp(68px, 9.5vw, 110px);
+        }
+        /* RESET بسيط */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: sans-serif;
+        }
+        /* خلفية صورة ثابتة (background.png) دون أنيميشن إضافي */
+        
+        body {
+            background: url("images/background.png") no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #fff;
+            z-index: 0;
+        }
+        /* طبقة خلفية بسيطة ثابتة */
+        
+        body::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+            background: conic-gradient( from 0deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 25%, rgba(0, 0, 0, 0) 50%, rgba(255, 255, 255, 0.1) 75%, rgba(255, 255, 255, 0.05) 100%);
+            opacity: 0.3;
+        }
+        /* حاوية الإطار الكبير (1100×700) — توهّج ذهبي خفيف حول الماكينة */
+        
+        .machine-frame {
+            width: calc(1100px * var(--frame-scale));
+            height: calc(700px * var(--frame-scale));
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(1200px 520px at 50% 100%, rgba(255, 215, 0, .08), transparent 70%), radial-gradient(1000px 400px at 50% 0%, rgba(255, 215, 0, .06), transparent 72%);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, .75), inset 0 0 0 2px rgba(255, 215, 0, .15), 0 0 40px rgba(255, 215, 0, .18);
+        }
+        /* الماكينة الأصلية 1000×600 — بأسلوب Ancient Egypt */
+        
+        .slot-container {
+            width: 1000px;
+            height: 600px;
+            position: relative;
+            overflow: hidden;
+            border: none;
+            border-radius: 16px;
+            background: radial-gradient(1200px 800px at 50% 50%, rgba(255, 190, 60, .06), transparent 60%), radial-gradient(circle at 50% 40%, var(--burgundy-3) 0%, var(--burgundy-2) 55%, var(--burgundy-1) 100%);
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, .35) inset, 0 0 0 10px rgba(0, 0, 0, .25) inset;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+            transform-origin: center center;
+            transform: scale(var(--frame-scale)) translateZ(0);
+        }
+        /* إطار ذهبي داخلي */
+        
+        .slot-container::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 16px;
+            pointer-events: none;
+            z-index: 2;
+            box-shadow: inset 0 0 0 6px var(--gold-dk), inset 0 0 0 9px var(--gold), inset 0 0 0 12px var(--gold-dk), inset 0 0 40px rgba(255, 215, 0, .22);
+        }
+        /* شبكة ذهبية خفيفة كل 200px */
+        
+        .slot-container::after {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border-radius: 10px;
+            pointer-events: none;
+            z-index: 1;
+            background: repeating-linear-gradient( to right, var(--grid-gold) 0, var(--grid-gold) 4px, transparent 4px, transparent 200px), repeating-linear-gradient( to bottom, var(--grid-gold-soft) 0, var(--grid-gold-soft) 3px, transparent 3px, transparent 200px);
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, .35), inset 0 10px 30px rgba(0, 0, 0, .35);
+        }
+        
+        .reels {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        /* فواصل عمودية ذهبية */
+        
+        .reel {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+        
+        .reel:not(:first-child)::before {
+            content: "";
+            position: absolute;
+            top: 8px;
+            bottom: 8px;
+            left: -2px;
+            width: 6px;
+            border-radius: 3px;
+            background: linear-gradient(180deg, var(--gold-hi), var(--gold) 50%, var(--gold-dk));
+            box-shadow: 0 0 12px rgba(255, 215, 0, .25), inset 0 0 4px rgba(0, 0, 0, .35);
+            pointer-events: none;
+            z-index: 2;
+        }
+        
+        .reel-inner {
+            position: relative;
+            width: 100%;
+            will-change: transform;
+            transform: translate3d(0, 0, 0);
+            -webkit-transform-style: preserve-3d;
+            transform-style: preserve-3d;
+            filter: none !important;
+        }
+        
+        .symbol {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            border: none;
+            border-radius: 0;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            overflow: hidden;
+            background-color: transparent;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+        
+        .symbol-img {
+            width: 100%;
+            height: 100%;
+            background-size: 200px 200px;
+            background-position: center;
+            background-repeat: no-repeat;
+            image-rendering: -webkit-optimize-contrast;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+        }
+        
+        .symbol-img.win-flash {
+            position: relative;
+            animation: superFlash 2.5s infinite ease-in-out;
+            z-index: 3;
+        }
+        
+        @keyframes superFlash {
+            0% {
+                transform: scale(1);
+                filter: hue-rotate(0deg);
+            }
+            25% {
+                transform: scale(1.1);
+                filter: hue-rotate(90deg);
+            }
+            50% {
+                transform: scale(1);
+                filter: hue-rotate(180deg);
+            }
+            75% {
+                transform: scale(1.1);
+                filter: hue-rotate(270deg);
+            }
+            100% {
+                transform: scale(1);
+                filter: hue-rotate(360deg);
+            }
+        }
+        
+        .symbol-img.win-flash::before,
+        .symbol-img.win-flash::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 220px;
+            height: 220px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0) rotate(0deg);
+            pointer-events: none;
+            z-index: -1;
+            animation: swirlRing 2.5s infinite ease-in-out;
+        }
+        
+        .symbol-img.win-flash::after {
+            border-color: rgba(0, 255, 255, 0.3);
+            animation-direction: reverse;
+        }
+        
+        @keyframes swirlRing {
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(0) rotate(0deg);
+                opacity: 0.4;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.3) rotate(180deg);
+                opacity: 1;
+            }
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .info-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .info-panel .info {
+            position: relative;
+            padding: clamp(8px, 1.6vw, 12px) clamp(10px, 2vw, 16px);
+            border-radius: 12px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .02)), linear-gradient(180deg, #13171d, #0a0d11 60%, #07090c);
+            border: 1.5px solid var(--hud-stroke);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), inset 0 0 30px rgba(255, 215, 120, .10), 0 8px 18px rgba(0, 0, 0, .45);
+            display: inline-flex;
+            align-items: center;
+            gap: clamp(6px, 1.2vw, 10px);
+        }
+        
+        .info-panel .info::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            pointer-events: none;
+            box-shadow: 0 0 22px rgba(255, 215, 120, .18), inset 0 0 22px rgba(255, 215, 120, .08);
+        }
+        
+        .info label {
+            margin: 0;
+            font-family: "Cairo", system-ui, sans-serif;
+            font-weight: 800;
+            font-size: clamp(12px, 1.8vw, 14px);
+            letter-spacing: .2px;
+            color: var(--gold-hi);
+            background-image: linear-gradient(180deg, #fff2b8, #e8be6a 55%, #7a4f02);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 3px rgba(255, 255, 255, .35), 0 2px 1px rgba(0, 0, 0, .55);
+            white-space: nowrap;
+        }
+        
+        #credits,
+        #lastWin,
+        #betPerLine,
+        #linesCount {
+            font-family: "Orbitron", system-ui, sans-serif;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            font-size: clamp(16px, 3.4vw, 26px);
+            line-height: 1.1;
+            letter-spacing: .5px;
+            text-align: center;
+            color: var(--led-amber);
+            text-shadow: 0 0 6px rgba(255, 178, 0, .75), 0 0 14px rgba(255, 178, 0, .45), 0 1px 0 #2a1500;
+        }
+        
+        #credits,
+        #lastWin {
+            display: inline-block;
+            min-width: clamp(82px, 18vw, 132px);
+            padding: clamp(6px, 1.4vw, 8px) clamp(10px, 2.4vw, 14px);
+            border-radius: 10px;
+            background: radial-gradient(120% 160% at 50% 10%, rgba(255, 255, 255, .12), transparent 40%), linear-gradient(180deg, #0c1016, #06080c 65%, #04070a);
+            border: 1px solid rgba(255, 178, 0, .45);
+            box-shadow: inset 0 1px 8px rgba(0, 0, 0, .8), inset 0 -8px 24px rgba(255, 178, 0, .10), 0 0 18px rgba(255, 178, 0, .25);
+        }
+        
+        select,
+        input[type="number"] {
+            width: clamp(68px, 12vw, 110px);
+            padding: clamp(6px, 1.6vw, 9px) 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 178, 0, .4);
+            background: radial-gradient(120% 160% at 50% 10%, rgba(255, 255, 255, .12), transparent 45%), linear-gradient(180deg, #11161d, #0b0f15 60%, #090d13);
+            color: var(--led-amber);
+            outline: none;
+            box-shadow: inset 0 1px 10px rgba(0, 0, 0, .85), inset 0 -10px 28px rgba(255, 178, 0, .08), 0 0 16px rgba(255, 178, 0, .18);
+            transition: box-shadow .2s, transform .08s, border-color .2s;
+        }
+        
+        select:focus,
+        input[type="number"]:focus {
+            border-color: #ffc74b;
+            box-shadow: inset 0 1px 10px rgba(0, 0, 0, .85), inset 0 -10px 28px rgba(255, 178, 0, .12), 0 0 0 3px rgba(255, 199, 75, .22), 0 0 22px rgba(255, 178, 0, .26);
+        }
+        
+        input[type="number"]:active,
+        select:active {
+            transform: scale(.98);
+        }
+        
+        @media (max-width: 640px) {
+            .controls {
+                gap: 10px;
+            }
+            .audio-icon {
+                font-size: 22px;
+            }
+            .info-panel .info {
+                padding: 8px 10px;
+                gap: 8px;
+            }
+        }
+        
+        @media (prefers-contrast: more) {
+            #credits,
+            #lastWin,
+            #betPerLine,
+            #linesCount {
+                text-shadow: 0 0 2px rgba(0, 0, 0, .8), 0 0 10px rgba(255, 178, 0, .6);
+            }
+        }
+        /* ===== صف زر السبن (العجلة يمين، التحكمات يسارها) ===== */
+        
+        .spin-row {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: var(--spin-gap);
+        }
+        
+        .spin-row-inner {
+            width: calc(1000px * var(--frame-scale));
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            /* RTL */
+            gap: 16px;
+        }
+        
+        .spin-row .controls {
+            margin-top: 0;
+        }
+        
+        #spinBtn {
+            position: relative;
+            width: var(--spin-size);
+            height: var(--spin-size);
+            background: none;
+            border: none;
+            cursor: pointer;
+            outline: none;
+            padding: 0;
+            z-index: 1;
+            user-select: none;
+            touch-action: manipulation;
+            display: block;
+            margin: 0;
+            filter: drop-shadow(0 0 6px rgba(0, 0, 0, .5));
+        }
+        
+        #spinBtn img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+            transform-origin: 50% 50%;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7));
+            animation: wheelMotion 3s infinite linear;
+            image-rendering: -webkit-optimize-contrast;
+            will-change: transform, filter;
+        }
+        
+        #spinBtn:hover img {
+            filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.95));
+        }
+        
+        #spinBtn:active img {
+            animation-play-state: paused;
+            transform: scale(0.82);
+        }
+        
+        @keyframes wheelMotion {
+            0% {
+                transform: rotate(0deg) scale(1);
+            }
+            50% {
+                transform: rotate(180deg) scale(1.05);
+            }
+            100% {
+                transform: rotate(360deg) scale(1);
+            }
+        }
+        
+        @keyframes spinDown {
+            0% {
+                transform: translateY(-4200px);
+            }
+            10% {
+                transform: translateY(-3800px);
+            }
+            70% {
+                transform: translateY(-2700px);
+            }
+            88% {
+                transform: translateY(-2450px);
+            }
+            94% {
+                transform: translateY(-2360px);
+            }
+            100% {
+                transform: translateY(-2400px);
+            }
+        }
+        
+        .audio-icon {
+            cursor: pointer;
+            font-size: 24px;
+            margin-left: 10px;
+            user-select: none;
+            transition: transform 0.2s;
+        }
+        
+        .audio-icon:hover {
+            transform: scale(1.1);
+        }
+        
+        .audio-panel {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            width: 220px;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 10px;
+            display: none;
+            z-index: 9999;
+        }
+        
+        .audio-panel h3 {
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        .audio-panel .sound-control {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+        
+        .audio-panel .sound-control label {
+            margin-bottom: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .audio-panel .sound-control input[type="range"] {
+            width: 100%;
+        }
+        
+        .audio-panel .sound-control .mute-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .bonus-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+        }
+        
+        .bonus-message {
+            background: #ffdd00;
+            color: #000;
+            font-size: 26px;
+            font-weight: bold;
+            padding: 20px 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+            text-align: center;
+            animation: popInOut 2s forwards;
+        }
+        
+        @keyframes popInOut {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            20% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+            70% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+        /* ===== طبقة فيديو المقدّمة ===== */
+        
+        .intro-overlay {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000000;
+            /* أعلى من أي طبقة أخرى */
+        }
+        
+        .intro-overlay video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            /* احتواء بدون قص */
+            background: #000;
+        }
+    </style>
+</head>
+
+<body dir="rtl">
+
+    <!-- ===== فيديو المقدّمة: aa.mp4 ===== -->
+    <div id="introOverlay" class="intro-overlay">
+        <video id="introVideo" src="aa.mp4" preload="auto" autoplay muted playsinline webkit-playsinline></video>
+    </div>
+
+    <div class="machine-frame">
+        <div class="slot-container">
+            <div class="reels" id="reels">
+                <!-- يتم إنشاؤها بجافاسكربت -->
+            </div>
+        </div>
+    </div>
+
+    <!-- صف زر السبن تحت الصور مباشرة (العجلة يمين، والتحكمات على يسارها) -->
+    <div class="spin-row">
+        <div class="spin-row-inner">
+            <button id="spinBtn" aria-label="Spin">
+                <img src="images/spin.png" alt="Spin" />
+            </button>
+
+            <div class="controls">
+                <div class="info-panel">
+                    <div class="info">
+                        <label for="linesCount">Lines:</label>
+                        <select id="linesCount">
+                            <option value="1" selected>1</option>
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                        </select>
+                    </div>
+                    <div class="info">
+                        <label for="betPerLine">Bet/Line:</label>
+                        <input type="number" id="betPerLine" value="1" min="1" />
+                    </div>
+                    <div class="info">
+                        <label>Credits:</label>
+                        <span id="credits">1000</span>
+                    </div>
+                    <div class="info">
+                        <label>Last Win:</label>
+                        <span id="lastWin">0</span>
+                    </div>
+                </div>
+
+                <div class="audio-icon" id="audioIcon">🔊</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="audio-panel" id="audioPanel">
+        <h3>Sound Settings</h3>
+        <div class="sound-control">
+            <label>Music</label>
+            <input type="range" min="0" max="1" step="0.01" value="1" data-sound="music" class="volume-slider" />
+            <div class="mute-row">
+                <span>Mute</span>
+                <input type="checkbox" data-mute="music" />
+            </div>
+        </div>
+        <div class="sound-control">
+            <label>Spin</label>
+            <input type="range" min="0" max="1" step="0.01" value="1" data-sound="spin" class="volume-slider" />
+            <div class="mute-row">
+                <span>Mute</span>
+                <input type="checkbox" data-mute="spin" />
+            </div>
+        </div>
+        <div class="sound-control">
+            <label>Reels</label>
+            <input type="range" min="0" max="1" step="0.01" value="1" data-sound="dd" class="volume-slider" />
+            <div class="mute-row">
+                <span>Mute</span>
+                <input type="checkbox" data-mute="dd" />
+            </div>
+        </div>
+        <div class="sound-control">
+            <label>Win</label>
+            <input type="range" min="0" max="1" step="0.01" value="1" data-sound="win" class="volume-slider" />
+            <div class="mute-row">
+                <span>Mute</span>
+                <input type="checkbox" data-mute="win" />
+            </div>
+        </div>
+        <div class="sound-control">
+            <label>Bonus</label>
+            <input type="range" min="0" max="1" step="0.01" value="1" data-sound="bonus" class="volume-slider" />
+            <div class="mute-row">
+                <span>Mute</span>
+                <input type="checkbox" data-mute="bonus" />
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ============================================================
+                                                           إعدادات الصوت / المتغيرات العامة
+                                        ============================================================ */
+        let freeSpins = 0;
+        let isBonusActive = false;
+
+        const musicSound = new Audio("sounds/music.mp3");
+        musicSound.loop = true;
+        /* يبدأ مكتوم حتى ينتهي الفيديو التمهيدي */
+        musicSound.muted = true;
+        const spinSound = new Audio("sounds/spin.mp3");
+        const ddSound = new Audio("sounds/dd.mp3");
+        const winSound = new Audio("sounds/win.mp3");
+        const bonusSound = new Audio("sounds/bonus.mp3");
+        const crashSound = new Audio("sounds/crash.mp3");
+        crashSound.loop = true;
+
+        const soundsMap = {
+            music: musicSound,
+            spin: spinSound,
+            dd: ddSound,
+            win: winSound,
+            bonus: bonusSound,
+            crash: crashSound
+        };
+
+        /* تشغيل موسيقى الخلفية (سيتم كتمها حتى نهاية الفيديو) */
+        window.addEventListener("load", () => {
+            musicSound.play().catch(err => {
+                console.warn("Auto-play might be blocked:", err);
+                document.addEventListener("click", function onceClick() {
+                    musicSound.play().catch(() => {});
+                    document.removeEventListener("click", onceClick);
+                });
+            });
+        });
+
+        /* ===== منطق فيديو المقدّمة ===== */
+        (function setupIntroVideo() {
+            const introOverlay = document.getElementById("introOverlay");
+            const introVideo = document.getElementById("introVideo");
+            if (!introOverlay || !introVideo) return;
+
+            /* تأكيد خصائص التشغيل التلقائي */
+            introVideo.muted = true; // ضروري للتشغيل التلقائي
+            introVideo.setAttribute('playsinline', '');
+            introVideo.setAttribute('webkit-playsinline', '');
+            introVideo.autoplay = true;
+
+            /* عند تحميل الصفحة: شغّل الفيديو وكتم الموسيقى */
+            window.addEventListener("load", () => {
+                try {
+                    musicSound.pause();
+                } catch (e) {}
+                const p = introVideo.play();
+                if (p && typeof p.catch === "function") {
+                    p.catch(() => {
+                        // إذا منع المتصفح التشغيل التلقائي: لمسة واحدة على الفيديو تبدأ التشغيل
+                        const tapToStart = () => {
+                            introVideo.play().catch(() => {});
+                            introOverlay.removeEventListener("click", tapToStart);
+                        };
+                        introOverlay.addEventListener("click", tapToStart);
+                    });
+                }
+            });
+
+            /* عند انتهاء الفيديو: أخفِ الطبقة وشغّل موسيقى اللعبة وافتح الصوت */
+            introVideo.addEventListener("ended", () => {
+                introOverlay.style.display = "none";
+                try {
+                    musicSound.muted = false;
+                    musicSound.currentTime = 0;
+                    musicSound.play().catch(() => {});
+                } catch (e) {}
+            }, {
+                once: true
+            });
+        })();
+        /* ============================================================
+           الأدوات العامة لمنع NaN
+        ============================================================ */
+        function toInt(val, def) {
+            const n = parseInt(val, 10);
+            return Number.isFinite(n) ? n : def;
+        }
+
+        function clamp(n, min, max) {
+            return Math.min(max, Math.max(min, n));
+        }
+
+        function fixNumber(n, def = 0) {
+            n = Number(n);
+            return Number.isFinite(n) ? n : def;
+        }
+
+        /* ============================================================
+           الرموز / الصور
+        ============================================================ */
+        function getSymbolBackground(symUrl) {
+            return `url("${symUrl}"), url("images/d1.png")`;
+        }
+
+        const symbolsArr = [{
+            name: "d1",
+            url: "images/d1.png"
+        }, {
+            name: "d2",
+            url: "images/d2.png"
+        }, {
+            name: "d3",
+            url: "images/d3.png"
+        }, {
+            name: "d4",
+            url: "images/d4.png"
+        }, {
+            name: "d5",
+            url: "images/d5.png"
+        }, {
+            name: "d6",
+            url: "images/d6.png"
+        }, {
+            name: "d7",
+            url: "images/d7.png"
+        }, {
+            name: "d8",
+            url: "images/d8.png"
+        }, {
+            name: "wild",
+            url: "images/wild.png"
+        }, {
+            name: "scatter",
+            url: "images/scatter.png"
+        }, {
+            name: "bonus",
+            url: "images/bonus.png"
+        }];
+
+        function symbolByName(n) {
+            return symbolsArr.find(s => s.name === n);
+        }
+
+        /* ============================================================
+           شرائط البكرات (REEL STRIPS) — منطق الفوز من كودك الثاني
+        ============================================================ */
+        function buildStrip(counts) {
+            const arr = [];
+            for (const [name, cnt] of Object.entries(counts)) {
+                for (let i = 0; i < cnt; i++) arr.push(name);
+            }
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        const REEL_STRIPS_NAMES = [
+            buildStrip({
+                d1: 24,
+                d2: 20,
+                d3: 16,
+                d4: 13,
+                d5: 8,
+                d6: 5,
+                d7: 2,
+                d8: 1,
+                wild: 1,
+                scatter: 1,
+                bonus: 1
+            }),
+            buildStrip({
+                d1: 23,
+                d2: 20,
+                d3: 16,
+                d4: 13,
+                d5: 8,
+                d6: 5,
+                d7: 2,
+                d8: 1,
+                wild: 1,
+                scatter: 1,
+                bonus: 1
+            }),
+            buildStrip({
+                d1: 22,
+                d2: 19,
+                d3: 16,
+                d4: 13,
+                d5: 8,
+                d6: 5,
+                d7: 2,
+                d8: 1,
+                wild: 1,
+                scatter: 1,
+                bonus: 1
+            }),
+            buildStrip({
+                d1: 21,
+                d2: 19,
+                d3: 16,
+                d4: 12,
+                d5: 8,
+                d6: 5,
+                d7: 2,
+                d8: 1,
+                wild: 1,
+                scatter: 1,
+                bonus: 1
+            }),
+            buildStrip({
+                d1: 20,
+                d2: 18,
+                d3: 16,
+                d4: 12,
+                d5: 8,
+                d6: 5,
+                d7: 2,
+                d8: 1,
+                wild: 1,
+                scatter: 1,
+                bonus: 1
+            })
+        ];
+        const REEL_STRIPS = REEL_STRIPS_NAMES.map(strip => strip.map(symbolByName));
+
+        /* ذيول الحركة فقط (لا تؤثر على النتيجة) */
+        const RNG_WEIGHTS_TAIL = {
+            d1: 180,
+            d2: 160,
+            d3: 140,
+            d4: 120,
+            d5: 100,
+            d6: 80,
+            d7: 60,
+            d8: 50,
+            wild: 1,
+            scatter: 1,
+            bonus: 1
+        };
+        const weightArray = symbolsArr.map(s => RNG_WEIGHTS_TAIL[s.name] || 1);
+        const totalWeight = weightArray.reduce((a, b) => a + b, 0);
+
+        function pickWeightedSymbol() {
+            let r = Math.random() * totalWeight;
+            for (let i = 0; i < symbolsArr.length; i++) {
+                r -= weightArray[i];
+                if (r <= 0) return symbolsArr[i];
+            }
+            return symbolsArr[symbolsArr.length - 1];
+        }
+
+        /* حدود عامة للربح/البونص */
+        const MAX_WIN_MULTIPLIER = 3; // سقف ربح = 3× إجمالي الرهان
+        const FREE_SPINS_COUNT = 3;
+
+        /* ============================================================
+           عناصر الواجهة
+        ============================================================ */
+        const reelsContainer = document.getElementById("reels");
+        const linesCountSelect = document.getElementById("linesCount");
+        const betPerLineInput = document.getElementById("betPerLine");
+        const creditsSpan = document.getElementById("credits");
+        const lastWinSpan = document.getElementById("lastWin");
+        const spinBtn = document.getElementById("spinBtn");
+
+        const reelsCount = 5;
+        const rowsCount = 3;
+
+        const payLines = [
+            [0, 0, 0, 0, 0],
+            [1, 1, 1, 1, 1],
+            [2, 2, 2, 2, 2],
+            [0, 1, 2, 1, 0],
+            [2, 1, 0, 1, 2],
+            [0, 0, 1, 2, 2],
+            [2, 2, 1, 0, 0],
+            [1, 0, 0, 0, 1],
+            [1, 2, 2, 2, 1],
+            [1, 0, 1, 2, 1],
+        ];
+
+        function getActivePayLinesCount() {
+            const n = clamp(toInt(linesCountSelect.value, 1), 1, payLines.length);
+            if (linesCountSelect.value !== String(n)) linesCountSelect.value = String(n);
+            return n;
+        }
+
+        function getBetPerLine() {
+            let n = toInt(betPerLineInput.value, 1);
+            if (!Number.isFinite(n) || n < 1) n = 1;
+            if (String(n) !== betPerLineInput.value) betPerLineInput.value = String(n);
+            return n;
+        }
+        betPerLineInput.addEventListener('input', () => {
+            betPerLineInput.value = String(Math.max(1, toInt(betPerLineInput.value, 1)));
+        });
+        betPerLineInput.addEventListener('blur', () => {
+            betPerLineInput.value = String(Math.max(1, toInt(betPerLineInput.value, 1)));
+        });
+        linesCountSelect.addEventListener('change', () => {
+            linesCountSelect.value = String(getActivePayLinesCount());
+        });
+
+        let credits = 1000;
+        let lastWin = 0;
+        let isSpinning = false;
+
+        function updateHUD() {
+            credits = Math.max(0, Math.floor(fixNumber(credits, 0)));
+            lastWin = Math.max(0, Math.floor(fixNumber(lastWin, 0)));
+            creditsSpan.textContent = Number.isFinite(credits) ? String(credits) : "0";
+            lastWinSpan.textContent = Number.isFinite(lastWin) ? String(lastWin) : "0";
+        }
+
+        /* ============================================================
+           عرض رسالة بسيطة (يُستخدم للبونص فقط)
+        ============================================================ */
+        function showBonusMessage(text) {
+            const overlay = document.createElement("div");
+            overlay.className = "bonus-overlay";
+            const msg = document.createElement("div");
+            msg.className = "bonus-message";
+            msg.textContent = text;
+            overlay.appendChild(msg);
+            document.body.appendChild(overlay);
+            setTimeout(() => {
+                document.body.removeChild(overlay);
+            }, 2000);
+        }
+
+        /* ============================================================
+           إنشاء تخطيط البكرات (DOM)
+        ============================================================ */
+        function createReelsLayout() {
+            const reelsWrapper = document.getElementById("reels");
+            reelsWrapper.innerHTML = "";
+            for (let c = 0; c < reelsCount; c++) {
+                const reelDiv = document.createElement("div");
+                reelDiv.classList.add("reel");
+                reelsWrapper.appendChild(reelDiv);
+            }
+        }
+
+        /* ============================================================
+           توليد نتيجة سبن من الشرائط
+        ============================================================ */
+        function generateSpinResult() {
+            const res = [
+                [],
+                [],
+                []
+            ];
+            for (let c = 0; c < reelsCount; c++) {
+                const strip = REEL_STRIPS[c];
+                const len = strip.length;
+                const start = Math.floor(Math.random() * len);
+                res[0][c] = strip[start];
+                res[1][c] = strip[(start + 1) % len];
+                res[2][c] = strip[(start + 2) % len];
+            }
+            return res;
+        }
+
+        /* ============================================================
+           حركة البكرات
+        ============================================================ */
+        const reelDurations = [0.60, 0.70, 0.80, 0.90, 1.00]; // ثوانٍ
+        const TAIL_BEFORE = 12;
+        const TAIL_AFTER = 10;
+
+        let spinFinalResult = [];
+
+        function buildReelSymbolsArray(reelIndex) {
+            const arr = [];
+            for (let i = 0; i < TAIL_BEFORE; i++) arr.push(pickWeightedSymbol());
+            for (let r = 0; r < rowsCount; r++) arr.push(spinFinalResult[r][reelIndex]);
+            for (let j = 0; j < TAIL_AFTER; j++) arr.push(pickWeightedSymbol());
+            return arr;
+        }
+
+        function displaySpinWithAnimation() {
+            const reelDivs = document.querySelectorAll(".reel");
+            let finishedReels = 0;
+
+            ddSound.currentTime = 0;
+            ddSound.play().catch(() => {});
+
+            for (let c = 0; c < reelsCount; c++) {
+                const reelInner = document.createElement("div");
+                reelInner.classList.add("reel-inner");
+
+                const reelSymbols = buildReelSymbolsArray(c);
+                reelInner.style.height = (reelSymbols.length * 200) + "px";
+
+                reelSymbols.forEach((sym, idx) => {
+                    const symbolDiv = document.createElement("div");
+                    symbolDiv.classList.add("symbol");
+                    symbolDiv.style.top = (idx * 200) + "px";
+                    symbolDiv.style.left = "50%";
+                    symbolDiv.style.transform = "translateX(-50%)";
+
+                    const symbolImgDiv = document.createElement("div");
+                    symbolImgDiv.classList.add("symbol-img");
+                    symbolImgDiv.style.backgroundImage = getSymbolBackground(sym.url);
+
+                    symbolDiv.appendChild(symbolImgDiv);
+                    reelInner.appendChild(symbolDiv);
+                });
+
+                const oldReelInner = reelDivs[c].querySelector(".reel-inner");
+                reelDivs[c].appendChild(reelInner);
+                if (oldReelInner) reelDivs[c].removeChild(oldReelInner);
+
+                const duration = reelDurations[c];
+                reelInner.style.animation = `spinDown ${duration}s forwards linear`;
+
+                reelInner.addEventListener("animationend", () => {
+                    finishedReels++;
+                    if (finishedReels === reelsCount) finalizeSpin();
+                }, {
+                    once: true
+                });
+            }
+        }
+
+        /* ============================================================
+           إبراز بصري (وميض) لخط الفوز
+        ============================================================ */
+        function highlightWinningSymbols(lineIndex, symbolCount) {
+            const pattern = payLines[clamp(lineIndex, 0, payLines.length - 1)];
+            const reelDivs = document.querySelectorAll(".reel");
+            for (let c = 0; c < symbolCount; c++) {
+                const rowIndex = pattern[c];
+                const symIndex = 12 + rowIndex; // النتيجة في 12..14
+                const reelInner = reelDivs[c].querySelector(".reel-inner");
+                if (reelInner) {
+                    const symDiv = reelInner.children[symIndex];
+                    if (symDiv) {
+                        const imgDiv = symDiv.querySelector(".symbol-img");
+                        if (imgDiv) imgDiv.classList.add("win-flash");
+                    }
+                }
+            }
+        }
+
+        function countSymbolInAll(spinResult, name) {
+            let cnt = 0;
+            for (let r = 0; r < rowsCount; r++) {
+                for (let c = 0; c < reelsCount; c++) {
+                    if (spinResult[r][c].name === name) cnt++;
+                }
+            }
+            return cnt;
+        }
+
+        /* ============================================================
+           حساب الربح — (منطق الكود الثاني) + وميض للفوز
+        ============================================================ */
+        function calculateLineWin(lineSyms, betVal) {
+            const payTable = {
+                "d1": [0, 0, 2, 3, 4],
+                "d2": [0, 0, 2, 3, 5],
+                "d3": [0, 0, 3, 4, 6],
+                "d4": [0, 0, 3, 5, 7],
+                "d5": [0, 0, 3, 5, 9],
+                "d6": [0, 0, 3, 6, 11],
+                "d7": [0, 0, 4, 8, 12],
+                "d8": [0, 0, 5, 9, 14],
+                "wild": [0, 0, 0, 0, 0],
+                "scatter": [0, 0, 0, 0, 0],
+                "bonus": [0, 0, 0, 0, 0]
+            };
+
+            let baseSymbol = null;
+            let count = 0;
+            for (let i = 0; i < lineSyms.length; i++) {
+                const sName = lineSyms[i].name;
+                if (i === 0) {
+                    if (sName !== "wild") baseSymbol = sName;
+                    count = 1;
+                } else {
+                    if (sName === baseSymbol || sName === "wild") {
+                        count++;
+                    } else if (baseSymbol === null && sName !== "wild") {
+                        baseSymbol = sName;
+                        count = 1;
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            let amt = 0;
+            if (baseSymbol && payTable[baseSymbol]) {
+                if (count >= 3) {
+                    if (count > 5) count = 5;
+                    amt = payTable[baseSymbol][count] * betVal;
+                }
+            }
+            return {
+                amount: amt,
+                count
+            };
+        }
+
+        function evaluateWin(spinResult) {
+            let totalWin = 0;
+            const linesActive = getActivePayLinesCount();
+            const betVal = getBetPerLine();
+            const totalBet = linesActive * betVal;
+
+            // أرباح الخطوط + وميض
+            for (let lineIndex = 0; lineIndex < linesActive; lineIndex++) {
+                const pattern = payLines[lineIndex];
+                const lineSyms = [];
+                for (let c = 0; c < reelsCount; c++) {
+                    const rowIndex = pattern[c];
+                    lineSyms.push(spinResult[rowIndex][c]);
+                }
+                const lineWin = calculateLineWin(lineSyms, betVal);
+                totalWin += lineWin.amount;
+
+                if (lineWin.count >= 3) {
+                    highlightWinningSymbols(lineIndex, lineWin.count);
+                }
+            }
+
+            // Scatter على قيمة الرهان فقط
+            const scatterCount = countSymbolInAll(spinResult, "scatter");
+            if (scatterCount >= 3) {
+                const scatterTable = {
+                    3: 1,
+                    4: 2,
+                    5: 4
+                };
+                totalWin += (scatterTable[scatterCount] || 4) * betVal;
+            }
+
+            // Bonus + لفات مجانية خفيفة
+            const bonusCount = countSymbolInAll(spinResult, "bonus");
+            if (bonusCount >= 3) {
+                const bonusPrize = (bonusCount * 5) * betVal;
+                totalWin += bonusPrize;
+
+                bonusSound.currentTime = 0;
+                bonusSound.play().catch(() => {});
+
+                freeSpins = FREE_SPINS_COUNT;
+                isBonusActive = true;
+
+                musicSound.pause();
+                musicSound.currentTime = 0;
+                crashSound.currentTime = 0;
+                crashSound.play().catch(() => {});
+
+                showBonusMessage(`تهانينا! حصلت على ${FREE_SPINS_COUNT} دورات مجانية!`);
+            }
+
+            // سقف ربح لكل لفة
+            const winCap = MAX_WIN_MULTIPLIER * totalBet;
+            if (totalWin > winCap) totalWin = winCap;
+
+            return totalWin;
+        }
+
+        /* ============================================================
+           إنهاء اللفة: إضافة الربح + (إرجاع الرهان عند الفوز)
+        ============================================================ */
+        let lastDeductedBet = 0; // يتتبع الرهان المخصوم
+
+        function finalizeSpin() {
+            ddSound.pause();
+            ddSound.currentTime = 0;
+
+            const winAmount = Math.max(0, Math.floor(fixNumber(evaluateWin(spinFinalResult), 0)));
+            lastWin = winAmount;
+
+            // إضافة الأرباح
+            credits = fixNumber(credits, 0);
+            credits += winAmount;
+
+            // إعادة الرهان عند الفوز
+            if (winAmount > 0 && lastDeductedBet > 0) {
+                credits += lastDeductedBet;
+                lastDeductedBet = 0;
+
+                winSound.currentTime = 0;
+                winSound.play().catch(() => {});
+            }
+
+            updateHUD();
+            isSpinning = false;
+
+            // إنهاء أي حالة بونص
+            if (isBonusActive) {
+                if (freeSpins > 0) {
+                    setTimeout(() => {
+                        freeSpins--;
+                        doSpin(); // spin آلي بلا خصم
+                    }, 300);
+                } else {
+                    isBonusActive = false;
+                    crashSound.pause();
+                    crashSound.currentTime = 0;
+                    musicSound.currentTime = 0;
+                    musicSound.play().catch(() => {});
+                    spinBtn.disabled = false;
+                }
+            } else {
+                spinBtn.disabled = false;
+            }
+        }
+
+        /* ============================================================
+           دوران جديد
+        ============================================================ */
+        function doSpin() {
+            if (isSpinning) return;
+
+            // تأمين الرصيد قبل أي عملية
+            credits = fixNumber(credits, 0);
+            lastDeductedBet = 0;
+
+            if (!isBonusActive || freeSpins <= 0) {
+                const lines = getActivePayLinesCount();
+                const betVal = getBetPerLine();
+                const totalBet = lines * betVal;
+
+                if (!Number.isFinite(totalBet) || totalBet <= 0) {
+                    alert("Bet value is invalid.");
+                    return;
+                }
+                if (totalBet > credits) {
+                    alert("Insufficient credits!");
+                    return;
+                }
+
+                credits -= totalBet;
+                lastDeductedBet = totalBet;
+                updateHUD();
+            }
+
+            isSpinning = true;
+            spinBtn.disabled = true;
+            spinSound.currentTime = 0;
+            spinSound.play().catch(() => {});
+
+            // توليد نتيجة وبدء الحركة
+            spinFinalResult = generateSpinResult();
+            displaySpinWithAnimation();
+        }
+
+        spinBtn.addEventListener("click", () => {
+            if (isBonusActive && freeSpins > 0) return;
+            doSpin();
+        });
+
+        /* ============================================================
+           تهيئة أولية
+        ============================================================ */
+        window.addEventListener("load", () => {
+            createReelsLayout();
+
+            // نتيجة أولية عشوائية للعرض الأول
+            spinFinalResult = generateSpinResult();
+
+            const reelDivs = document.querySelectorAll(".reel");
+            for (let c = 0; c < reelsCount; c++) {
+                const reelInner = document.createElement("div");
+                reelInner.classList.add("reel-inner");
+                reelInner.style.transform = "translate3d(0,0,0)";
+
+                const reelSymbols = buildReelSymbolsArray(c);
+                reelInner.style.height = (reelSymbols.length * 200) + "px";
+
+                reelSymbols.forEach((sym, idx) => {
+                    const symbolDiv = document.createElement("div");
+                    symbolDiv.classList.add("symbol");
+                    symbolDiv.style.top = (idx * 200) + "px";
+                    symbolDiv.style.left = "50%";
+                    symbolDiv.style.transform = "translateX(-50%)";
+
+                    const symbolImgDiv = document.createElement("div");
+                    symbolImgDiv.classList.add("symbol-img");
+                    symbolImgDiv.style.backgroundImage = getSymbolBackground(sym.url);
+
+                    symbolDiv.appendChild(symbolImgDiv);
+                    reelInner.appendChild(symbolDiv);
+                });
+
+                reelDivs[c].appendChild(reelInner);
+            }
+
+            updateHUD();
+        });
+
+        /* ============================================================
+           RNG آمن (Crypto إن توفّر)
+        ============================================================ */
+        function rand() {
+            const cryptoObj = (window.crypto || window.msCrypto);
+            if (cryptoObj && cryptoObj.getRandomValues) {
+                const arr = new Uint32Array(1);
+                cryptoObj.getRandomValues(arr);
+                return arr[0] / 4294967296; // 2^32
+            }
+            return Math.random();
+        }
+    </script>
+</body>
+
+</html>
