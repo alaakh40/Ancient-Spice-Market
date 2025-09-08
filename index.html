@@ -3,12 +3,13 @@
 
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Slot Game - White Spin Wheel</title>
     <style>
         /* خطوط للعرض (ضمن CSS فقط دون تعديل HTML) */
-        
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&family=Orbitron:wght@500;700&display=swap');
-         :root {
+
+        :root {
             /* حجم زر السبن والمسافة بينه وبين الصور */
             --spin-size: 110px;
             --spin-gap: 10px;
@@ -35,16 +36,16 @@
             /* تحجيم زر السبن تلقائياً */
             --spin-size: clamp(68px, 9.5vw, 110px);
         }
+
         /* RESET بسيط */
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: sans-serif;
         }
+
         /* خلفية صورة ثابتة (background.png) دون أنيميشن إضافي */
-        
         body {
             background: url("images/background.png") no-repeat center center fixed;
             background-size: cover;
@@ -57,19 +58,24 @@
             color: #fff;
             z-index: 0;
         }
+
         /* طبقة خلفية بسيطة ثابتة */
-        
         body::before {
             content: "";
             position: absolute;
             inset: 0;
             pointer-events: none;
             z-index: -1;
-            background: conic-gradient( from 0deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 25%, rgba(0, 0, 0, 0) 50%, rgba(255, 255, 255, 0.1) 75%, rgba(255, 255, 255, 0.05) 100%);
+            background: conic-gradient(from 0deg,
+                    rgba(255, 255, 255, 0.1) 0%,
+                    rgba(255, 255, 255, 0.05) 25%,
+                    rgba(0, 0, 0, 0) 50%,
+                    rgba(255, 255, 255, 0.1) 75%,
+                    rgba(255, 255, 255, 0.05) 100%);
             opacity: 0.3;
         }
+
         /* حاوية الإطار الكبير (1100×700) — توهّج ذهبي خفيف حول الماكينة */
-        
         .machine-frame {
             width: calc(1100px * var(--frame-scale));
             height: calc(700px * var(--frame-scale));
@@ -79,11 +85,16 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: radial-gradient(1200px 520px at 50% 100%, rgba(255, 215, 0, .08), transparent 70%), radial-gradient(1000px 400px at 50% 0%, rgba(255, 215, 0, .06), transparent 72%);
-            box-shadow: 0 30px 80px rgba(0, 0, 0, .75), inset 0 0 0 2px rgba(255, 215, 0, .15), 0 0 40px rgba(255, 215, 0, .18);
+            background:
+                radial-gradient(1200px 520px at 50% 100%, rgba(255, 215, 0, .08), transparent 70%),
+                radial-gradient(1000px 400px at 50% 0%, rgba(255, 215, 0, .06), transparent 72%);
+            box-shadow:
+                0 30px 80px rgba(0, 0, 0, .75),
+                inset 0 0 0 2px rgba(255, 215, 0, .15),
+                0 0 40px rgba(255, 215, 0, .18);
         }
+
         /* الماكينة الأصلية 1000×600 — بأسلوب Ancient Egypt */
-        
         .slot-container {
             width: 1000px;
             height: 600px;
@@ -91,16 +102,20 @@
             overflow: hidden;
             border: none;
             border-radius: 16px;
-            background: radial-gradient(1200px 800px at 50% 50%, rgba(255, 190, 60, .06), transparent 60%), radial-gradient(circle at 50% 40%, var(--burgundy-3) 0%, var(--burgundy-2) 55%, var(--burgundy-1) 100%);
-            box-shadow: 0 0 0 1px rgba(0, 0, 0, .35) inset, 0 0 0 10px rgba(0, 0, 0, .25) inset;
+            background:
+                radial-gradient(1200px 800px at 50% 50%, rgba(255, 190, 60, .06), transparent 60%),
+                radial-gradient(circle at 50% 40%, var(--burgundy-3) 0%, var(--burgundy-2) 55%, var(--burgundy-1) 100%);
+            box-shadow:
+                0 0 0 1px rgba(0, 0, 0, .35) inset,
+                0 0 0 10px rgba(0, 0, 0, .25) inset;
             -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
             transform: translateZ(0);
             transform-origin: center center;
             transform: scale(var(--frame-scale)) translateZ(0);
         }
+
         /* إطار ذهبي داخلي */
-        
         .slot-container::before {
             content: "";
             position: absolute;
@@ -108,10 +123,13 @@
             border-radius: 16px;
             pointer-events: none;
             z-index: 2;
-            box-shadow: inset 0 0 0 6px var(--gold-dk), inset 0 0 0 9px var(--gold), inset 0 0 0 12px var(--gold-dk), inset 0 0 40px rgba(255, 215, 0, .22);
+            box-shadow: inset 0 0 0 6px var(--gold-dk),
+                inset 0 0 0 9px var(--gold),
+                inset 0 0 0 12px var(--gold-dk),
+                inset 0 0 40px rgba(255, 215, 0, .22);
         }
+
         /* شبكة ذهبية خفيفة كل 200px */
-        
         .slot-container::after {
             content: "";
             position: absolute;
@@ -119,18 +137,20 @@
             border-radius: 10px;
             pointer-events: none;
             z-index: 1;
-            background: repeating-linear-gradient( to right, var(--grid-gold) 0, var(--grid-gold) 4px, transparent 4px, transparent 200px), repeating-linear-gradient( to bottom, var(--grid-gold-soft) 0, var(--grid-gold-soft) 3px, transparent 3px, transparent 200px);
+            background:
+                repeating-linear-gradient(to right, var(--grid-gold) 0, var(--grid-gold) 4px, transparent 4px, transparent 200px),
+                repeating-linear-gradient(to bottom, var(--grid-gold-soft) 0, var(--grid-gold-soft) 3px, transparent 3px, transparent 200px);
             box-shadow: inset 0 0 30px rgba(0, 0, 0, .35), inset 0 10px 30px rgba(0, 0, 0, .35);
         }
-        
+
         .reels {
             display: flex;
             width: 100%;
             height: 100%;
             position: relative;
         }
+
         /* فواصل عمودية ذهبية */
-        
         .reel {
             flex: 1;
             overflow: hidden;
@@ -138,7 +158,7 @@
             -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
         }
-        
+
         .reel:not(:first-child)::before {
             content: "";
             position: absolute;
@@ -152,7 +172,7 @@
             pointer-events: none;
             z-index: 2;
         }
-        
+
         .reel-inner {
             position: relative;
             width: 100%;
@@ -162,7 +182,7 @@
             transform-style: preserve-3d;
             filter: none !important;
         }
-        
+
         .symbol {
             width: 200px;
             height: 200px;
@@ -177,7 +197,7 @@
             -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
         }
-        
+
         .symbol-img {
             width: 100%;
             height: 100%;
@@ -189,36 +209,40 @@
             backface-visibility: hidden;
             transform: translateZ(0);
         }
-        
+
         .symbol-img.win-flash {
             position: relative;
             animation: superFlash 2.5s infinite ease-in-out;
             z-index: 3;
         }
-        
+
         @keyframes superFlash {
             0% {
                 transform: scale(1);
                 filter: hue-rotate(0deg);
             }
+
             25% {
                 transform: scale(1.1);
                 filter: hue-rotate(90deg);
             }
+
             50% {
                 transform: scale(1);
                 filter: hue-rotate(180deg);
             }
+
             75% {
                 transform: scale(1.1);
                 filter: hue-rotate(270deg);
             }
+
             100% {
                 transform: scale(1);
                 filter: hue-rotate(360deg);
             }
         }
-        
+
         .symbol-img.win-flash::before,
         .symbol-img.win-flash::after {
             content: "";
@@ -234,24 +258,25 @@
             z-index: -1;
             animation: swirlRing 2.5s infinite ease-in-out;
         }
-        
+
         .symbol-img.win-flash::after {
             border-color: rgba(0, 255, 255, 0.3);
             animation-direction: reverse;
         }
-        
+
         @keyframes swirlRing {
             0%,
             100% {
                 transform: translate(-50%, -50%) scale(0) rotate(0deg);
                 opacity: 0.4;
             }
+
             50% {
                 transform: translate(-50%, -50%) scale(1.3) rotate(180deg);
                 opacity: 1;
             }
         }
-        
+
         .controls {
             display: flex;
             gap: 15px;
@@ -259,7 +284,7 @@
             justify-content: center;
             margin-top: 20px;
         }
-        
+
         .info-panel {
             display: flex;
             flex-wrap: wrap;
@@ -267,19 +292,24 @@
             justify-content: center;
             align-items: center;
         }
-        
+
         .info-panel .info {
             position: relative;
             padding: clamp(8px, 1.6vw, 12px) clamp(10px, 2vw, 16px);
             border-radius: 12px;
-            background: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .02)), linear-gradient(180deg, #13171d, #0a0d11 60%, #07090c);
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .02)),
+                linear-gradient(180deg, #13171d, #0a0d11 60%, #07090c);
             border: 1.5px solid var(--hud-stroke);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), inset 0 0 30px rgba(255, 215, 120, .10), 0 8px 18px rgba(0, 0, 0, .45);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, .12),
+                inset 0 0 30px rgba(255, 215, 120, .10),
+                0 8px 18px rgba(0, 0, 0, .45);
             display: inline-flex;
             align-items: center;
             gap: clamp(6px, 1.2vw, 10px);
         }
-        
+
         .info-panel .info::after {
             content: "";
             position: absolute;
@@ -288,7 +318,7 @@
             pointer-events: none;
             box-shadow: 0 0 22px rgba(255, 215, 120, .18), inset 0 0 22px rgba(255, 215, 120, .08);
         }
-        
+
         .info label {
             margin: 0;
             font-family: "Cairo", system-ui, sans-serif;
@@ -302,7 +332,7 @@
             text-shadow: 0 0 3px rgba(255, 255, 255, .35), 0 2px 1px rgba(0, 0, 0, .55);
             white-space: nowrap;
         }
-        
+
         #credits,
         #lastWin,
         #betPerLine,
@@ -317,55 +347,65 @@
             color: var(--led-amber);
             text-shadow: 0 0 6px rgba(255, 178, 0, .75), 0 0 14px rgba(255, 178, 0, .45), 0 1px 0 #2a1500;
         }
-        
+
         #credits,
         #lastWin {
             display: inline-block;
             min-width: clamp(82px, 18vw, 132px);
             padding: clamp(6px, 1.4vw, 8px) clamp(10px, 2.4vw, 14px);
             border-radius: 10px;
-            background: radial-gradient(120% 160% at 50% 10%, rgba(255, 255, 255, .12), transparent 40%), linear-gradient(180deg, #0c1016, #06080c 65%, #04070a);
+            background:
+                radial-gradient(120% 160% at 50% 10%, rgba(255, 255, 255, .12), transparent 40%),
+                linear-gradient(180deg, #0c1016, #06080c 65%, #04070a);
             border: 1px solid rgba(255, 178, 0, .45);
             box-shadow: inset 0 1px 8px rgba(0, 0, 0, .8), inset 0 -8px 24px rgba(255, 178, 0, .10), 0 0 18px rgba(255, 178, 0, .25);
         }
-        
+
         select,
         input[type="number"] {
             width: clamp(68px, 12vw, 110px);
             padding: clamp(6px, 1.6vw, 9px) 10px;
             border-radius: 10px;
             border: 1px solid rgba(255, 178, 0, .4);
-            background: radial-gradient(120% 160% at 50% 10%, rgba(255, 255, 255, .12), transparent 45%), linear-gradient(180deg, #11161d, #0b0f15 60%, #090d13);
+            background:
+                radial-gradient(120% 160% at 50% 10%, rgba(255, 255, 255, .12), transparent 45%),
+                linear-gradient(180deg, #11161d, #0b0f15 60%, #090d13);
             color: var(--led-amber);
             outline: none;
             box-shadow: inset 0 1px 10px rgba(0, 0, 0, .85), inset 0 -10px 28px rgba(255, 178, 0, .08), 0 0 16px rgba(255, 178, 0, .18);
             transition: box-shadow .2s, transform .08s, border-color .2s;
         }
-        
+
         select:focus,
         input[type="number"]:focus {
             border-color: #ffc74b;
-            box-shadow: inset 0 1px 10px rgba(0, 0, 0, .85), inset 0 -10px 28px rgba(255, 178, 0, .12), 0 0 0 3px rgba(255, 199, 75, .22), 0 0 22px rgba(255, 178, 0, .26);
+            box-shadow:
+                inset 0 1px 10px rgba(0, 0, 0, .85),
+                inset 0 -10px 28px rgba(255, 178, 0, .12),
+                0 0 0 3px rgba(255, 199, 75, .22),
+                0 0 22px rgba(255, 178, 0, .26);
         }
-        
+
         input[type="number"]:active,
         select:active {
             transform: scale(.98);
         }
-        
+
         @media (max-width: 640px) {
             .controls {
                 gap: 10px;
             }
+
             .audio-icon {
                 font-size: 22px;
             }
+
             .info-panel .info {
                 padding: 8px 10px;
                 gap: 8px;
             }
         }
-        
+
         @media (prefers-contrast: more) {
             #credits,
             #lastWin,
@@ -374,15 +414,15 @@
                 text-shadow: 0 0 2px rgba(0, 0, 0, .8), 0 0 10px rgba(255, 178, 0, .6);
             }
         }
+
         /* ===== صف زر السبن (العجلة يمين، التحكمات يسارها) ===== */
-        
         .spin-row {
             width: 100%;
             display: flex;
             justify-content: center;
             margin-top: var(--spin-gap);
         }
-        
+
         .spin-row-inner {
             width: calc(1000px * var(--frame-scale));
             position: relative;
@@ -392,11 +432,11 @@
             /* RTL */
             gap: 16px;
         }
-        
+
         .spin-row .controls {
             margin-top: 0;
         }
-        
+
         #spinBtn {
             position: relative;
             width: var(--spin-size);
@@ -413,7 +453,7 @@
             margin: 0;
             filter: drop-shadow(0 0 6px rgba(0, 0, 0, .5));
         }
-        
+
         #spinBtn img {
             width: 100%;
             height: 100%;
@@ -425,49 +465,56 @@
             image-rendering: -webkit-optimize-contrast;
             will-change: transform, filter;
         }
-        
+
         #spinBtn:hover img {
             filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.95));
         }
-        
+
         #spinBtn:active img {
             animation-play-state: paused;
             transform: scale(0.82);
         }
-        
+
         @keyframes wheelMotion {
             0% {
                 transform: rotate(0deg) scale(1);
             }
+
             50% {
                 transform: rotate(180deg) scale(1.05);
             }
+
             100% {
                 transform: rotate(360deg) scale(1);
             }
         }
-        
+
         @keyframes spinDown {
             0% {
                 transform: translateY(-4200px);
             }
+
             10% {
                 transform: translateY(-3800px);
             }
+
             70% {
                 transform: translateY(-2700px);
             }
+
             88% {
                 transform: translateY(-2450px);
             }
+
             94% {
                 transform: translateY(-2360px);
             }
+
             100% {
                 transform: translateY(-2400px);
             }
         }
-        
+
         .audio-icon {
             cursor: pointer;
             font-size: 24px;
@@ -475,11 +522,11 @@
             user-select: none;
             transition: transform 0.2s;
         }
-        
+
         .audio-icon:hover {
             transform: scale(1.1);
         }
-        
+
         .audio-panel {
             position: absolute;
             top: 60px;
@@ -492,34 +539,34 @@
             display: none;
             z-index: 9999;
         }
-        
+
         .audio-panel h3 {
             margin-bottom: 8px;
             text-align: center;
         }
-        
+
         .audio-panel .sound-control {
             display: flex;
             flex-direction: column;
             margin-bottom: 10px;
         }
-        
+
         .audio-panel .sound-control label {
             margin-bottom: 5px;
             font-size: 14px;
             font-weight: bold;
         }
-        
+
         .audio-panel .sound-control input[type="range"] {
             width: 100%;
         }
-        
+
         .audio-panel .sound-control .mute-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        
+
         .bonus-overlay {
             position: fixed;
             top: 0;
@@ -532,7 +579,7 @@
             align-items: center;
             z-index: 99999;
         }
-        
+
         .bonus-message {
             background: #ffdd00;
             color: #000;
@@ -544,27 +591,30 @@
             text-align: center;
             animation: popInOut 2s forwards;
         }
-        
+
         @keyframes popInOut {
             0% {
                 transform: scale(0);
                 opacity: 0;
             }
+
             20% {
                 transform: scale(1.2);
                 opacity: 1;
             }
+
             70% {
                 transform: scale(1);
                 opacity: 1;
             }
+
             100% {
                 transform: scale(0);
                 opacity: 0;
             }
         }
+
         /* ===== طبقة فيديو المقدّمة ===== */
-        
         .intro-overlay {
             position: fixed;
             inset: 0;
@@ -575,13 +625,32 @@
             z-index: 1000000;
             /* أعلى من أي طبقة أخرى */
         }
-        
+
         .intro-overlay video {
             width: 100%;
             height: 100%;
             object-fit: contain;
             /* احتواء بدون قص */
             background: #000;
+        }
+
+        /* ===== تمركز اللعبة عمودياً على الموبايل (بدون المساس بالديسكتوب) ===== */
+        @media (max-width: 820px) {
+            /* استخدم وحدات SVH لتجاهل شريط العنوان في المتصفح */
+            body {
+                min-height: 100svh;
+                /* تمركز عمودي */
+                justify-content: center;
+                /* هوامش لطيفة + حواف الآمن (النوتش) */
+                padding-top: calc(12px + env(safe-area-inset-top, 0px));
+                padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+            }
+
+            /* وضع لوحة الصوت بعيداً عن حافة النوتش */
+            .audio-panel {
+                top: calc(16px + env(safe-area-inset-top, 0px));
+                right: calc(12px + env(safe-area-inset-right, 0px));
+            }
         }
     </style>
 </head>
@@ -684,8 +753,8 @@
 
     <script>
         /* ============================================================
-                                                           إعدادات الصوت / المتغيرات العامة
-                                        ============================================================ */
+                                                                   إعدادات الصوت / المتغيرات العامة
+                                                ============================================================ */
         let freeSpins = 0;
         let isBonusActive = false;
 
@@ -714,11 +783,66 @@
             musicSound.play().catch(err => {
                 console.warn("Auto-play might be blocked:", err);
                 document.addEventListener("click", function onceClick() {
-                    musicSound.play().catch(() => {});
+                    musicSound.play().catch(() => { });
                     document.removeEventListener("click", onceClick);
                 });
             });
         });
+
+        /* ===== إظهار / إخفاء قائمة الصوت + ربط السلايدرز وأزرار الميوت ===== */
+        (function setupAudioPanel() {
+            const audioIcon = document.getElementById("audioIcon");
+            const audioPanel = document.getElementById("audioPanel");
+            let isOpen = false;
+
+            function openPanel() {
+                audioPanel.style.display = "block";
+                isOpen = true;
+            }
+
+            function closePanel() {
+                audioPanel.style.display = "none";
+                isOpen = false;
+            }
+
+            audioIcon.addEventListener("click", (e) => {
+                e.stopPropagation();
+                isOpen ? closePanel() : openPanel();
+            });
+
+            // إغلاق عند الضغط خارج اللوحة
+            document.addEventListener("click", (e) => {
+                if (!isOpen) return;
+                if (!audioPanel.contains(e.target) && e.target !== audioIcon) {
+                    closePanel();
+                }
+            });
+
+            // عدم تمرير حدث النقر للخارج عند التفاعل داخل اللوحة
+            audioPanel.addEventListener("click", (e) => e.stopPropagation());
+
+            // إغلاق بـ Esc
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape" && isOpen) closePanel();
+            });
+
+            // ربط منزلقات الصوت
+            document.querySelectorAll(".volume-slider").forEach(slider => {
+                slider.addEventListener("input", (e) => {
+                    const key = e.target.dataset.sound;
+                    const val = parseFloat(e.target.value);
+                    if (soundsMap[key]) soundsMap[key].volume = isFinite(val) ? val : 1;
+                });
+            });
+
+            // ربط أزرار Mute
+            document.querySelectorAll("input[type='checkbox'][data-mute]").forEach(chk => {
+                chk.addEventListener("change", (e) => {
+                    const key = e.target.dataset.mute;
+                    if (soundsMap[key]) soundsMap[key].muted = !!e.target.checked;
+                });
+            });
+        })();
 
         /* ===== منطق فيديو المقدّمة ===== */
         (function setupIntroVideo() {
@@ -736,13 +860,13 @@
             window.addEventListener("load", () => {
                 try {
                     musicSound.pause();
-                } catch (e) {}
+                } catch (e) { }
                 const p = introVideo.play();
                 if (p && typeof p.catch === "function") {
                     p.catch(() => {
                         // إذا منع المتصفح التشغيل التلقائي: لمسة واحدة على الفيديو تبدأ التشغيل
                         const tapToStart = () => {
-                            introVideo.play().catch(() => {});
+                            introVideo.play().catch(() => { });
                             introOverlay.removeEventListener("click", tapToStart);
                         };
                         introOverlay.addEventListener("click", tapToStart);
@@ -756,12 +880,11 @@
                 try {
                     musicSound.muted = false;
                     musicSound.currentTime = 0;
-                    musicSound.play().catch(() => {});
-                } catch (e) {}
-            }, {
-                once: true
-            });
+                    musicSound.play().catch(() => { });
+                } catch (e) { }
+            }, { once: true });
         })();
+
         /* ============================================================
            الأدوات العامة لمنع NaN
         ============================================================ */
@@ -786,44 +909,21 @@
             return `url("${symUrl}"), url("images/d1.png")`;
         }
 
-        const symbolsArr = [{
-            name: "d1",
-            url: "images/d1.png"
-        }, {
-            name: "d2",
-            url: "images/d2.png"
-        }, {
-            name: "d3",
-            url: "images/d3.png"
-        }, {
-            name: "d4",
-            url: "images/d4.png"
-        }, {
-            name: "d5",
-            url: "images/d5.png"
-        }, {
-            name: "d6",
-            url: "images/d6.png"
-        }, {
-            name: "d7",
-            url: "images/d7.png"
-        }, {
-            name: "d8",
-            url: "images/d8.png"
-        }, {
-            name: "wild",
-            url: "images/wild.png"
-        }, {
-            name: "scatter",
-            url: "images/scatter.png"
-        }, {
-            name: "bonus",
-            url: "images/bonus.png"
-        }];
+        const symbolsArr = [
+            { name: "d1", url: "images/d1.png" },
+            { name: "d2", url: "images/d2.png" },
+            { name: "d3", url: "images/d3.png" },
+            { name: "d4", url: "images/d4.png" },
+            { name: "d5", url: "images/d5.png" },
+            { name: "d6", url: "images/d6.png" },
+            { name: "d7", url: "images/d7.png" },
+            { name: "d8", url: "images/d8.png" },
+            { name: "wild", url: "images/wild.png" },
+            { name: "scatter", url: "images/scatter.png" },
+            { name: "bonus", url: "images/bonus.png" }
+        ];
 
-        function symbolByName(n) {
-            return symbolsArr.find(s => s.name === n);
-        }
+        function symbolByName(n) { return symbolsArr.find(s => s.name === n); }
 
         /* ============================================================
            شرائط البكرات (REEL STRIPS) — منطق الفوز من كودك الثاني
@@ -841,87 +941,18 @@
         }
 
         const REEL_STRIPS_NAMES = [
-            buildStrip({
-                d1: 24,
-                d2: 20,
-                d3: 16,
-                d4: 13,
-                d5: 8,
-                d6: 5,
-                d7: 2,
-                d8: 1,
-                wild: 1,
-                scatter: 1,
-                bonus: 1
-            }),
-            buildStrip({
-                d1: 23,
-                d2: 20,
-                d3: 16,
-                d4: 13,
-                d5: 8,
-                d6: 5,
-                d7: 2,
-                d8: 1,
-                wild: 1,
-                scatter: 1,
-                bonus: 1
-            }),
-            buildStrip({
-                d1: 22,
-                d2: 19,
-                d3: 16,
-                d4: 13,
-                d5: 8,
-                d6: 5,
-                d7: 2,
-                d8: 1,
-                wild: 1,
-                scatter: 1,
-                bonus: 1
-            }),
-            buildStrip({
-                d1: 21,
-                d2: 19,
-                d3: 16,
-                d4: 12,
-                d5: 8,
-                d6: 5,
-                d7: 2,
-                d8: 1,
-                wild: 1,
-                scatter: 1,
-                bonus: 1
-            }),
-            buildStrip({
-                d1: 20,
-                d2: 18,
-                d3: 16,
-                d4: 12,
-                d5: 8,
-                d6: 5,
-                d7: 2,
-                d8: 1,
-                wild: 1,
-                scatter: 1,
-                bonus: 1
-            })
+            buildStrip({ d1: 24, d2: 20, d3: 16, d4: 13, d5: 8, d6: 5, d7: 2, d8: 1, wild: 1, scatter: 1, bonus: 1 }),
+            buildStrip({ d1: 23, d2: 20, d3: 16, d4: 13, d5: 8, d6: 5, d7: 2, d8: 1, wild: 1, scatter: 1, bonus: 1 }),
+            buildStrip({ d1: 22, d2: 19, d3: 16, d4: 13, d5: 8, d6: 5, d7: 2, d8: 1, wild: 1, scatter: 1, bonus: 1 }),
+            buildStrip({ d1: 21, d2: 19, d3: 16, d4: 12, d5: 8, d6: 5, d7: 2, d8: 1, wild: 1, scatter: 1, bonus: 1 }),
+            buildStrip({ d1: 20, d2: 18, d3: 16, d4: 12, d5: 8, d6: 5, d7: 2, d8: 1, wild: 1, scatter: 1, bonus: 1 })
         ];
         const REEL_STRIPS = REEL_STRIPS_NAMES.map(strip => strip.map(symbolByName));
 
         /* ذيول الحركة فقط (لا تؤثر على النتيجة) */
         const RNG_WEIGHTS_TAIL = {
-            d1: 180,
-            d2: 160,
-            d3: 140,
-            d4: 120,
-            d5: 100,
-            d6: 80,
-            d7: 60,
-            d8: 50,
-            wild: 1,
-            scatter: 1,
-            bonus: 1
+            d1: 180, d2: 160, d3: 140, d4: 120, d5: 100, d6: 80, d7: 60, d8: 50,
+            wild: 1, scatter: 1, bonus: 1
         };
         const weightArray = symbolsArr.map(s => RNG_WEIGHTS_TAIL[s.name] || 1);
         const totalWeight = weightArray.reduce((a, b) => a + b, 0);
@@ -1031,11 +1062,7 @@
            توليد نتيجة سبن من الشرائط
         ============================================================ */
         function generateSpinResult() {
-            const res = [
-                [],
-                [],
-                []
-            ];
+            const res = [[], [], []];
             for (let c = 0; c < reelsCount; c++) {
                 const strip = REEL_STRIPS[c];
                 const len = strip.length;
@@ -1069,7 +1096,7 @@
             let finishedReels = 0;
 
             ddSound.currentTime = 0;
-            ddSound.play().catch(() => {});
+            ddSound.play().catch(() => { });
 
             for (let c = 0; c < reelsCount; c++) {
                 const reelInner = document.createElement("div");
@@ -1103,9 +1130,7 @@
                 reelInner.addEventListener("animationend", () => {
                     finishedReels++;
                     if (finishedReels === reelsCount) finalizeSpin();
-                }, {
-                    once: true
-                });
+                }, { once: true });
             }
         }
 
@@ -1183,10 +1208,7 @@
                     amt = payTable[baseSymbol][count] * betVal;
                 }
             }
-            return {
-                amount: amt,
-                count
-            };
+            return { amount: amt, count };
         }
 
         function evaluateWin(spinResult) {
@@ -1214,11 +1236,7 @@
             // Scatter على قيمة الرهان فقط
             const scatterCount = countSymbolInAll(spinResult, "scatter");
             if (scatterCount >= 3) {
-                const scatterTable = {
-                    3: 1,
-                    4: 2,
-                    5: 4
-                };
+                const scatterTable = { 3: 1, 4: 2, 5: 4 };
                 totalWin += (scatterTable[scatterCount] || 4) * betVal;
             }
 
@@ -1229,7 +1247,7 @@
                 totalWin += bonusPrize;
 
                 bonusSound.currentTime = 0;
-                bonusSound.play().catch(() => {});
+                bonusSound.play().catch(() => { });
 
                 freeSpins = FREE_SPINS_COUNT;
                 isBonusActive = true;
@@ -1237,7 +1255,7 @@
                 musicSound.pause();
                 musicSound.currentTime = 0;
                 crashSound.currentTime = 0;
-                crashSound.play().catch(() => {});
+                crashSound.play().catch(() => { });
 
                 showBonusMessage(`تهانينا! حصلت على ${FREE_SPINS_COUNT} دورات مجانية!`);
             }
@@ -1271,7 +1289,7 @@
                 lastDeductedBet = 0;
 
                 winSound.currentTime = 0;
-                winSound.play().catch(() => {});
+                winSound.play().catch(() => { });
             }
 
             updateHUD();
@@ -1289,7 +1307,7 @@
                     crashSound.pause();
                     crashSound.currentTime = 0;
                     musicSound.currentTime = 0;
-                    musicSound.play().catch(() => {});
+                    musicSound.play().catch(() => { });
                     spinBtn.disabled = false;
                 }
             } else {
@@ -1329,7 +1347,7 @@
             isSpinning = true;
             spinBtn.disabled = true;
             spinSound.currentTime = 0;
-            spinSound.play().catch(() => {});
+            spinSound.play().catch(() => { });
 
             // توليد نتيجة وبدء الحركة
             spinFinalResult = generateSpinResult();
