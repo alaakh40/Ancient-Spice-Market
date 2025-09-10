@@ -2,115 +2,119 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8" />
-
-  <!-- ✅ المطلوب -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>Slot Game - White Spin Wheel</title>
 
   <style>
-    /* خطوط */
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&family=Orbitron:wght@500;700&display=swap');
 
     :root{
-      /* حجم البلاطة (بديل 200px) — يضبطه JS حسب الشاشة */
-      --tile: 18vmin;                 /* قيمة افتراضية فقط */
-      /* زر السبن */
-      --spin-size: clamp(56px, 12vmin, 110px);
-      --spin-gap: 2vmin;
+      /* حجم البلاطة — يحدّد مقاس الرمز بدل 200px */
+      --tile: 18vmin;   /* يتم تعديلها ديناميكياً بالـJS */
+      --spin-size: clamp(64px, 14vmin, 120px);
+      --step-size: clamp(48px, 10vmin, 80px);
+      --gap: 2.2vmin;
 
-      /* ألوان وإطارات */
+      /* ألوان وإضاءات */
       --gold-dk:#7a4f02; --gold:#e3b653; --gold-hi:#ffe69a;
       --burgundy-1:#2b0715; --burgundy-2:#4a0b22; --burgundy-3:#6e1030;
-      --grid-gold:rgba(255,215,120,.35); --grid-gold-soft:rgba(255,215,120,.22);
       --hud-stroke:rgba(255,215,120,.58);
       --led-amber:#ffd66d;
 
-      /* أبعاد مشتقة من البلاطة (5 أعمدة × 3 صفوف) */
+      /* أبعاد الماكينة من البلاطة (5×3) */
       --slot-w: calc(var(--tile) * 5);
       --slot-h: calc(var(--tile) * 3);
 
-      /* حشو/انحناءات مرنة */
       --radius-lg: clamp(12px, 2.2vmin, 24px);
       --radius-md: clamp(10px, 1.8vmin, 16px);
       --inset: clamp(8px, 1.2vmin, 12px);
     }
 
-    /* RESET */
     *{margin:0;padding:0;box-sizing:border-box}
     body{
-      min-height:100vh;
-      display:flex;flex-direction:column;align-items:center;
-      padding:clamp(10px, 2vmin, 24px);
-      color:#fff;
+      min-height:100vh; display:flex; flex-direction:column; align-items:center;
+      padding:clamp(10px,2vmin,24px);
+      color:#fff; overflow-x:hidden;
       background:url("images/background.png") no-repeat center center fixed;
       background-size:cover;
-      overflow-x:hidden;
     }
     body::before{
-      content:"";position:absolute;inset:0;pointer-events:none;z-index:-1;opacity:.28;
+      content:""; position:absolute; inset:0; pointer-events:none; z-index:-1; opacity:.28;
       background: radial-gradient(1200px 520px at 50% 100%, rgba(255,215,0,.10), transparent 70%),
                   radial-gradient(1000px 400px at 50% 0%, rgba(255,215,0,.08), transparent 72%);
     }
 
-    /* إطار عام يتمدد تلقائياً حسب محتواه */
+    /* ===== لوحة اعلى الصفحة (Credits) زجاجية شفافة تبقى ظاهرة ===== */
+    .top-hud{
+      position:fixed; left:50%; top:calc(8px + env(safe-area-inset-top, 0px));
+      transform:translateX(-50%); z-index:10010;
+      display:flex; align-items:center; gap:1.2vmin;
+      padding:.8vmin 1.2vmin; border-radius:12px;
+      background:rgba(20,20,24,.35);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: 0 .8vmin 2vmin rgba(0,0,0,.35), inset 0 0 3vmin rgba(255,215,120,.08);
+    }
+    .top-hud .label{
+      font:800 clamp(11px,1.8vmin,13px)/1 "Cairo",system-ui,sans-serif;
+      color:var(--gold-hi); opacity:.95;
+    }
+    #creditsTop{
+      min-width: clamp(86px, 15vmin, 140px);
+      text-align:center; padding:.6vmin 1vmin; border-radius:10px;
+      font-family:"Orbitron",system-ui,sans-serif; font-weight:700;
+      font-size: clamp(16px, 2.6vmin, 24px); letter-spacing:.5px;
+      color:var(--led-amber);
+      background:linear-gradient(180deg, rgba(12,16,22,.35), rgba(6,8,12,.2));
+      border:1px solid rgba(255,178,0,.35);
+      text-shadow:0 0 .6vmin rgba(255,178,0,.75),0 .1vmin 0 #2a1500;
+    }
+
+    /* ===== الإطار والماكينة ===== */
     .machine-frame{
-      display:inline-flex;justify-content:center;align-items:center;
-      padding:clamp(12px,2.4vmin,28px);
-      border-radius: var(--radius-lg);
-      background:
-        radial-gradient(1200px 800px at 50% 50%, rgba(255,190,60,.06), transparent 60%),
-        radial-gradient(circle at 50% 40%, var(--burgundy-3) 0%, var(--burgundy-2) 55%, var(--burgundy-1) 100%);
+      display:inline-flex; justify-content:center; align-items:center;
+      padding:clamp(12px,2.4vmin,28px); border-radius:var(--radius-lg);
+      background: radial-gradient(1200px 800px at 50% 50%, rgba(255,190,60,.06), transparent 60%),
+                  radial-gradient(circle at 50% 40%, var(--burgundy-3) 0%, var(--burgundy-2) 55%, var(--burgundy-1) 100%);
       box-shadow: 0 3vmin 8vmin rgba(0,0,0,.65),
                   inset 0 0 0 .2vmin rgba(255,215,0,.16),
                   0 0 4vmin rgba(255,215,0,.16);
+      margin-top: calc(48px + env(safe-area-inset-top, 0px)); /* مساحة للوحة أعلى الصفحة */
     }
-
-    /* الماكينة: تعتمد كلياً على --tile */
     .slot-container{
-      width: var(--slot-w);
-      height: var(--slot-h);
-      position:relative;overflow:hidden;
-      border-radius: var(--radius-md);
+      width:var(--slot-w); height:var(--slot-h);
+      position:relative; overflow:hidden; border-radius:var(--radius-md);
       box-shadow: 0 0 0 .12vmin rgba(0,0,0,.35) inset, 0 0 0 1vmin rgba(0,0,0,.25) inset;
     }
     .slot-container::before{
-      content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:2;
-      box-shadow:
-        inset 0 0 0 .6vmin var(--gold-dk),
-        inset 0 0 0 .9vmin var(--gold),
-        inset 0 0 0 1.2vmin var(--gold-dk),
-        inset 0 0 4vmin rgba(255,215,0,.22);
+      content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; z-index:2;
+      box-shadow: inset 0 0 0 .6vmin var(--gold-dk),
+                  inset 0 0 0 .9vmin var(--gold),
+                  inset 0 0 0 1.2vmin var(--gold-dk),
+                  inset 0 0 4vmin rgba(255,215,0,.22);
     }
     .slot-container::after{
-      content:"";position:absolute;inset: var(--inset);border-radius:calc(var(--radius-md) - .4vmin);pointer-events:none;z-index:1;
+      content:""; position:absolute; inset:var(--inset); border-radius:calc(var(--radius-md) - .4vmin); pointer-events:none; z-index:1;
       background:
-        repeating-linear-gradient(to right, var(--grid-gold) 0, var(--grid-gold) .35vmin, transparent .35vmin, transparent calc(var(--tile))),
-        repeating-linear-gradient(to bottom, var(--grid-gold-soft) 0, var(--grid-gold-soft) .25vmin, transparent .25vmin, transparent calc(var(--tile)));
+        repeating-linear-gradient(to right, rgba(255,215,120,.35) 0, rgba(255,215,120,.35) .35vmin, transparent .35vmin, transparent calc(var(--tile))),
+        repeating-linear-gradient(to bottom, rgba(255,215,120,.22) 0, rgba(255,215,120,.22) .25vmin, transparent .25vmin, transparent calc(var(--tile)));
       box-shadow: inset 0 0 3vmin rgba(0,0,0,.35), inset 0 1vmin 3vmin rgba(0,0,0,.35);
     }
 
     /* البكرات */
-    .reels{display:flex;width:100%;height:100%}
-    .reel{flex:1;overflow:hidden;position:relative}
+    .reels{display:flex; width:100%; height:100%}
+    .reel{flex:1; overflow:hidden; position:relative}
     .reel:not(:first-child)::before{
-      content:"";position:absolute;top:var(--inset);bottom:var(--inset);left:-.2vmin;width:.5vmin;border-radius:.4vmin;z-index:2;
+      content:""; position:absolute; top:var(--inset); bottom:var(--inset); left:-.2vmin; width:.5vmin; border-radius:.4vmin; z-index:2;
       background:linear-gradient(180deg, var(--gold-hi), var(--gold) 50%, var(--gold-dk));
       box-shadow:0 0 1.2vmin rgba(255,215,0,.25), inset 0 0 .4vmin rgba(0,0,0,.35);
       pointer-events:none;
     }
-    .reel-inner{position:relative;width:100%;will-change:transform}
-
-    /* البلاطة */
-    .symbol{
-      width: var(--tile);
-      height: var(--tile);
-      position:absolute;left:50%;transform:translateX(-50%);
-    }
+    .reel-inner{position:relative; width:100%; will-change:transform}
+    .symbol{ width:var(--tile); height:var(--tile); position:absolute; left:50%; transform:translateX(-50%) }
     .symbol-img{
-      width:100%;height:100%;
-      background-size: var(--tile) var(--tile);
-      background-position:center;background-repeat:no-repeat;
+      width:100%; height:100%; background-size:var(--tile) var(--tile); background-position:center; background-repeat:no-repeat;
       image-rendering:-webkit-optimize-contrast;
     }
 
@@ -124,9 +128,8 @@
       100%{transform:scale(1);filter:hue-rotate(360deg)}
     }
 
-    /* أنيميشن نزول البكرات — باستخدام متغير البلاطة بدل px */
+    /* أنيميشن نزول البكرات مع متغيّر البلاطة */
     @keyframes spinDown{
-      /* كانت 4200/3800/2700/2450/2360/2400 px على أساس 200px */
       0%   { transform: translateY(calc(var(--tile) * -21)); }
       10%  { transform: translateY(calc(var(--tile) * -19)); }
       70%  { transform: translateY(calc(var(--tile) * -13.5)); }
@@ -136,83 +139,101 @@
     }
 
     /* ===== صف السبن تحت الماكينة ===== */
-    .spin-row{
-      width:100%;display:flex;justify-content:center;margin-top:var(--spin-gap);
-    }
-    .spin-row-inner{
-      width: var(--slot-w);
-      display:flex;align-items:center;justify-content:flex-start;gap:1.5vmin;flex-wrap:wrap;
-    }
+    .spin-row{ width:100%; display:flex; justify-content:center; margin-top:var(--gap); }
+    .spin-row-inner{ width:var(--slot-w); display:flex; align-items:center; justify-content:center; gap:var(--gap); }
 
-    #spinBtn{
-      width:var(--spin-size); height:var(--spin-size);
-      background:none;border:none;cursor:pointer;outline:none;padding:0;
-      filter:drop-shadow(0 0 .6vmin rgba(0,0,0,.5));
+    /* أزرار + − و SPIN */
+    .step-btn, #spinBtn, #moreBtn{
       touch-action:manipulation;
     }
-    #spinBtn img{
-      width:100%;height:100%;display:block;object-fit:contain;
-      animation:wheelMotion 3s infinite linear;
-      filter:drop-shadow(0 0 1vmin rgba(255,255,255,.85));
+    .step-btn{
+      width:var(--step-size); height:var(--step-size);
+      border-radius:50%; border:1.5px solid var(--hud-stroke);
+      background:linear-gradient(180deg,#1e252d,#0b0f15);
+      box-shadow: 0 .8vmin 2vmin rgba(0,0,0,.35), inset 0 0 3vmin rgba(255,215,120,.08);
+      color:#fff; font-size:clamp(22px,4.8vmin,30px); line-height:1; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; user-select:none;
     }
+    .step-btn:active{transform:scale(.95)}
+    #spinBtn{
+      width:var(--spin-size); height:var(--spin-size); background:none; border:none; cursor:pointer; padding:0;
+      filter:drop-shadow(0 0 .6vmin rgba(0,0,0,.55));
+    }
+    #spinBtn img{width:100%;height:100%;display:block;object-fit:contain;animation:wheelMotion 3s infinite linear;filter:drop-shadow(0 0 1vmin rgba(255,255,255,.85))}
     #spinBtn:active img{animation-play-state:paused;transform:scale(.86)}
     @keyframes wheelMotion{0%{transform:rotate(0)}50%{transform:rotate(180deg)}100%{transform:rotate(360deg)}}
 
-    /* لوحة الكلكات */
-    .controls{display:flex;gap:1.2vmin;align-items:center;flex-wrap:wrap}
-    .info-panel{display:flex;gap:1.2vmin;flex-wrap:wrap;align-items:center}
-    .info{
-      padding:clamp(8px,1.2vmin,12px) clamp(10px,1.6vmin,14px);
-      border-radius: clamp(8px, 1.2vmin, 12px);
-      position:relative;
-      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)),
-                 linear-gradient(180deg,#13171d,#0a0d11 60%,#07090c);
-      border:.18vmin solid var(--hud-stroke);
-      box-shadow: inset 0 .1vmin 0 rgba(255,255,255,.12), inset 0 0 3vmin rgba(255,215,120,.08), 0 .3vmin 1vmin rgba(0,0,0,.35);
-      display:flex;align-items:center;gap:.8vmin
+    /* زر الثلاث نقاط (⋮) */
+    #moreBtn{
+      width: clamp(44px, 8.5vmin, 64px); height: clamp(44px, 8.5vmin, 64px);
+      border-radius:12px; border:1.5px solid var(--hud-stroke);
+      background:linear-gradient(180deg,#1e252d,#0b0f15); color:#fff; font-size:clamp(20px,4.2vmin,26px);
+      display:flex; align-items:center; justify-content:center;
     }
-    .info label{
-      font: 800 clamp(11px, 1.6vmin, 13px)/1 "Cairo",system-ui,sans-serif;
-      color:var(--gold-hi);background-image:linear-gradient(180deg,#fff2b8,#e8be6a 55%,#7a4f02);
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;
-      text-shadow:0 0 .3vmin rgba(255,255,255,.35),0 .2vmin .1vmin rgba(0,0,0,.55);
-    }
-    #credits,#lastWin,#betPerLine,#linesCount{
-      font-family:"Orbitron",system-ui,sans-serif;font-weight:700;letter-spacing:.5px;
-      font-size: clamp(16px, 2.2vmin, 20px);
-      color:var(--led-amber);text-shadow:0 0 .6vmin rgba(255,178,0,.75),0 .1vmin 0 #2a1500
-    }
-    #credits,#lastWin{
-      min-width: clamp(72px, 11vmin, 120px);
-      text-align:center;padding:.6vmin 1vmin;border-radius:1vmin;border:.18vmin solid rgba(255,178,0,.45);
-      background: linear-gradient(180deg,#0c1016,#06080c 65%,#04070a);
-    }
-    select,input[type="number"]{
-      width: clamp(72px, 12vmin, 120px);
-      height: clamp(40px, 7vmin, 54px);          /* ✅ قياس لمس مريح */
-      padding: .8vmin 1vmin;border-radius:1vmin;border:.18vmin solid rgba(255,178,0,.4);
-      background: linear-gradient(180deg,#11161d,#0b0f15 60%,#090d13);
-      color:var(--led-amber);outline:none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    select:focus,input[type="number"]:focus{box-shadow:0 0 0 .6vmin rgba(255,199,75,.22)}
 
+    /* شريط الإعدادات (Bottom Sheet) */
+    .sheet{
+      position:fixed; left:50%; transform:translateX(-50%) translateY(100%);
+      bottom:0; width:min(96vw, 520px);
+      background:rgba(18,20,24,.96); color:#fff; border-radius:16px 16px 0 0;
+      border:1px solid rgba(255,255,255,.12); padding:16px; z-index:10020;
+      box-shadow:0 -10px 40px rgba(0,0,0,.5);
+      transition:transform .28s ease;
+    }
+    .sheet.open{ transform:translateX(-50%) translateY(0) }
+    .sheet header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .sheet h3{font:800 16px/1 "Cairo",system-ui,sans-serif}
+    .sheet .close{background:none;border:none;color:#fff;font-size:24px;cursor:pointer}
+
+    .sheet .row{display:flex;gap:10px;align-items:center;margin:10px 0;flex-wrap:wrap}
+    .sheet .row .info{
+      padding:10px 12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)),linear-gradient(180deg,#13171d,#0a0d11 60%,#07090c);
+      border:1.5px solid var(--hud-stroke);display:flex;align-items:center;gap:10px
+    }
+    .sheet label{
+      font:800 13px/1 "Cairo",system-ui,sans-serif;
+      color:var(--gold-hi);background-image:linear-gradient(180deg,#fff2b8,#e8be6a 55%,#7a4f02);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      text-shadow:0 0 .3vmin rgba(255,255,255,.35),0 .2vmin .1vmin rgba(0,0,0,.55);
+      white-space:nowrap;
+    }
+    .sheet select, .sheet input[type="number"], .sheet .value-box{
+      width: clamp(90px, 26vw, 140px);
+      height: clamp(40px, 7vmin, 54px);
+      color:var(--led-amber);
+      background:linear-gradient(180deg,#11161d,#0b0f15 60%,#090d13);
+      border:1px solid rgba(255,178,0,.4); border-radius:10px; padding:.6vmin 1vmin; font-family:"Orbitron",system-ui,sans-serif;
+    }
+    .sheet .value-box{
+      display:flex; align-items:center; justify-content:center; font-weight:700;
+    }
+
+    /* نافذة ضبط مقدار الزيادة/النقصان للضغط المطوّل */
+    .step-overlay{
+      position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; z-index:10030;
+    }
+    .step-dialog{
+      width:min(90vw, 360px); background:#1b1e24; color:#fff; border:1px solid #555; border-radius:12px; padding:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.5);
+    }
+    .step-dialog h4{margin:0 0 10px 0; font:800 16px/1.2 "Cairo"}
+    .step-dialog .actions{display:flex; gap:10px; justify-content:flex-end; margin-top:12px}
+    .step-dialog button{padding:10px 14px; border-radius:10px; border:1px solid #666; background:#2a3038; color:#fff; cursor:pointer}
+    .step-dialog input[type="number"]{width:120px; height:44px; border-radius:10px; padding:6px 10px; border:1px solid #666; background:#0f141a; color:#fff}
+
+    /* أيقونة الصوت (كما هي) */
     .audio-icon{
       font-size: clamp(20px, 3.6vmin, 24px);
-      width: clamp(40px, 7vmin, 52px);
-      height: clamp(40px, 7vmin, 52px);
-      border-radius:50%;display:flex;align-items:center;justify-content:center;
-      background:linear-gradient(180deg,#1e252d,#0b0f15);
-      border:.18vmin solid var(--hud-stroke);
+      width: clamp(40px, 7vmin, 52px); height: clamp(40px, 7vmin, 52px);
+      border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;
+      background: linear-gradient(180deg,#1e252d,#0b0f15);
+      border:1.5px solid var(--hud-stroke);
       box-shadow: 0 .8vmin 2vmin rgba(0,0,0,.35), inset 0 0 3vmin rgba(255,215,120,.08);
-      cursor:pointer;user-select:none;
     }
 
-    /* لوحة الصوت */
     .audio-panel{
-      position:fixed;top: 2vmin; right: 2vmin;
-      width: clamp(220px, 40vmin, 280px);
-      background:#222;border:1px solid #444;border-radius:1.2vmin;padding:1.2vmin;display:none;z-index:99999
+      position:fixed; top: 2vmin; right: 2vmin; width: clamp(220px, 40vmin, 280px);
+      background:#222; border:1px solid #444; border-radius:1.2vmin; padding:1.2vmin; display:none; z-index:9999
     }
     .audio-panel h3{margin-bottom:1vmin;text-align:center}
     .sound-control{display:flex;flex-direction:column;margin-bottom:1.2vmin}
@@ -220,69 +241,89 @@
     .sound-control input[type="range"]{width:100%}
     .mute-row{display:flex;align-items:center;justify-content:space-between}
 
-    /* فيديو المقدّمة */
     .intro-overlay{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:1000000}
     .intro-overlay video{width:100vw;height:100vh;object-fit:contain;background:#000}
 
-    /* ===== Media Queries ===== */
-    /* شاشات صغيرة جداً */
+    /* موبايل صغير جداً */
     @media (max-width: 600px){
-      .spin-row-inner{flex-direction:column;align-items:center;gap:2.2vmin;}
-      .controls{width:100%;justify-content:center;}
-      .info-panel{justify-content:center;}
-      :root{ --spin-size: clamp(64px, 16vmin, 96px); }
+      .spin-row-inner{flex-wrap:wrap; gap:calc(var(--gap) * .8)}
+      #moreBtn{ order: 3; } /* ينزل آخر صف */
     }
 
     /* شاشات كبيرة */
     @media (min-width: 1200px){
-      :root{ --spin-size: clamp(80px, 10vmin, 120px); }
-      .machine-frame{padding:clamp(16px,2.8vmin,36px)}
+      :root{ --spin-size: clamp(84px, 10vmin, 130px); --step-size: clamp(56px, 8vmin, 96px); }
     }
   </style>
 </head>
 <body dir="rtl">
 
-  <!-- فيديو المقدّمة (لا تغيير في المنطق) -->
+  <!-- شاشة رصيد دائمة -->
+  <div class="top-hud" aria-live="polite">
+    <span class="label">Credits</span>
+    <span id="creditsTop">1000</span>
+  </div>
+
+  <!-- فيديو المقدّمة -->
   <div id="introOverlay" class="intro-overlay">
     <video id="introVideo" src="aa.mp4" preload="auto" autoplay muted playsinline webkit-playsinline></video>
   </div>
 
   <div class="machine-frame">
     <div class="slot-container">
-      <div class="reels" id="reels"><!-- تُبنى بجافاسكربت --></div>
+      <div class="reels" id="reels"><!-- تُبنى بالـJS --></div>
     </div>
   </div>
 
-  <!-- صف السبن تحت الماكينة -->
+  <!-- صف السبن والتحكمات الجديدة -->
   <div class="spin-row">
     <div class="spin-row-inner">
+      <button id="betMinus" class="step-btn" aria-label="Decrease bet">−</button>
       <button id="spinBtn" aria-label="Spin"><img src="images/spin.png" alt="Spin" /></button>
+      <button id="betPlus" class="step-btn" aria-label="Increase bet">+</button>
+      <button id="moreBtn" aria-label="More">⋮</button>
+      <div class="audio-icon" id="audioIcon" title="Sound">🔊</div>
+    </div>
+  </div>
 
-      <div class="controls">
-        <div class="info-panel">
-          <div class="info">
-            <label for="linesCount">Lines:</label>
-            <select id="linesCount">
-              <option value="1" selected>1</option>
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="20">20</option>
-            </select>
-          </div>
-          <div class="info">
-            <label for="betPerLine">Bet/Line:</label>
-            <input type="number" id="betPerLine" value="1" min="1" />
-          </div>
-          <div class="info">
-            <label>Credits:</label>
-            <span id="credits">1000</span>
-          </div>
-          <div class="info">
-            <label>Last Win:</label>
-            <span id="lastWin">0</span>
-          </div>
-        </div>
-        <div class="audio-icon" id="audioIcon">🔊</div>
+  <!-- Bottom Sheet للإعدادات -->
+  <div id="settingsSheet" class="sheet" aria-hidden="true">
+    <header>
+      <h3>الإعدادات</h3>
+      <button class="close" id="sheetClose" aria-label="Close">×</button>
+    </header>
+
+    <div class="row">
+      <div class="info">
+        <label for="linesCount">Lines:</label>
+        <select id="linesCount">
+          <option value="1" selected>1</option>
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+        </select>
+      </div>
+
+      <div class="info">
+        <label for="betPerLine">Bet/Line:</label>
+        <input type="number" id="betPerLine" value="1" min="1" />
+      </div>
+
+      <div class="info">
+        <label>Last Win:</label>
+        <div class="value-box" id="lastWin">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة إدخال مقدار الزيادة/النقصان عند الضغط المطوّل -->
+  <div class="step-overlay" id="stepOverlay">
+    <div class="step-dialog" role="dialog" aria-modal="true">
+      <h4 id="stepTitle">تعديل مقدار الزيادة</h4>
+      <input type="number" id="stepInput" min="1" value="2" />
+      <div class="actions">
+        <button id="stepCancel">إلغاء</button>
+        <button id="stepOk">تم</button>
       </div>
     </div>
   </div>
@@ -318,9 +359,7 @@
   </div>
 
   <script>
-    /* ============================================================
-       ⚙️ الصوت/المتغيرات العامة — بدون تغيير في القوانين/المنطق
-    ============================================================ */
+    /* ========= الأصوات والمتغيرات العامة (لا تغيير بالقوانين) ========= */
     let freeSpins = 0;
     let isBonusActive = false;
 
@@ -342,7 +381,7 @@
       });
     });
 
-    /* لوحة الصوت */
+    /* ====== لوحة الصوت ====== */
     (function setupAudioPanel(){
       const audioIcon=document.getElementById("audioIcon");
       const audioPanel=document.getElementById("audioPanel");
@@ -361,7 +400,7 @@
       });
     })();
 
-    /* فيديو المقدّمة */
+    /* ====== فيديو المقدمة ====== */
     (function setupIntroVideo(){
       const overlay=document.getElementById("introOverlay");
       const video=document.getElementById("introVideo");
@@ -384,12 +423,13 @@
       },{once:true});
     })();
 
-    /* أدوات عامة */
+    /* ===== أدوات عامة ===== */
     function toInt(v,d){const n=parseInt(v,10);return Number.isFinite(n)?n:d;}
     function clamp(n,min,max){return Math.min(max,Math.max(min,n));}
     function fixNumber(n,def=0){n=Number(n);return Number.isFinite(n)?n:def;}
+    function getCssNumber(name){ return parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name)) || 0; }
 
-    /* الرموز / الصور */
+    /* ===== الرموز / الصور ===== */
     function getSymbolBackground(symUrl){return `url("${symUrl}"), url("images/d1.png")`;}
     const symbolsArr=[
       {name:"d1",url:"images/d1.png"},{name:"d2",url:"images/d2.png"},
@@ -401,7 +441,6 @@
     ];
     function symbolByName(n){return symbolsArr.find(s=>s.name===n);}
 
-    /* شرائط البكرات (لا تغيير) */
     function buildStrip(counts){
       const arr=[]; for(const [name,cnt] of Object.entries(counts)){for(let i=0;i<cnt;i++) arr.push(name);}
       for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]];}
@@ -416,7 +455,6 @@
     ];
     const REEL_STRIPS = REEL_STRIPS_NAMES.map(strip=>strip.map(symbolByName));
 
-    /* ذيول الحركة */
     const RNG_WEIGHTS_TAIL={d1:180,d2:160,d3:140,d4:120,d5:100,d6:80,d7:60,d8:50,wild:1,scatter:1,bonus:1};
     const weightArray=symbolsArr.map(s=>RNG_WEIGHTS_TAIL[s.name]||1);
     const totalWeight=weightArray.reduce((a,b)=>a+b,0);
@@ -429,12 +467,22 @@
     const MAX_WIN_MULTIPLIER=3;
     const FREE_SPINS_COUNT=3;
 
-    /* عناصر الواجهة */
+    /* ===== عناصر الواجهة ===== */
     const linesCountSelect = document.getElementById("linesCount");
     const betPerLineInput  = document.getElementById("betPerLine");
-    const creditsSpan      = document.getElementById("credits");
+    const creditsTop       = document.getElementById("creditsTop");
     const lastWinSpan      = document.getElementById("lastWin");
     const spinBtn          = document.getElementById("spinBtn");
+    const betPlusBtn       = document.getElementById("betPlus");
+    const betMinusBtn      = document.getElementById("betMinus");
+    const moreBtn          = document.getElementById("moreBtn");
+    const settingsSheet    = document.getElementById("settingsSheet");
+    const sheetClose       = document.getElementById("sheetClose");
+    const stepOverlay      = document.getElementById("stepOverlay");
+    const stepTitle        = document.getElementById("stepTitle");
+    const stepInput        = document.getElementById("stepInput");
+    const stepOk           = document.getElementById("stepOk");
+    const stepCancel       = document.getElementById("stepCancel");
 
     const reelsCount=5, rowsCount=3;
     const payLines=[
@@ -457,51 +505,37 @@
     linesCountSelect.addEventListener('change',()=>{ linesCountSelect.value=String(getActivePayLinesCount()); });
 
     let credits=1000, lastWin=0, isSpinning=false;
+
     function updateHUD(){
       credits=Math.max(0,Math.floor(fixNumber(credits,0)));
       lastWin=Math.max(0,Math.floor(fixNumber(lastWin,0)));
-      creditsSpan.textContent=String(credits);
-      lastWinSpan.textContent=String(lastWin);
+      creditsTop.textContent = String(credits);
+      lastWinSpan.textContent = String(lastWin);
     }
 
-    /* رسائل البونص */
+    /* ===== إشعار بسيط للبونص ===== */
     function showBonusMessage(text){
       const overlay=document.createElement("div");
       overlay.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;justify-content:center;align-items:center;z-index:99999";
       const msg=document.createElement("div");
-      msg.style.cssText="background:#ffdd00;color:#000;font-weight:bold;padding:1.4rem 2rem;border-radius:1rem;box-shadow:0 0 15px rgba(255,255,255,.8);font-size:clamp(18px,3.4vmin,26px)";
+      msg.style.cssText="background:#ffdd00;color:#000;font-weight:bold;padding:1.1rem 1.6rem;border-radius:1rem;box-shadow:0 0 15px rgba(255,255,255,.8);font-size:clamp(18px,3.4vmin,26px)";
       msg.textContent=text; overlay.appendChild(msg); document.body.appendChild(overlay);
       setTimeout(()=>document.body.removeChild(overlay),2000);
     }
 
-    /* إنشاء البكرات */
+    /* ===== إنشاء البكرات ===== */
     function createReelsLayout(){
       const reelsWrapper=document.getElementById("reels"); reelsWrapper.innerHTML="";
       for(let c=0;c<reelsCount;c++){const reel=document.createElement("div");reel.className="reel";reelsWrapper.appendChild(reel);}
     }
 
-    /* توليد نتيجة */
-    function generateSpinResult(){
-      const res=[[],[],[]];
-      for(let c=0;c<reelsCount;c++){
-        const strip=REEL_STRIPS[c], len=strip.length, start=Math.floor(Math.random()*len);
-        res[0][c]=strip[start]; res[1][c]=strip[(start+1)%len]; res[2][c]=strip[(start+2)%len];
-      } return res;
-    }
-
-    /* مقاس البلاطة الحالي (px) من CSS */
-    function TILE(){ return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tile')) || 200; }
-
-    /* حركة البكرات */
-    const reelDurations=[0.60,0.70,0.80,0.90,1.00];
-    const TAIL_BEFORE=12, TAIL_AFTER=10;
-    let spinFinalResult=[];
+    function TILE(){ return getCssNumber('--tile'); }
 
     function buildReelSymbolsArray(reelIndex){
       const arr=[];
-      for(let i=0;i<TAIL_BEFORE;i++) arr.push(pickWeightedSymbol());
+      for(let i=0;i<12;i++) arr.push(pickWeightedSymbol()); // TAIL_BEFORE
       for(let r=0;r<rowsCount;r++) arr.push(spinFinalResult[r][reelIndex]);
-      for(let j=0;j<TAIL_AFTER;j++) arr.push(pickWeightedSymbol());
+      for(let j=0;j<10;j++) arr.push(pickWeightedSymbol()); // TAIL_AFTER
       return arr;
     }
 
@@ -518,6 +552,17 @@
         });
         reelDivs[c].appendChild(inner);
       }
+    }
+
+    const reelDurations=[0.60,0.70,0.80,0.90,1.00];
+    let spinFinalResult=[];
+
+    function generateSpinResult(){
+      const res=[[],[],[]];
+      for(let c=0;c<reelsCount;c++){
+        const strip=REEL_STRIPS[c], len=strip.length, start=Math.floor(Math.random()*len);
+        res[0][c]=strip[start]; res[1][c]=strip[(start+1)%len]; res[2][c]=strip[(start+2)%len];
+      } return res;
     }
 
     function displaySpinWithAnimation(){
@@ -537,12 +582,12 @@
       }
     }
 
-    /* إبراز الفوز */
     function highlightWinningSymbols(lineIndex,count){
+      const payLines=[[0,0,0,0,0],[1,1,1,1,1],[2,2,2,2,2],[0,1,2,1,0],[2,1,0,1,2],[0,0,1,2,2],[2,2,1,0,0],[1,0,0,0,1],[1,2,2,2,1],[1,0,1,2,1]];
       const pattern=payLines[clamp(lineIndex,0,payLines.length-1)];
       const reelDivs=document.querySelectorAll(".reel");
       for(let c=0;c<count;c++){
-        const rowIndex=pattern[c], symIndex=TAIL_BEFORE+rowIndex; // النتيجة في 12..14
+        const rowIndex=pattern[c], symIndex=12+rowIndex;
         const inner=reelDivs[c].querySelector(".reel-inner");
         if(inner){ const symDiv=inner.children[symIndex]; if(symDiv){ const img=symDiv.querySelector(".symbol-img"); if(img) img.classList.add("win-flash");}}
       }
@@ -551,7 +596,6 @@
       let cnt=0; for(let r=0;r<rowsCount;r++){for(let c=0;c<reelsCount;c++){if(spinResult[r][c].name===name) cnt++;}} return cnt;
     }
 
-    /* حساب الربح (بدون تغيير) */
     function calculateLineWin(lineSyms,betVal){
       const payTable={
         "d1":[0,0,2,3,4],"d2":[0,0,2,3,5],"d3":[0,0,3,4,6],"d4":[0,0,3,5,7],
@@ -592,7 +636,6 @@
       return total;
     }
 
-    /* إنهاء اللفة */
     let lastDeductedBet=0;
     function finalizeSpin(){
       ddSound.pause(); ddSound.currentTime=0;
@@ -604,8 +647,10 @@
         credits+=lastDeductedBet; lastDeductedBet=0;
         winSound.currentTime=0; winSound.play().catch(()=>{});
       }
-
       updateHUD(); isSpinning=false;
+
+      // لو في تغيير مقاس مُعلّق ننفّذه الآن فقط (منع تحريك الرموز أثناء الدوران)
+      if (pendingResize) { pendingResize=false; fitToViewport(true); }
 
       if(isBonusActive){
         if(freeSpins>0){ setTimeout(()=>{freeSpins--; doSpin();},300); }
@@ -616,7 +661,6 @@
       }else{ spinBtn.disabled=false; }
     }
 
-    /* دوران جديد */
     function doSpin(){
       if(isSpinning) return;
 
@@ -642,73 +686,92 @@
     }
     spinBtn.addEventListener("click", ()=>{ if(isBonusActive&&freeSpins>0) return; doSpin(); });
 
-    /* تهيئة أولية + رسم ساكن */
-    window.addEventListener("load", ()=>{
+    /* ===== تحجيم تلقائي للبلاطة ومنع الحركة أثناء الدوران ===== */
+    let pendingResize = false;
+    function setTile(px){ document.documentElement.style.setProperty('--tile', Math.max(40, px) + 'px'); }
+
+    function fitToViewport(force=false){
+      if (isSpinning && !force) { pendingResize = true; return; } // لا تحرّك أثناء الدوران
+
+      const vw = Math.max(1, window.innerWidth || document.documentElement.clientWidth || 0);
+      const vh = Math.max(1, (window.visualViewport ? visualViewport.height : window.innerHeight) || window.innerHeight);
+
+      const side = Math.max(8, vw * 0.04);
+      const maxTileByW = (vw - side*2) / 5;
+
+      // نحتاج ارتفاع صف السبن الفعلي
+      setTile(maxTileByW);
+      const spinRow = document.querySelector('.spin-row');
+      const spinH = spinRow ? spinRow.getBoundingClientRect().height : 0;
+      const vMargin = Math.max(12, vh * 0.03);
+
+      const maxTileByH = (vh - spinH - vMargin*2 - (48 + 10)) / 3; // 48px تقريباً للوحة العلوية
+      const tile = Math.min(maxTileByW, maxTileByH);
+      setTile(tile);
+
+      if(!isSpinning){
+        createReelsLayout();
+        renderReelsStatic();
+      }
+    }
+
+    window.addEventListener('load', ()=>{
+      // بناء أولي
       createReelsLayout();
       spinFinalResult=generateSpinResult();
       renderReelsStatic();
       updateHUD();
+      fitToViewport();
     });
+    window.addEventListener('resize', ()=>fitToViewport());
+    window.addEventListener('orientationchange', ()=>fitToViewport());
+    if(window.visualViewport) visualViewport.addEventListener('resize', ()=>fitToViewport());
 
-    /* ===== تحجيم تلقائي: حساب حجم البلاطة --tile لملء الشاشة بدون قص ===== */
-    (function fitGameToViewport(){
-      const root=document.documentElement;
+    /* ===== أزرار + / − مع الضغط المطوّل لتحديد مقدار الخطوة ===== */
+    let betStep = 2; // الافتراضي
+    function adjustBet(delta){
+      const cur = getBetPerLine();
+      const next = Math.max(1, cur + delta);
+      betPerLineInput.value = String(next);
+    }
+    betPlusBtn.addEventListener('click', ()=> adjustBet(+betStep));
+    betMinusBtn.addEventListener('click', ()=> adjustBet(-betStep));
 
-      function setTile(px){ root.style.setProperty('--tile', Math.max(40, px) + 'px'); }
+    function setupHoldToSetStep(btn, isPlus){
+      let t=null, held=false;
+      const start=(e)=>{ held=false; t=setTimeout(()=>{held=true; openStepDialog(isPlus);}, 500); };
+      const clear=()=>{ if(t){clearTimeout(t); t=null;} };
+      btn.addEventListener('pointerdown', start);
+      btn.addEventListener('pointerup', clear);
+      btn.addEventListener('pointerleave', clear);
+      btn.addEventListener('touchstart', start, {passive:true});
+      btn.addEventListener('touchend', clear);
+    }
+    function openStepDialog(isPlus){
+      stepTitle.textContent = isPlus ? "كم تريد الزيادة بكل ضغطة؟" : "كم تريد التنقيص بكل ضغطة؟";
+      stepInput.value = String(Math.max(1, betStep));
+      stepOverlay.style.display='flex';
+      stepInput.focus();
+    }
+    stepOk.addEventListener('click', ()=>{
+      const v = Math.max(1, toInt(stepInput.value, betStep));
+      betStep = v;
+      stepOverlay.style.display='none';
+    });
+    stepCancel.addEventListener('click', ()=> stepOverlay.style.display='none');
+    stepOverlay.addEventListener('click', (e)=>{ if(e.target===stepOverlay) stepOverlay.style.display='none'; });
 
-      function recalc(){
-        const vw = Math.max(1, window.innerWidth || document.documentElement.clientWidth || 0);
-        const vh = Math.max(1, (window.visualViewport ? visualViewport.height : window.innerHeight) || window.innerHeight);
+    setupHoldToSetStep(betPlusBtn, true);
+    setupHoldToSetStep(betMinusBtn, false);
 
-        const horizontalPad = Math.max(8, vw * 0.04);   // هامش جانبي
-        const maxTileByW = (vw - horizontalPad*2) / 5;
+    /* ===== زر الثلاث نقاط (قائمة الإعدادات) ===== */
+    function openSheet(){ settingsSheet.classList.add('open'); settingsSheet.setAttribute('aria-hidden','false'); }
+    function closeSheet(){ settingsSheet.classList.remove('open'); settingsSheet.setAttribute('aria-hidden','true'); }
+    moreBtn.addEventListener('click', (e)=>{ e.stopPropagation(); settingsSheet.classList.toggle('open'); });
+    sheetClose.addEventListener('click', closeSheet);
+    document.addEventListener('click', (e)=>{ if(settingsSheet.classList.contains('open') && !settingsSheet.contains(e.target) && e.target!==moreBtn) closeSheet(); });
 
-        // تجريبيًا نعينها لحساب ارتفاع صف السبن
-        setTile(maxTileByW);
-        const spinRow = document.querySelector('.spin-row');
-        const spinH = spinRow ? spinRow.getBoundingClientRect().height : 0;
-        const verticalMargins = Math.max(12, vh * 0.03);
-
-        const maxTileByH = (vh - spinH - verticalMargins*2) / 3;
-
-        const tile = Math.min(maxTileByW, maxTileByH);
-        setTile(tile);
-
-        // إذا لم تكن هناك حركة حالياً، نعيد رسم العرض الساكن ليناسب الحجم
-        if(!isSpinning){
-          const reels = document.getElementById('reels');
-          if(reels && reels.children.length){
-            createReelsLayout();
-            renderReelsStatic();
-          }
-        }
-      }
-
-      window.addEventListener('load', recalc);
-      window.addEventListener('resize', recalc);
-      window.addEventListener('orientationchange', recalc);
-      if(window.visualViewport) visualViewport.addEventListener('resize', recalc);
-    })();
-
-    /* ===== إن وُجد Canvas: اجعله يملأ الشاشة ويُعاد حجمه مع التغيير ===== */
-    (function autoFitCanvas(){
-      const canvases = Array.from(document.querySelectorAll('canvas[data-autofit="true"], canvas.autofit, canvas#gameCanvas'));
-      if (!canvases.length) return;
-      function sizeAll(){
-        canvases.forEach(cv=>{
-          cv.width  = window.innerWidth;
-          cv.height = window.innerHeight;
-          cv.style.width  = '100vw';
-          cv.style.height = '100vh';
-          cv.style.display = 'block';
-        });
-      }
-      window.addEventListener('load', sizeAll);
-      window.addEventListener('resize', sizeAll);
-      window.addEventListener('orientationchange', sizeAll);
-    })();
-
-    /* RNG آمن (غير مستخدم هنا مباشرة) */
+    /* ===== RNG آمن (متاح) ===== */
     function rand(){
       const cryptoObj=(window.crypto||window.msCrypto);
       if(cryptoObj&&cryptoObj.getRandomValues){const a=new Uint32Array(1);cryptoObj.getRandomValues(a);return a[0]/4294967296;}
