@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <!-- Viewport -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Slot Game - White Spin Wheel</title>
 
@@ -9,7 +10,7 @@
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&family=Orbitron:wght@500;700&display=swap');
 
     :root{
-      /* tile size (replaces old 200px) – JS adjusts it responsively */
+      /* tile replaces old 200px; JS adjusts responsively */
       --tile: 18vmin;
       --spin-size: clamp(64px, 14vmin, 120px);
       --step-size: clamp(48px, 10vmin, 80px);
@@ -21,7 +22,7 @@
       --hud-stroke:rgba(255,215,120,.58);
       --led-amber:#ffd66d;
 
-      /* machine size derived from tile (5×3) */
+      /* machine size */
       --slot-w: calc(var(--tile) * 5);
       --slot-h: calc(var(--tile) * 3);
 
@@ -31,20 +32,18 @@
     }
 
     *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%}
+    /* ===== BIG SCREEN BACKGROUND -> BLACK (not the machine) ===== */
     body{
-      min-height:100vh; display:flex; flex-direction:column; align-items:center;
+      min-height:100svh; display:flex; flex-direction:column; align-items:center;
       padding:clamp(10px,2vmin,24px);
-      color:#fff; overflow-x:hidden;
-      background:url("images/background.png") no-repeat center center fixed;
-      background-size:cover;
+      color:#fff; overflow:hidden; /* يمنع أي سحب/حركة للصفحة */
+      background:#000; /* أسود صافي للشاشة الأكبر */
     }
-    body::before{
-      content:""; position:absolute; inset:0; pointer-events:none; z-index:-1; opacity:.28;
-      background: radial-gradient(1200px 520px at 50% 100%, rgba(255,215,0,.10), transparent 70%),
-                  radial-gradient(1000px 400px at 50% 0%, rgba(255,215,0,.08), transparent 72%);
-    }
+    /* أوقف أي طبقة زخرفية قد تسبب وميض */
+    body::before{content:none}
 
-    /* ===== ALWAYS-VISIBLE TOP HUD (Credits) ===== */
+    /* ===== TOP HUD (Credits) always visible ===== */
     .top-hud{
       position:fixed; left:50%; top:calc(8px + env(safe-area-inset-top, 0px));
       transform:translateX(-50%); z-index:10010;
@@ -70,7 +69,7 @@
       text-shadow:0 0 .6vmin rgba(255,178,0,.75),0 .1vmin 0 #2a1500;
     }
 
-    /* ===== MACHINE FRAME ===== */
+    /* ===== MACHINE ===== */
     .machine-frame{
       display:inline-flex; justify-content:center; align-items:center;
       padding:clamp(12px,2.4vmin,28px); border-radius:var(--radius-lg);
@@ -85,6 +84,7 @@
       width:var(--slot-w); height:var(--slot-h);
       position:relative; overflow:hidden; border-radius:var(--radius-md);
       box-shadow: 0 0 0 .12vmin rgba(0,0,0,.35) inset, 0 0 0 1vmin rgba(0,0,0,.25) inset;
+      transform: translateZ(0);
     }
     .slot-container::before{
       content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; z-index:2;
@@ -93,14 +93,12 @@
                   inset 0 0 0 1.2vmin var(--gold-dk),
                   inset 0 0 4vmin rgba(255,215,0,.22);
     }
-    /* ⛳️ keep ONLY golden reel separators; remove transparent grid */
+    /* ❗️No transparent grid — keep only golden separators */
     .slot-container::after{
       content:""; position:absolute; inset:var(--inset); border-radius:calc(var(--radius-md) - .4vmin); pointer-events:none; z-index:1;
-      /* no repeating grid lines here */
       box-shadow: inset 0 0 3vmin rgba(0,0,0,.35), inset 0 1vmin 3vmin rgba(0,0,0,.35);
     }
 
-    /* reels */
     .reels{display:flex; width:100%; height:100%}
     .reel{flex:1; overflow:hidden; position:relative}
     .reel:not(:first-child)::before{
@@ -116,7 +114,6 @@
       image-rendering:-webkit-optimize-contrast;
     }
 
-    /* win flash */
     .symbol-img.win-flash{position:relative;animation:superFlash 2.5s infinite ease-in-out;z-index:3}
     @keyframes superFlash{
       0%{transform:scale(1);filter:hue-rotate(0deg)}
@@ -126,7 +123,6 @@
       100%{transform:scale(1);filter:hue-rotate(360deg)}
     }
 
-    /* reel drop animation uses tile variable */
     @keyframes spinDown{
       0%   { transform: translateY(calc(var(--tile) * -21)); }
       10%  { transform: translateY(calc(var(--tile) * -19)); }
@@ -140,7 +136,6 @@
     .spin-row{ width:100%; display:flex; justify-content:center; margin-top:var(--gap); }
     .spin-row-inner{ width:var(--slot-w); display:flex; align-items:center; justify-content:center; gap:var(--gap); }
 
-    /* buttons */
     .step-btn, #spinBtn, #moreBtn{ touch-action:manipulation; }
     .step-btn{
       width:var(--step-size); height:var(--step-size);
@@ -159,7 +154,6 @@
     #spinBtn:active img{animation-play-state:paused;transform:scale(.86)}
     @keyframes wheelMotion{0%{transform:rotate(0)}50%{transform:rotate(180deg)}100%{transform:rotate(360deg)}}
 
-    /* 3-dots button */
     #moreBtn{
       width: clamp(44px, 8.5vmin, 64px); height: clamp(44px, 8.5vmin, 64px);
       border-radius:12px; border:1.5px solid var(--hud-stroke);
@@ -167,7 +161,7 @@
       display:flex; align-items:center; justify-content:center;
     }
 
-    /* bottom sheet (settings) */
+    /* Bottom sheet */
     .sheet{
       position:fixed; left:50%; transform:translateX(-50%) translateY(100%);
       bottom:0; width:min(96vw, 520px);
@@ -189,9 +183,8 @@
     .sheet label{
       font:800 13px/1 "Cairo",system-ui,sans-serif;
       color:var(--gold-hi);background-image:linear-gradient(180deg,#fff2b8,#e8be6a 55%,#7a4f02);
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;
       text-shadow:0 0 .3vmin rgba(255,255,255,.35),0 .2vmin .1vmin rgba(0,0,0,.55);
-      white-space:nowrap;
     }
     .sheet select, .sheet input[type="number"], .sheet .value-box{
       width: clamp(90px, 26vw, 140px);
@@ -202,7 +195,7 @@
     }
     .sheet .value-box{display:flex; align-items:center; justify-content:center; font-weight:700;}
 
-    /* step dialog (long-press) */
+    /* Step dialog */
     .step-overlay{ position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; z-index:10030; }
     .step-dialog{
       width:min(90vw, 360px); background:#1b1e24; color:#fff; border:1px solid #555; border-radius:12px; padding:16px;
@@ -213,7 +206,7 @@
     .step-dialog button{padding:10px 14px; border-radius:10px; border:1px solid #666; background:#2a3038; color:#fff; cursor:pointer}
     .step-dialog input[type="number"]{width:120px; height:44px; border-radius:10px; padding:6px 10px; border:1px solid #666; background:#0f141a; color:#fff}
 
-    /* sound icon & panel */
+    /* Audio */
     .audio-icon{
       font-size: clamp(20px, 3.6vmin, 24px);
       width: clamp(40px, 7vmin, 52px); height: clamp(40px, 7vmin, 52px);
@@ -247,13 +240,13 @@
 </head>
 <body>
 
-  <!-- Top glass HUD -->
+  <!-- Top HUD -->
   <div class="top-hud" aria-live="polite">
     <span class="label">Credits</span>
     <span id="creditsTop">1000</span>
   </div>
 
-  <!-- Intro video -->
+  <!-- Intro -->
   <div id="introOverlay" class="intro-overlay">
     <video id="introVideo" src="aa.mp4" preload="auto" autoplay muted playsinline webkit-playsinline></video>
   </div>
@@ -275,13 +268,12 @@
     </div>
   </div>
 
-  <!-- Bottom sheet: Settings -->
+  <!-- Settings sheet -->
   <div id="settingsSheet" class="sheet" aria-hidden="true">
     <header>
       <h3>Settings</h3>
       <button class="close" id="sheetClose" aria-label="Close">×</button>
     </header>
-
     <div class="row">
       <div class="info">
         <label for="linesCount">Lines:</label>
@@ -292,12 +284,10 @@
           <option value="20">20</option>
         </select>
       </div>
-
       <div class="info">
         <label for="betPerLine">Bet/Line:</label>
         <input type="number" id="betPerLine" value="1" min="1" />
       </div>
-
       <div class="info">
         <label>Last Win:</label>
         <div class="value-box" id="lastWin">0</div>
@@ -305,7 +295,7 @@
     </div>
   </div>
 
-  <!-- Step dialog (for long-press on + / −) -->
+  <!-- Step dialog -->
   <div class="step-overlay" id="stepOverlay">
     <div class="step-dialog" role="dialog" aria-modal="true">
       <h4 id="stepTitle">Set step amount</h4>
@@ -348,7 +338,7 @@
   </div>
 
   <script>
-    /* ===== sound & globals (no rules changed) ===== */
+    /* ===== SOUND & GLOBALS (rules untouched) ===== */
     let freeSpins = 0;
     let isBonusActive = false;
 
@@ -370,7 +360,7 @@
       });
     });
 
-    /* ===== audio panel ===== */
+    /* ===== Audio panel ===== */
     (function setupAudioPanel(){
       const audioIcon=document.getElementById("audioIcon");
       const audioPanel=document.getElementById("audioPanel");
@@ -389,7 +379,7 @@
       });
     })();
 
-    /* ===== intro video ===== */
+    /* ===== Intro video ===== */
     (function setupIntroVideo(){
       const overlay=document.getElementById("introOverlay");
       const video=document.getElementById("introVideo");
@@ -412,13 +402,14 @@
       },{once:true});
     })();
 
-    /* ===== utils ===== */
+    /* ===== Utils ===== */
     function toInt(v,d){const n=parseInt(v,10);return Number.isFinite(n)?n:d;}
     function clamp(n,min,max){return Math.min(max,Math.max(min,n));}
     function fixNumber(n,def=0){n=Number(n);return Number.isFinite(n)?n:def;}
     function getCssNumber(name){ return parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name)) || 0; }
+    function rand(){ const c=(window.crypto||window.msCrypto); if(c&&c.getRandomValues){const a=new Uint32Array(1); c.getRandomValues(a); return a[0]/4294967296;} return Math.random(); }
 
-    /* ===== symbols ===== */
+    /* ===== Symbols / strips ===== */
     function getSymbolBackground(symUrl){return `url("${symUrl}"), url("images/d1.png")`;}
     const symbolsArr=[
       {name:"d1",url:"images/d1.png"},{name:"d2",url:"images/d2.png"},
@@ -456,7 +447,7 @@
     const MAX_WIN_MULTIPLIER=3;
     const FREE_SPINS_COUNT=3;
 
-    /* ===== UI elements ===== */
+    /* ===== UI refs ===== */
     const linesCountSelect = document.getElementById("linesCount");
     const betPerLineInput  = document.getElementById("betPerLine");
     const creditsTop       = document.getElementById("creditsTop");
@@ -493,7 +484,7 @@
     betPerLineInput.addEventListener('blur',  ()=>{ betPerLineInput.value=String(Math.max(1,toInt(betPerLineInput.value,1))); });
     linesCountSelect.addEventListener('change',()=>{ linesCountSelect.value=String(getActivePayLinesCount()); });
 
-    let credits=1000, lastWin=0, isSpinning=false;
+    let credits=1000, lastWin=0, isSpinning=false, consecutiveLosses=0;
 
     function updateHUD(){
       credits=Math.max(0,Math.floor(fixNumber(credits,0)));
@@ -502,7 +493,6 @@
       lastWinSpan.textContent = String(lastWin);
     }
 
-    /* bonus toast */
     function showBonusMessage(text){
       const overlay=document.createElement("div");
       overlay.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;justify-content:center;align-items:center;z-index:99999";
@@ -512,14 +502,12 @@
       setTimeout(()=>document.body.removeChild(overlay),2000);
     }
 
-    /* reels layout */
+    /* ===== Reels ===== */
     function createReelsLayout(){
       const reelsWrapper=document.getElementById("reels"); reelsWrapper.innerHTML="";
       for(let c=0;c<reelsCount;c++){const reel=document.createElement("div");reel.className="reel";reelsWrapper.appendChild(reel);}
     }
-
     function TILE(){ return getCssNumber('--tile'); }
-
     function buildReelSymbolsArray(reelIndex){
       const arr=[];
       for(let i=0;i<12;i++) arr.push(pickWeightedSymbol());
@@ -527,7 +515,6 @@
       for(let j=0;j<10;j++) arr.push(pickWeightedSymbol());
       return arr;
     }
-
     function renderReelsStatic(){
       const reelDivs=document.querySelectorAll(".reel");
       for(let c=0;c<reelsCount;c++){
@@ -552,6 +539,42 @@
         const strip=REEL_STRIPS[c], len=strip.length, start=Math.floor(Math.random()*len);
         res[0][c]=strip[start]; res[1][c]=strip[(start+1)%len]; res[2][c]=strip[(start+2)%len];
       } return res;
+    }
+
+    /* ===== Soft bias: small win after 3 losses ===== */
+    function findStartsForSymbol(strip, targetName, row){
+      const len=strip.length, starts=[];
+      for(let s=0;s<len;s++){ if(strip[(s+row)%len].name===targetName) starts.push(s); }
+      return starts;
+    }
+    function generateBiasedSmallWin(){
+      const linesActive = getActivePayLinesCount();
+      const lineIndex = Math.floor(rand()*linesActive);
+      const pattern = payLines[lineIndex]; // row indices for each reel
+      const target = rand() < 0.65 ? "d1" : "d2"; // low-tier symbol
+      const res=[[],[],[]];
+
+      for(let c=0;c<reelsCount;c++){
+        const strip=REEL_STRIPS[c], len=strip.length;
+        let start;
+        if(c<=2){
+          const pool = findStartsForSymbol(strip, target, pattern[c]);
+          start = pool.length ? pool[Math.floor(rand()*pool.length)] : Math.floor(rand()*len);
+        }else{
+          // avoid extending to 4/5 of a kind on the chosen row
+          let tries=0;
+          do{
+            start = Math.floor(rand()*len);
+            const nameAtRow = strip[(start+pattern[c])%len].name;
+            if(nameAtRow!==target && nameAtRow!=="wild") break;
+            tries++;
+          }while(tries<60);
+        }
+        res[0][c]=strip[start];
+        res[1][c]=strip[(start+1)%len];
+        res[2][c]=strip[(start+2)%len];
+      }
+      return res;
     }
 
     function displaySpinWithAnimation(){
@@ -631,6 +654,9 @@
       const winAmount=Math.max(0,Math.floor(fixNumber(evaluateWin(spinFinalResult),0)));
       lastWin=winAmount; credits=fixNumber(credits,0)+winAmount;
 
+      // update loss streak
+      if(winAmount>0) consecutiveLosses=0; else consecutiveLosses++;
+
       if(winAmount>0 && lastDeductedBet>0){
         credits+=lastDeductedBet; lastDeductedBet=0;
         winSound.currentTime=0; winSound.play().catch(()=>{});
@@ -668,13 +694,21 @@
       isSpinning=true; spinBtn.disabled=true;
       spinSound.currentTime=0; spinSound.play().catch(()=>{});
 
-      spinFinalResult=generateSpinResult();
+      // ===== slight bias every ~4 spins =====
+      if(consecutiveLosses >= 3){
+        spinFinalResult = generateBiasedSmallWin();
+      }else{
+        spinFinalResult = generateSpinResult();
+      }
+
       displaySpinWithAnimation();
     }
     spinBtn.addEventListener("click", ()=>{ if(isBonusActive&&freeSpins>0) return; doSpin(); });
 
-    /* ===== responsive tile & prevent symbol shift during spin ===== */
+    /* ===== Responsive tile & freeze on rotate ===== */
     let pendingResize = false;
+    let resizeTimer = null;
+
     function setTile(px){ document.documentElement.style.setProperty('--tile', Math.max(40, px) + 'px'); }
 
     function fitToViewport(force=false){
@@ -691,7 +725,7 @@
       const spinH = spinRow ? spinRow.getBoundingClientRect().height : 0;
       const vMargin = Math.max(12, vh * 0.03);
 
-      const maxTileByH = (vh - spinH - vMargin*2 - (48 + 10)) / 3; // space for top HUD
+      const maxTileByH = (vh - spinH - vMargin*2 - (48 + 10)) / 3; // reserve space for top HUD
       const tile = Math.min(maxTileByW, maxTileByH);
       setTile(tile);
 
@@ -701,6 +735,13 @@
       }
     }
 
+    function scheduleFit(){
+      if(isSpinning){ pendingResize = true; return; }
+      if(resizeTimer) clearTimeout(resizeTimer);
+      // debounce to prevent symbol shift during orientation changes
+      resizeTimer = setTimeout(()=>fitToViewport(true), 400);
+    }
+
     window.addEventListener('load', ()=>{
       createReelsLayout();
       spinFinalResult=generateSpinResult();
@@ -708,19 +749,19 @@
       updateHUD();
       fitToViewport();
     });
-    window.addEventListener('resize', ()=>fitToViewport());
-    window.addEventListener('orientationchange', ()=>fitToViewport());
-    if(window.visualViewport) visualViewport.addEventListener('resize', ()=>fitToViewport());
+
+    window.addEventListener('resize', scheduleFit);
+    window.addEventListener('orientationchange', scheduleFit);
+    if(window.visualViewport) visualViewport.addEventListener('resize', scheduleFit);
 
     /* ===== + / − with long-press step dialog (EN) ===== */
-    let betStep = 2; // default step
+    let betStep = 2;
     function adjustBet(delta){
       const cur = getBetPerLine();
       const next = Math.max(1, cur + delta);
       betPerLineInput.value = String(next);
     }
-
-    // click handlers with hold-suppression
+    // click suppressed if long-press used
     betPlusBtn.addEventListener('click', ()=>{
       if (betPlusBtn._held) { betPlusBtn._held=false; return; }
       adjustBet(+betStep);
@@ -764,19 +805,11 @@
     setupHoldToSetStep(betPlusBtn, true);
     setupHoldToSetStep(betMinusBtn, false);
 
-    /* ===== 3-dots settings sheet ===== */
-    function openSheet(){ settingsSheet.classList.add('open'); settingsSheet.setAttribute('aria-hidden','false'); }
+    /* Settings sheet */
     function closeSheet(){ settingsSheet.classList.remove('open'); settingsSheet.setAttribute('aria-hidden','true'); }
     moreBtn.addEventListener('click', (e)=>{ e.stopPropagation(); settingsSheet.classList.toggle('open'); });
     sheetClose.addEventListener('click', closeSheet);
     document.addEventListener('click', (e)=>{ if(settingsSheet.classList.contains('open') && !settingsSheet.contains(e.target) && e.target!==moreBtn) closeSheet(); });
-
-    /* RNG helper (optional) */
-    function rand(){
-      const cryptoObj=(window.crypto||window.msCrypto);
-      if(cryptoObj&&cryptoObj.getRandomValues){const a=new Uint32Array(1);cryptoObj.getRandomValues(a);return a[0]/4294967296;}
-      return Math.random();
-    }
   </script>
 </body>
 </html>
