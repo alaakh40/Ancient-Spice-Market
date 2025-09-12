@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- Viewport -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Slot Game - White Spin Wheel</title>
 
@@ -10,19 +9,15 @@
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&family=Orbitron:wght@500;700&display=swap');
 
     :root{
-      /* tile replaces old 200px; JS adjusts responsively */
       --tile: 18vmin;
       --spin-size: clamp(64px, 14vmin, 120px);
       --step-size: clamp(48px, 10vmin, 80px);
       --gap: 2.2vmin;
 
-      /* colors */
       --gold-dk:#7a4f02; --gold:#e3b653; --gold-hi:#ffe69a;
-      --burgundy-1:#2b0715; --burgundy-2:#4a0b22; --burgundy-3:#6e1030;
       --hud-stroke:rgba(255,215,120,.58);
       --led-amber:#ffd66d;
 
-      /* machine size */
       --slot-w: calc(var(--tile) * 5);
       --slot-h: calc(var(--tile) * 3);
 
@@ -33,17 +28,19 @@
 
     *{margin:0;padding:0;box-sizing:border-box}
     html,body{height:100%}
-    /* ===== BIG SCREEN BACKGROUND -> BLACK (not the machine) ===== */
-    body{
-      min-height:100svh; display:flex; flex-direction:column; align-items:center;
-      padding:clamp(10px,2vmin,24px);
-      color:#fff; overflow:hidden; /* يمنع أي سحب/حركة للصفحة */
-      background:#000; /* أسود صافي للشاشة الأكبر */
-    }
-    /* أوقف أي طبقة زخرفية قد تسبب وميض */
-    body::before{content:none}
 
-    /* ===== TOP HUD (Credits) always visible ===== */
+    /* ===== BACKGROUND: صورتك ===== */
+    body{
+      min-height:100svh;
+      display:flex; flex-direction:column; align-items:center;
+      padding:clamp(10px,2vmin,24px);
+      color:#fff;
+      overflow:hidden;
+      background: url("images/background.png") no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    /* ===== HUD (Credits + Win Badge) ===== */
     .top-hud{
       position:fixed; left:50%; top:calc(8px + env(safe-area-inset-top, 0px));
       transform:translateX(-50%); z-index:10010;
@@ -62,41 +59,71 @@
       min-width: clamp(86px, 15vmin, 140px);
       text-align:center; padding:.6vmin 1vmin; border-radius:10px;
       font-family:"Orbitron",system-ui,sans-serif; font-weight:700;
+      font-variant-numeric: tabular-nums;
       font-size: clamp(16px, 2.6vmin, 24px); letter-spacing:.5px;
       color:var(--led-amber);
       background:linear-gradient(180deg, rgba(12,16,22,.35), rgba(6,8,12,.2));
       border:1px solid rgba(255,178,0,.35);
       text-shadow:0 0 .6vmin rgba(255,178,0,.75),0 .1vmin 0 #2a1500;
     }
+    .win-badge{
+      display:inline-flex; align-items:center; justify-content:center;
+      min-width: clamp(70px, 16vmin, 160px);
+      height: clamp(32px, 6.4vmin, 48px);
+      padding: .4vmin .9vmin; border-radius:10px;
+      font-family:"Orbitron",system-ui,sans-serif; font-weight:700;
+      font-variant-numeric: tabular-nums;
+      font-size: clamp(14px, 2.4vmin, 20px);
+      color:var(--led-amber);
+      background:linear-gradient(180deg, rgba(12,16,22,.45), rgba(6,8,12,.28));
+      border:1px solid rgba(255,178,0,.35);
+      text-shadow:0 0 .6vmin rgba(255,178,0,.75),0 .1vmin 0 #2a1500;
+      opacity:0; transform: translateY(-6px) scale(.92);
+      pointer-events:none;
+    }
+    .win-badge.show{ animation: badgePop 1.6s cubic-bezier(.22,1,.36,1) forwards; }
+    @keyframes badgePop{
+      0%{ opacity:0; transform: translateY(-6px) scale(.92) }
+      10%{ opacity:1; transform: translateY(0) scale(1) }
+      80%{ opacity:1; transform: translateY(0) scale(1) }
+      100%{ opacity:0; transform: translateY(-4px) scale(.96) }
+    }
+    .credits-pulse{ animation: creditsPulse .9s ease; }
+    @keyframes creditsPulse{
+      0%{ box-shadow: 0 0 .6vmin rgba(255,178,0,.9), 0 0 1.2vmin rgba(255,178,0,.6) }
+      100%{ box-shadow: 0 0 0 rgba(0,0,0,0) }
+    }
 
-    /* ===== MACHINE ===== */
+    /* ===== MACHINE (black + golden separators) ===== */
     .machine-frame{
       display:inline-flex; justify-content:center; align-items:center;
-      padding:clamp(12px,2.4vmin,28px); border-radius:var(--radius-lg);
-      background: radial-gradient(1200px 800px at 50% 50%, rgba(255,190,60,.06), transparent 60%),
-                  radial-gradient(circle at 50% 40%, var(--burgundy-3) 0%, var(--burgundy-2) 55%, var(--burgundy-1) 100%);
-      box-shadow: 0 3vmin 8vmin rgba(0,0,0,.65),
-                  inset 0 0 0 .2vmin rgba(255,215,0,.16),
-                  0 0 4vmin rgba(255,215,0,.16);
+      padding:clamp(12px,2.4vmin,28px);
+      border-radius:var(--radius-lg);
+      background:#000;
+      box-shadow:
+        0 3vmin 8vmin rgba(0,0,0,.75),
+        inset 0 0 0 .2vmin rgba(255,215,0,.12),
+        0 0 4vmin rgba(255,215,0,.08);
       margin-top: calc(48px + env(safe-area-inset-top, 0px));
     }
     .slot-container{
       width:var(--slot-w); height:var(--slot-h);
       position:relative; overflow:hidden; border-radius:var(--radius-md);
-      box-shadow: 0 0 0 .12vmin rgba(0,0,0,.35) inset, 0 0 0 1vmin rgba(0,0,0,.25) inset;
+      background:#000;
+      box-shadow: 0 0 0 .12vmin rgba(0,0,0,.6) inset, 0 0 0 1vmin rgba(0,0,0,.6) inset;
       transform: translateZ(0);
     }
     .slot-container::before{
       content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; z-index:2;
-      box-shadow: inset 0 0 0 .6vmin var(--gold-dk),
-                  inset 0 0 0 .9vmin var(--gold),
-                  inset 0 0 0 1.2vmin var(--gold-dk),
-                  inset 0 0 4vmin rgba(255,215,0,.22);
+      box-shadow:
+        inset 0 0 0 .6vmin var(--gold-dk),
+        inset 0 0 0 .9vmin var(--gold),
+        inset 0 0 0 1.2vmin var(--gold-dk),
+        inset 0 0 4vmin rgba(255,215,0,.18);
     }
-    /* ❗️No transparent grid — keep only golden separators */
     .slot-container::after{
       content:""; position:absolute; inset:var(--inset); border-radius:calc(var(--radius-md) - .4vmin); pointer-events:none; z-index:1;
-      box-shadow: inset 0 0 3vmin rgba(0,0,0,.35), inset 0 1vmin 3vmin rgba(0,0,0,.35);
+      box-shadow: inset 0 0 3vmin rgba(0,0,0,.6), inset 0 1vmin 3vmin rgba(0,0,0,.6);
     }
 
     .reels{display:flex; width:100%; height:100%}
@@ -161,7 +188,7 @@
       display:flex; align-items:center; justify-content:center;
     }
 
-    /* Bottom sheet */
+    /* ===== Bottom sheet ===== */
     .sheet{
       position:fixed; left:50%; transform:translateX(-50%) translateY(100%);
       bottom:0; width:min(96vw, 520px);
@@ -182,8 +209,10 @@
     }
     .sheet label{
       font:800 13px/1 "Cairo",system-ui,sans-serif;
-      color:var(--gold-hi);background-image:linear-gradient(180deg,#fff2b8,#e8be6a 55%,#7a4f02);
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;
+      color:var(--gold-hi);
+      background-image:linear-gradient(180deg,#fff2b8,#e8be6a 55%,#7a4f02);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      white-space:nowrap;
       text-shadow:0 0 .3vmin rgba(255,255,255,.35),0 .2vmin .1vmin rgba(0,0,0,.55);
     }
     .sheet select, .sheet input[type="number"], .sheet .value-box{
@@ -195,18 +224,18 @@
     }
     .sheet .value-box{display:flex; align-items:center; justify-content:center; font-weight:700;}
 
-    /* Step dialog */
-    .step-overlay{ position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; z-index:10030; }
-    .step-dialog{
-      width:min(90vw, 360px); background:#1b1e24; color:#fff; border:1px solid #555; border-radius:12px; padding:16px;
-      box-shadow:0 10px 30px rgba(0,0,0,.5);
+    /* ===== Toast (Bet only) ===== */
+    .toast{
+      position:fixed; left:50%; transform:translateX(-50%);
+      z-index:10050; padding:.9rem 1.2rem; border-radius:12px;
+      background:rgba(0,0,0,.75); color:#fff; border:1px solid rgba(255,255,255,.15);
+      font:800 clamp(18px,3.6vmin,26px)/1.2 "Cairo", system-ui, sans-serif;
+      box-shadow:0 10px 24px rgba(0,0,0,.4);
+      pointer-events:none;
     }
-    .step-dialog h4{margin:0 0 10px 0; font:800 16px/1.2 "Cairo"}
-    .step-dialog .actions{display:flex; gap:10px; justify-content:flex-end; margin-top:12px}
-    .step-dialog button{padding:10px 14px; border-radius:10px; border:1px solid #666; background:#2a3038; color:#fff; cursor:pointer}
-    .step-dialog input[type="number"]{width:120px; height:44px; border-radius:10px; padding:6px 10px; border:1px solid #666; background:#0f141a; color:#fff}
+    .toast.bet{ bottom: 14%; font-size: clamp(14px, 3vmin, 20px); }
 
-    /* Audio */
+    /* ===== Audio ===== */
     .audio-icon{
       font-size: clamp(20px, 3.6vmin, 24px);
       width: clamp(40px, 7vmin, 52px); height: clamp(40px, 7vmin, 52px);
@@ -228,7 +257,6 @@
     .intro-overlay{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:1000000}
     .intro-overlay video{width:100vw;height:100vh;object-fit:contain;background:#000}
 
-    /* mobile tweaks */
     @media (max-width: 600px){
       .spin-row-inner{flex-wrap:wrap; gap:calc(var(--gap) * .8)}
       #moreBtn{ order: 3; }
@@ -240,10 +268,11 @@
 </head>
 <body>
 
-  <!-- Top HUD -->
+  <!-- HUD -->
   <div class="top-hud" aria-live="polite">
     <span class="label">Credits</span>
     <span id="creditsTop">1000</span>
+    <span id="winBadge" class="win-badge" hidden>+0</span>
   </div>
 
   <!-- Intro -->
@@ -263,7 +292,7 @@
       <button id="betMinus" class="step-btn" aria-label="Decrease bet">−</button>
       <button id="spinBtn" aria-label="Spin"><img src="images/spin.png" alt="Spin" /></button>
       <button id="betPlus" class="step-btn" aria-label="Increase bet">+</button>
-      <button id="moreBtn" aria-label="Settings">⋮</button>
+      <button id="moreBtn" class="step-btn" aria-label="Settings">⋮</button>
       <div class="audio-icon" id="audioIcon" title="Sound">🔊</div>
     </div>
   </div>
@@ -295,18 +324,6 @@
     </div>
   </div>
 
-  <!-- Step dialog -->
-  <div class="step-overlay" id="stepOverlay">
-    <div class="step-dialog" role="dialog" aria-modal="true">
-      <h4 id="stepTitle">Set step amount</h4>
-      <input type="number" id="stepInput" min="1" value="2" />
-      <div class="actions">
-        <button id="stepCancel">Cancel</button>
-        <button id="stepOk">Done</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Audio panel -->
   <div class="audio-panel" id="audioPanel">
     <h3>Sound Settings</h3>
@@ -332,13 +349,13 @@
     </div>
     <div class="sound-control">
       <label>Bonus</label>
-      <input type="range" min="0" max="1" step="0.01" value="1" data-sound="bonus" class="volume-slider" />
+      <input type="range" min="0" max="1" step="0.01" value="1" data-sound="bonus" />
       <div class="mute-row"><span>Mute</span><input type="checkbox" data-mute="bonus" /></div>
     </div>
   </div>
 
   <script>
-    /* ===== SOUND & GLOBALS (rules untouched) ===== */
+    /* =================== SOUND & GLOBALS =================== */
     let freeSpins = 0;
     let isBonusActive = false;
 
@@ -360,7 +377,7 @@
       });
     });
 
-    /* ===== Audio panel ===== */
+    /* Audio Panel */
     (function setupAudioPanel(){
       const audioIcon=document.getElementById("audioIcon");
       const audioPanel=document.getElementById("audioPanel");
@@ -379,7 +396,7 @@
       });
     })();
 
-    /* ===== Intro video ===== */
+    /* Intro Video */
     (function setupIntroVideo(){
       const overlay=document.getElementById("introOverlay");
       const video=document.getElementById("introVideo");
@@ -408,8 +425,9 @@
     function fixNumber(n,def=0){n=Number(n);return Number.isFinite(n)?n:def;}
     function getCssNumber(name){ return parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name)) || 0; }
     function rand(){ const c=(window.crypto||window.msCrypto); if(c&&c.getRandomValues){const a=new Uint32Array(1); c.getRandomValues(a); return a[0]/4294967296;} return Math.random(); }
+    function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
 
-    /* ===== Symbols / strips ===== */
+    /* ===== Symbols / Strips ===== */
     function getSymbolBackground(symUrl){return `url("${symUrl}"), url("images/d1.png")`;}
     const symbolsArr=[
       {name:"d1",url:"images/d1.png"},{name:"d2",url:"images/d2.png"},
@@ -444,7 +462,7 @@
       return symbolsArr[symbolsArr.length-1];
     }
 
-    const MAX_WIN_MULTIPLIER=3;
+    const MAX_WIN_MULTIPLIER=3;      // سقف أي فوز = 3× إجمالي الرهان
     const FREE_SPINS_COUNT=3;
 
     /* ===== UI refs ===== */
@@ -458,11 +476,7 @@
     const moreBtn          = document.getElementById("moreBtn");
     const settingsSheet    = document.getElementById("settingsSheet");
     const sheetClose       = document.getElementById("sheetClose");
-    const stepOverlay      = document.getElementById("stepOverlay");
-    const stepTitle        = document.getElementById("stepTitle");
-    const stepInput        = document.getElementById("stepInput");
-    const stepOk           = document.getElementById("stepOk");
-    const stepCancel       = document.getElementById("stepCancel");
+    const winBadge         = document.getElementById("winBadge");
 
     const reelsCount=5, rowsCount=3;
     const payLines=[
@@ -480,11 +494,42 @@
       if(String(n)!==betPerLineInput.value) betPerLineInput.value=String(n);
       return n;
     }
-    betPerLineInput.addEventListener('input', ()=>{ betPerLineInput.value=String(Math.max(1,toInt(betPerLineInput.value,1))); });
-    betPerLineInput.addEventListener('blur',  ()=>{ betPerLineInput.value=String(Math.max(1,toInt(betPerLineInput.value,1))); });
-    linesCountSelect.addEventListener('change',()=>{ linesCountSelect.value=String(getActivePayLinesCount()); });
+    betPerLineInput.addEventListener('input', ()=>{ betPerLineInput.value=String(Math.max(1,toInt(betPerLineInput.value,1))); showBetToast(); });
+    betPerLineInput.addEventListener('blur',  ()=>{ betPerLineInput.value=String(Math.max(1,toInt(betPerLineInput.value,1))); showBetToast(); });
+    linesCountSelect.addEventListener('change',()=>{ linesCountSelect.value=String(getActivePayLinesCount()); showBetToast(); });
 
-    let credits=1000, lastWin=0, isSpinning=false, consecutiveLosses=0;
+    let credits=1000, lastWin=0, isSpinning=false;
+
+    /* ===== Toast (Bet) ===== */
+    function centerToast(text, cls='bet', ms=1200){
+      const t=document.createElement('div');
+      t.className=`toast ${cls}`;
+      t.textContent=text;
+      document.body.appendChild(t);
+      setTimeout(()=>{ if(t&&t.parentNode) t.parentNode.removeChild(t); }, ms);
+    }
+    function totalBetNow(){ return getActivePayLinesCount() * getBetPerLine(); }
+    function showBetToast(){ centerToast(`Bet / Spin: ${totalBetNow()}`, 'bet', 1200); }
+
+    /* ===== Number animation ===== */
+    function animateNumber(el, from, to, ms=800){
+      const start=performance.now();
+      function step(now){
+        const t=Math.min(1, (now-start)/ms);
+        const val=Math.floor(from + (to-from)*t);
+        el.textContent = String(val);
+        if(t<1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+    function showWinBadge(amount){
+      if(typeof amount === 'number') amount = `+${amount}`;
+      winBadge.textContent = amount;
+      winBadge.hidden = false;
+      winBadge.classList.remove('show'); void winBadge.offsetWidth; winBadge.classList.add('show');
+      setTimeout(()=>{ winBadge.hidden = true; }, 1600);
+      creditsTop.classList.remove('credits-pulse'); void creditsTop.offsetWidth; creditsTop.classList.add('credits-pulse');
+    }
 
     function updateHUD(){
       credits=Math.max(0,Math.floor(fixNumber(credits,0)));
@@ -493,16 +538,7 @@
       lastWinSpan.textContent = String(lastWin);
     }
 
-    function showBonusMessage(text){
-      const overlay=document.createElement("div");
-      overlay.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;justify-content:center;align-items:center;z-index:99999";
-      const msg=document.createElement("div");
-      msg.style.cssText="background:#ffdd00;color:#000;font-weight:bold;padding:1.1rem 1.6rem;border-radius:1rem;box-shadow:0 0 15px rgba(255,255,255,.8);font-size:clamp(18px,3.4vmin,26px)";
-      msg.textContent=text; overlay.appendChild(msg); document.body.appendChild(overlay);
-      setTimeout(()=>document.body.removeChild(overlay),2000);
-    }
-
-    /* ===== Reels ===== */
+    /* ===== Reels build ===== */
     function createReelsLayout(){
       const reelsWrapper=document.getElementById("reels"); reelsWrapper.innerHTML="";
       for(let c=0;c<reelsCount;c++){const reel=document.createElement("div");reel.className="reel";reelsWrapper.appendChild(reel);}
@@ -541,72 +577,10 @@
       } return res;
     }
 
-    /* ===== Soft bias: small win after 3 losses ===== */
-    function findStartsForSymbol(strip, targetName, row){
-      const len=strip.length, starts=[];
-      for(let s=0;s<len;s++){ if(strip[(s+row)%len].name===targetName) starts.push(s); }
-      return starts;
-    }
-    function generateBiasedSmallWin(){
-      const linesActive = getActivePayLinesCount();
-      const lineIndex = Math.floor(rand()*linesActive);
-      const pattern = payLines[lineIndex]; // row indices for each reel
-      const target = rand() < 0.65 ? "d1" : "d2"; // low-tier symbol
-      const res=[[],[],[]];
-
-      for(let c=0;c<reelsCount;c++){
-        const strip=REEL_STRIPS[c], len=strip.length;
-        let start;
-        if(c<=2){
-          const pool = findStartsForSymbol(strip, target, pattern[c]);
-          start = pool.length ? pool[Math.floor(rand()*pool.length)] : Math.floor(rand()*len);
-        }else{
-          // avoid extending to 4/5 of a kind on the chosen row
-          let tries=0;
-          do{
-            start = Math.floor(rand()*len);
-            const nameAtRow = strip[(start+pattern[c])%len].name;
-            if(nameAtRow!==target && nameAtRow!=="wild") break;
-            tries++;
-          }while(tries<60);
-        }
-        res[0][c]=strip[start];
-        res[1][c]=strip[(start+1)%len];
-        res[2][c]=strip[(start+2)%len];
-      }
-      return res;
-    }
-
-    function displaySpinWithAnimation(){
-      const reelDivs=document.querySelectorAll(".reel"); let finished=0;
-      ddSound.currentTime=0; ddSound.play().catch(()=>{});
-      for(let c=0;c<reelsCount;c++){
-        const inner=document.createElement("div"); inner.className="reel-inner";
-        const arr=buildReelSymbolsArray(c); inner.style.height=(arr.length * TILE())+"px";
-        arr.forEach((sym,idx)=>{
-          const d=document.createElement("div"); d.className="symbol"; d.style.top=(idx * TILE())+"px";
-          const img=document.createElement("div"); img.className="symbol-img"; img.style.backgroundImage=getSymbolBackground(sym.url);
-          d.appendChild(img); inner.appendChild(d);
-        });
-        const old=reelDivs[c].querySelector(".reel-inner"); reelDivs[c].appendChild(inner); if(old) reelDivs[c].removeChild(old);
-        inner.style.animation=`spinDown ${reelDurations[c]}s forwards linear`;
-        inner.addEventListener("animationend", ()=>{finished++; if(finished===reelsCount) finalizeSpin();},{once:true});
-      }
-    }
-
-    function highlightWinningSymbols(lineIndex,count){
-      const pattern=payLines[clamp(lineIndex,0,payLines.length-1)];
-      const reelDivs=document.querySelectorAll(".reel");
-      for(let c=0;c<count;c++){
-        const rowIndex=pattern[c], symIndex=12+rowIndex;
-        const inner=reelDivs[c].querySelector(".reel-inner");
-        if(inner){ const symDiv=inner.children[symIndex]; if(symDiv){ const img=symDiv.querySelector(".symbol-img"); if(img) img.classList.add("win-flash");}}
-      }
-    }
+    /* ===== Win evaluation ===== */
     function countSymbolInAll(spinResult,name){
       let cnt=0; for(let r=0;r<rowsCount;r++){for(let c=0;c<reelsCount;c++){if(spinResult[r][c].name===name) cnt++;}} return cnt;
     }
-
     function calculateLineWin(lineSyms,betVal){
       const payTable={
         "d1":[0,0,2,3,4],"d2":[0,0,2,3,5],"d3":[0,0,3,4,6],"d4":[0,0,3,5,7],
@@ -627,43 +601,244 @@
       if(base && payTable[base] && count>=3){ if(count>5) count=5; amt=payTable[base][count]*betVal; }
       return {amount:amt, count};
     }
-
-    function evaluateWin(spinResult){
+    function evaluateWin(spinResult, opts={}){
+      const dry = !!opts.dry;
       let total=0; const linesActive=getActivePayLinesCount(); const betVal=getBetPerLine(); const totalBet=linesActive*betVal;
 
       for(let i=0;i<linesActive;i++){
         const pattern=payLines[i], line=[]; for(let c=0;c<reelsCount;c++){ line.push(spinResult[pattern[c]][c]); }
-        const w=calculateLineWin(line,betVal); total+=w.amount; if(w.count>=3) highlightWinningSymbols(i,w.count);
+        const w=calculateLineWin(line,betVal); total+=w.amount;
+        if(w.count>=3 && !dry) highlightWinningSymbols(i,w.count);
       }
 
       const sc=countSymbolInAll(spinResult,"scatter"); if(sc>=3){ const t={3:1,4:2,5:4}; total+=(t[sc]||4)*betVal; }
-      const bn=countSymbolInAll(spinResult,"bonus"); if(bn>=3){
+      const bn=countSymbolInAll(spinResult,"bonus");
+      if(bn>=3 && !dry){
         total+=(bn*5)*betVal; bonusSound.currentTime=0; bonusSound.play().catch(()=>{});
         freeSpins=FREE_SPINS_COUNT; isBonusActive=true;
         musicSound.pause(); musicSound.currentTime=0; crashSound.currentTime=0; crashSound.play().catch(()=>{});
-        showBonusMessage(`Congrats! You won ${FREE_SPINS_COUNT} free spins!`);
+        showWinBadge(`FS ${FREE_SPINS_COUNT}`);
       }
       const cap=MAX_WIN_MULTIPLIER*totalBet; if(total>cap) total=cap;
       return total;
     }
+    function highlightWinningSymbols(lineIndex,count){
+      const pattern=payLines[clamp(lineIndex,0,payLines.length-1)];
+      const reelDivs=document.querySelectorAll(".reel");
+      for(let c=0;c<count;c++){
+        const rowIndex=pattern[c], symIndex=12+rowIndex;
+        const inner=reelDivs[c].querySelector(".reel-inner");
+        if(inner){ const symDiv=inner.children[symIndex]; if(symDiv){ const img=symDiv.querySelector(".symbol-img"); if(img) img.classList.add("win-flash");}}
+      }
+    }
 
-    let lastDeductedBet=0;
+    /* ===== RNG/RTP Governor ===== */
+    const RNG_CONF = {
+      TARGET_RTP: 0.84,     // نسبة العائد للاعب (يمكن تعديلها)
+      WINDOW: 320,          // نافذة متحركة لحساب الرصيد/الدفع
+      pWinBase: 0.30,       // احتمال فوز أساسي
+      lossBoostStep: 0.025, // +2.5% لكل خسارة متتالية
+      lossBoostMax: 0.12,   // سقف البوست 12%
+      streakBreakAt: 7,     // كسر سلسلة الخسارة بفوز صغير لو سمحت الميزانية
+      shares: { smallScatter: 0.86, smallLine: 0.12, medium: 0.02 }
+    };
+
+    const RTP_TRACK = { window: RNG_CONF.WINDOW, q: [], spent: 0, paid: 0 };
+    function rtpPush(spent, paid){
+      RTP_TRACK.q.push({spent, paid});
+      RTP_TRACK.spent += spent; RTP_TRACK.paid += paid;
+      while(RTP_TRACK.q.length > RNG_CONF.WINDOW){
+        const old = RTP_TRACK.q.shift();
+        RTP_TRACK.spent -= old.spent; RTP_TRACK.paid -= old.paid;
+      }
+    }
+    function rtpAllowedForNextSpin(additionalSpend){
+      const allowed = Math.floor(RNG_CONF.TARGET_RTP * (RTP_TRACK.spent + additionalSpend) - RTP_TRACK.paid);
+      return Math.max(0, allowed);
+    }
+
+    function findStartsForSymbol(strip, targetName, row){
+      const len=strip.length, starts=[];
+      for(let s=0;s<len;s++){ if(strip[(s+row)%len].name===targetName) starts.push(s); }
+      return starts;
+    }
+    function generateLossResult(maxTries=300){
+      for(let t=0;t<maxTries;t++){
+        const r=generateSpinResult();
+        const amt = evaluateWin(r,{dry:true});
+        const sc  = countSymbolInAll(r,"scatter");
+        const bn  = countSymbolInAll(r,"bonus");
+        if(amt===0 && sc<3 && bn<3) return r;
+      }
+      return generateSpinResult();
+    }
+    function generateSmallScatterWin(maxTries=400){
+      const betVal=getBetPerLine();
+      const minAmt=Math.max(1, Math.round(betVal*0.8));
+      const maxAmt=Math.max(minAmt, Math.round(betVal*1.6));
+      for(let t=0;t<maxTries;t++){
+        const res=[[],[],[]]; const starts=new Array(5).fill(0);
+        const chosen=shuffle([0,1,2,3,4]).slice(0,3);
+        for(let c=0;c<5;c++){
+          const strip=REEL_STRIPS[c], len=strip.length;
+          if(chosen.includes(c)){
+            const row=Math.floor(Math.random()*3);
+            const pool=findStartsForSymbol(strip,"scatter",row);
+            starts[c]=pool.length? pool[Math.floor(Math.random()*pool.length)] : Math.floor(Math.random()*len);
+          }else{
+            starts[c]=Math.floor(Math.random()*len);
+          }
+          res[0][c]=strip[starts[c]];
+          res[1][c]=strip[(starts[c]+1)%len];
+          res[2][c]=strip[(starts[c]+2)%len];
+        }
+        const amt=evaluateWin(res,{dry:true});
+        const sc=countSymbolInAll(res,"scatter"), bn=countSymbolInAll(res,"bonus");
+        if(sc>=3 && bn<3 && amt>=minAmt && amt<=maxAmt) return res;
+      }
+      for(let t=0;t<300;t++){
+        const r=generateSpinResult();
+        const a=evaluateWin(r,{dry:true});
+        if(countSymbolInAll(r,"scatter")>=3 && a>0 && a<=maxAmt) return r;
+      }
+      return generateBiasedSmallWin();
+    }
+    function generateBiasedSmallWin(){
+      const linesActive = getActivePayLinesCount();
+      const lineIndex = Math.floor(rand()*linesActive);
+      const pattern = payLines[lineIndex];
+      const target = rand() < 0.65 ? "d1" : "d2";
+      const res=[[],[],[]];
+
+      for(let c=0;c<reelsCount;c++){
+        const strip=REEL_STRIPS[c], len=strip.length;
+        let start;
+        if(c<=2){
+          const pool = findStartsForSymbol(strip, target, pattern[c]);
+          start = pool.length ? pool[Math.floor(rand()*pool.length)] : Math.floor(rand()*len);
+        }else{
+          let tries=0;
+          do{
+            start = Math.floor(rand()*len);
+            const nameAtRow = strip[(start+pattern[c])%len].name;
+            if(nameAtRow!==target && nameAtRow!=="wild") break;
+            tries++;
+          }while(tries<60);
+        }
+        res[0][c]=strip[start];
+        res[1][c]=strip[(start+1)%len];
+        res[2][c]=strip[(start+2)%len];
+      }
+      return res;
+    }
+    function generateDecentWin(){
+      const linesActive = getActivePayLinesCount();
+      const lineIndex = Math.floor(rand()*linesActive);
+      const pattern = payLines[lineIndex];
+      const choices = ["d3","d4","d5"];
+      const target = choices[Math.floor(rand()*choices.length)];
+      const res=[[],[],[]];
+
+      for(let c=0;c<reelsCount;c++){
+        const strip=REEL_STRIPS[c], len=strip.length;
+        let start;
+        if(c<=3){
+          const pool = findStartsForSymbol(strip, target, pattern[c]);
+          start = pool.length ? pool[Math.floor(rand()*pool.length)] : Math.floor(rand()*len);
+        }else{
+          let tries=0;
+          do{
+            start = Math.floor(rand()*len);
+            const nameAtRow = strip[(start+pattern[c])%len].name;
+            if(nameAtRow!==target && nameAtRow!=="wild") break;
+            tries++;
+          }while(tries<60);
+        }
+        res[0][c]=strip[start];
+        res[1][c]=strip[(start+1)%len];
+        res[2][c]=strip[(start+2)%len];
+      }
+      return res;
+    }
+
+    /* ===== Choose outcome with stake-refund budget ===== */
+    function restrictToBudget(gen, limit, fallback){
+      for(let t=0;t<220;t++){
+        const cand = gen();
+        const amt  = evaluateWin(cand,{dry:true});
+        if(amt <= limit) return cand;
+      }
+      return fallback ? fallback() : generateLossResult();
+    }
+    function chooseOutcome(totalBet, allowed, pWinEff, forceSmall=false, stakeRefund=0){
+      // لا يمكن دفع أكثر من الميزانية، والميزانية يجب أن تغطي ردّ الرهان أولاً
+      const allowedLess = Math.max(0, allowed - stakeRefund);
+
+      // لو الميزانية لا تكفي حتى لأصغر فوز → خسارة
+      const betVal=getBetPerLine();
+      const minScatter = Math.max(1, Math.round(betVal*0.8));
+      if(allowedLess < minScatter) return generateLossResult();
+
+      // قرعة الفوز/الخسارة (مع فرض فوز صغير لكسر الملل عند الحاجة)
+      if (!forceSmall && Math.random() >= pWinEff) return generateLossResult();
+
+      const s = RNG_CONF.shares;
+      const r = Math.random();
+      const minSmallLine = Math.max(1, Math.round(betVal*2));
+      const minMedium    = Math.max(1, Math.round(totalBet*1.2));
+
+      if (!forceSmall && r < s.medium && allowedLess >= minMedium){
+        return restrictToBudget(
+          generateDecentWin,
+          allowedLess,
+          ()=>restrictToBudget(generateBiasedSmallWin, allowedLess, ()=>restrictToBudget(generateSmallScatterWin, allowedLess))
+        );
+      }
+      if (!forceSmall && r < s.medium + s.smallLine && allowedLess >= minSmallLine){
+        return restrictToBudget(
+          generateBiasedSmallWin,
+          allowedLess,
+          ()=>restrictToBudget(generateSmallScatterWin, allowedLess)
+        );
+      }
+      return restrictToBudget(generateSmallScatterWin, allowedLess, ()=>generateLossResult());
+    }
+
+    /* ===== Spin flow ===== */
+    let lossStreak = 0;
+    let lastDeductedBet = 0; // رهان هذه اللفة (يُعاد عند الفوز)
+    let spentThisSpin = 0;   // ما خُصم فعلياً (أو 0 في اللفات المجانية)
+
     function finalizeSpin(){
       ddSound.pause(); ddSound.currentTime=0;
 
-      const winAmount=Math.max(0,Math.floor(fixNumber(evaluateWin(spinFinalResult),0)));
-      lastWin=winAmount; credits=fixNumber(credits,0)+winAmount;
+      const prevCredits = credits;
+      const winAmount = Math.max(0, Math.floor(fixNumber(evaluateWin(spinFinalResult),0)));
 
-      // update loss streak
-      if(winAmount>0) consecutiveLosses=0; else consecutiveLosses++;
-
-      if(winAmount>0 && lastDeductedBet>0){
-        credits+=lastDeductedBet; lastDeductedBet=0;
+      // ===== ردّ الرهان أولاً ثم إضافة الربح =====
+      let paidThisSpin = 0;
+      if(winAmount > 0){
+        const refund = lastDeductedBet;     // قد يكون 0 في اللفات المجانية
+        credits += refund + winAmount;
+        paidThisSpin = refund + winAmount;  // مهم للـRTP
+        lossStreak = 0;
+        showWinBadge(winAmount);
+        animateNumber(creditsTop, prevCredits, credits, 850);
         winSound.currentTime=0; winSound.play().catch(()=>{});
+      }else{
+        // خسارة: لا رد رهان ولا ربح
+        lossStreak++;
+        creditsTop.textContent = String(credits);
       }
-      updateHUD(); isSpinning=false;
 
-      if (pendingResize) { pendingResize=false; fitToViewport(true); }
+      lastWin = winAmount;
+      lastWinSpan.textContent = String(lastWin);
+      isSpinning=false;
+
+      // تحديث تتبّع RTP (الدفع يشمل ردّ الرهان عند الفوز)
+      rtpPush(spentThisSpin, paidThisSpin);
+      spentThisSpin = 0;
+      lastDeductedBet = 0;
 
       if(isBonusActive){
         if(freeSpins>0){ setTimeout(()=>{freeSpins--; doSpin();},300); }
@@ -678,70 +853,84 @@
       if(isSpinning) return;
 
       credits=fixNumber(credits,0);
-      lastDeductedBet=0;
+      spentThisSpin = 0;
+      lastDeductedBet = 0;
 
+      const lines=getActivePayLinesCount();
+      const betVal=getBetPerLine();
+      const totalBet=lines*betVal;
+
+      // خصم الرهان (إلا في اللفات المجانية)
       if(!isBonusActive || freeSpins<=0){
-        const lines=getActivePayLinesCount();
-        const betVal=getBetPerLine();
-        const totalBet=lines*betVal;
-
         if(!Number.isFinite(totalBet) || totalBet<=0){ alert("Bet value is invalid."); return; }
         if(totalBet>credits){ alert("Insufficient credits!"); return; }
-
-        credits-=totalBet; lastDeductedBet=totalBet; updateHUD();
+        credits -= totalBet;
+        lastDeductedBet = totalBet;
+        spentThisSpin   = totalBet;
+        creditsTop.textContent = String(credits);
       }
 
       isSpinning=true; spinBtn.disabled=true;
       spinSound.currentTime=0; spinSound.play().catch(()=>{});
 
-      // ===== slight bias every ~4 spins =====
-      if(consecutiveLosses >= 3){
-        spinFinalResult = generateBiasedSmallWin();
-      }else{
-        spinFinalResult = generateSpinResult();
-      }
+      const allowed   = rtpAllowedForNextSpin(spentThisSpin);
+      const boost     = Math.min(RNG_CONF.lossBoostMax, lossStreak * RNG_CONF.lossBoostStep);
+      const pWinEff   = Math.max(0, Math.min(0.60, RNG_CONF.pWinBase + boost));  // سقف 60%
+
+      const forceSmall = (lossStreak >= RNG_CONF.streakBreakAt);
+      const stakeRefundIfWin = lastDeductedBet; // 0 لو كانت لفّة مجانية
+
+      spinFinalResult = chooseOutcome(totalBet, allowed, pWinEff, forceSmall, stakeRefundIfWin);
 
       displaySpinWithAnimation();
     }
+
     spinBtn.addEventListener("click", ()=>{ if(isBonusActive&&freeSpins>0) return; doSpin(); });
 
-    /* ===== Responsive tile & freeze on rotate ===== */
+    function displaySpinWithAnimation(){
+      const reelDivs=document.querySelectorAll(".reel"); let finished=0;
+      ddSound.currentTime=0; ddSound.play().catch(()=>{});
+      for(let c=0;c<reelsCount;c++){
+        const inner=document.createElement("div"); inner.className="reel-inner";
+        const arr=buildReelSymbolsArray(c); inner.style.height=(arr.length * TILE())+"px";
+        arr.forEach((sym,idx)=>{
+          const d=document.createElement("div"); d.className="symbol"; d.style.top=(idx * TILE())+"px";
+          const img=document.createElement("div"); img.className="symbol-img"; img.style.backgroundImage=getSymbolBackground(sym.url);
+          d.appendChild(img); inner.appendChild(d);
+        });
+        const old=reelDivs[c].querySelector(".reel-inner"); reelDivs[c].appendChild(inner); if(old) reelDivs[c].removeChild(old);
+        inner.style.animation=`spinDown ${reelDurations[c]}s forwards linear`;
+        inner.addEventListener("animationend", ()=>{finished++; if(finished===reelsCount) finalizeSpin();},{once:true});
+      }
+    }
+
+    /* ===== Responsive / freeze during spin ===== */
     let pendingResize = false;
     let resizeTimer = null;
-
     function setTile(px){ document.documentElement.style.setProperty('--tile', Math.max(40, px) + 'px'); }
-
     function fitToViewport(force=false){
       if (isSpinning && !force) { pendingResize = true; return; }
-
       const vw = Math.max(1, window.innerWidth || document.documentElement.clientWidth || 0);
       const vh = Math.max(1, (window.visualViewport ? visualViewport.height : window.innerHeight) || window.innerHeight);
-
       const side = Math.max(8, vw * 0.04);
       const maxTileByW = (vw - side*2) / 5;
-
       setTile(maxTileByW);
       const spinRow = document.querySelector('.spin-row');
       const spinH = spinRow ? spinRow.getBoundingClientRect().height : 0;
       const vMargin = Math.max(12, vh * 0.03);
-
-      const maxTileByH = (vh - spinH - vMargin*2 - (48 + 10)) / 3; // reserve space for top HUD
+      const maxTileByH = (vh - spinH - vMargin*2 - (48 + 10)) / 3;
       const tile = Math.min(maxTileByW, maxTileByH);
       setTile(tile);
-
       if(!isSpinning){
         createReelsLayout();
         renderReelsStatic();
       }
     }
-
     function scheduleFit(){
       if(isSpinning){ pendingResize = true; return; }
       if(resizeTimer) clearTimeout(resizeTimer);
-      // debounce to prevent symbol shift during orientation changes
       resizeTimer = setTimeout(()=>fitToViewport(true), 400);
     }
-
     window.addEventListener('load', ()=>{
       createReelsLayout();
       spinFinalResult=generateSpinResult();
@@ -749,63 +938,21 @@
       updateHUD();
       fitToViewport();
     });
-
     window.addEventListener('resize', scheduleFit);
     window.addEventListener('orientationchange', scheduleFit);
     if(window.visualViewport) visualViewport.addEventListener('resize', scheduleFit);
 
-    /* ===== + / − with long-press step dialog (EN) ===== */
-    let betStep = 2;
+    /* ===== + / − (±2) + bet toast ===== */
     function adjustBet(delta){
       const cur = getBetPerLine();
       const next = Math.max(1, cur + delta);
       betPerLineInput.value = String(next);
+      showBetToast();
     }
-    // click suppressed if long-press used
-    betPlusBtn.addEventListener('click', ()=>{
-      if (betPlusBtn._held) { betPlusBtn._held=false; return; }
-      adjustBet(+betStep);
-    });
-    betMinusBtn.addEventListener('click', ()=>{
-      if (betMinusBtn._held) { betMinusBtn._held=false; return; }
-      adjustBet(-betStep);
-    });
+    betPlusBtn.addEventListener('click', ()=> adjustBet(+2));
+    betMinusBtn.addEventListener('click', ()=> adjustBet(-2));
 
-    function setupHoldToSetStep(btn, isPlus){
-      const start=()=>{
-        btn._held=false;
-        btn._timer=setTimeout(()=>{
-          btn._held=true;
-          openStepDialog(isPlus);
-        }, 500);
-      };
-      const clear=()=>{
-        if(btn._timer){ clearTimeout(btn._timer); btn._timer=null; }
-      };
-      btn.addEventListener('pointerdown', start);
-      btn.addEventListener('pointerup', clear);
-      btn.addEventListener('pointerleave', clear);
-      btn.addEventListener('touchstart', start, {passive:true});
-      btn.addEventListener('touchend', clear);
-    }
-    function openStepDialog(isPlus){
-      stepTitle.textContent = isPlus ? "How many to increase per tap?" : "How many to decrease per tap?";
-      stepInput.value = String(Math.max(1, betStep));
-      stepOverlay.style.display='flex';
-      stepInput.focus();
-    }
-    stepOk.addEventListener('click', ()=>{
-      const v = Math.max(1, toInt(stepInput.value, betStep));
-      betStep = v;
-      stepOverlay.style.display='none';
-    });
-    stepCancel.addEventListener('click', ()=> stepOverlay.style.display='none');
-    stepOverlay.addEventListener('click', (e)=>{ if(e.target===stepOverlay) stepOverlay.style.display='none'; });
-
-    setupHoldToSetStep(betPlusBtn, true);
-    setupHoldToSetStep(betMinusBtn, false);
-
-    /* Settings sheet */
+    /* Settings sheet toggle */
     function closeSheet(){ settingsSheet.classList.remove('open'); settingsSheet.setAttribute('aria-hidden','true'); }
     moreBtn.addEventListener('click', (e)=>{ e.stopPropagation(); settingsSheet.classList.toggle('open'); });
     sheetClose.addEventListener('click', closeSheet);
