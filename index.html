@@ -437,10 +437,10 @@ async function getAccessToken(){
     async function apiGetBalance(){
       const token = await getAccessToken();
       if(!token) throw new Error('NOT_LOGGED_IN');
-      const { data, error } = await sb.functions.invoke('get-player-balance', {
+      const { data, error } = await sb.functions.invoke('get-balance', {
+  headers: { Authorization: `Bearer ${token}` }
+});
 
-        headers: { Authorization: `Bearer ${token}` }
-      });
       if (error) throw error;
       return Number(data?.credits ?? 0);
     }
