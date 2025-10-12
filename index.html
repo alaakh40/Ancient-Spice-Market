@@ -425,16 +425,20 @@
 
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    async function getAccessToken(){
-      const { data: { session }, error } = await sb.auth.getSession();
-      if (error) console.error('[auth.getSession] error:', error);
-      return session?.access_token || null;
-    }
+    const QS_TOKEN = new URLSearchParams(location.search).get('token');
+
+async function getAccessToken(){
+  if (QS_TOKEN) return QS_TOKEN;               // ✅ استخدم التوكن من URL
+  const { data: { session }, error } = await sb.auth.getSession();
+  return session?.access_token || null;
+}
+
 
     async function apiGetBalance(){
       const token = await getAccessToken();
       if(!token) throw new Error('NOT_LOGGED_IN');
-      const { data, error } = await sb.functions.invoke('get-balance', {
+      const { data, error } = await sb.functions.invoke('get-player-balance', {
+
         headers: { Authorization: `Bearer ${token}` }
       });
       if (error) throw error;
@@ -445,7 +449,8 @@
       const token = await getAccessToken();
       if(!token) throw new Error('NOT_LOGGED_IN');
       const totalBet = lines * betPerLine;
-      const { data, error } = await sb.functions.invoke('place-bet', {
+      const { data, error } = await sb.functions.invoke('settle-spin', {
+
         body: { spin_id: spinId, lines, bet_per_line: betPerLine, total_bet: totalBet },
         headers: { Authorization: `Bearer ${token}` }
       });
