@@ -905,6 +905,13 @@ async function apiPlaceBet(spinId, lines, betPerLine){
     return;
   }
 
+ async function doSpin() {
+  if (isSpinning) return;
+  if (!backendReady) {
+    centerToast('Please sign in', 'bet', 1200);
+    return;
+  }
+
   // 👇 تحديد إذا كانت لفة خاصة أو عادية
   spinsSinceSpecial++;
   if (spinsSinceSpecial >= nextSpecialAfter) {
@@ -955,6 +962,7 @@ async function apiPlaceBet(spinId, lines, betPerLine){
   // 🎰 توليد النتيجة بشكل عشوائي
   spinFinalResult = generateSpinResult();
 }
+
 
 
     spinBtn.addEventListener("click", ()=>{ if(isBonusActive&&freeSpins>0) return; doSpin(); });
