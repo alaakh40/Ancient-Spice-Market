@@ -898,12 +898,36 @@ async function apiPlaceBet(spinId, lines, betPerLine){
       lastWinSpan.textContent = String(lastWin);
     }
 
-    async function doSpin(){
-      if(isSpinning) return;
-      if(!backendReady){
-        centerToast('Please sign in', 'bet', 1200);
-        return;
-      }
+    async function doSpin() {
+  if (isSpinning) return;
+  if (!backendReady) {
+    centerToast('Please sign in', 'bet', 1200);
+    return;
+  }
+
+  // 👇 تحديد إذا كانت لفة خاصة أو عادية
+  spinsSinceSpecial++;
+  if (spinsSinceSpecial >= nextSpecialAfter) {
+    specialSpinActive = true;
+    spinsSinceSpecial = 0;
+    nextSpecialAfter = pickFrom([2, 3, 4, 5]);
+  } else {
+    specialSpinActive = false;
+  }
+
+  credits = fixNumber(credits, 0);
+  spentThisSpin = 0;
+  lastDeductedBet = 0;
+
+  const lines = getActivePayLinesCount();
+  const betVal = getBetPerLine();
+  const totalBet = lines * betVal;
+
+  const isPaidSpin = !(isBonusActive && freeSpins > 0);
+
+  // ✅ ابدأ التحريك فوراً بدون انتظار رد السيرفر
+  isSpi
+
 
       // تفعيل اللفة الخاصة
       spinsSinceSpecial++;
