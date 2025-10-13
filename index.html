@@ -898,7 +898,7 @@ async function apiPlaceBet(spinId, lines, betPerLine){
       lastWinSpan.textContent = String(lastWin);
     }
 
-    async function doSpin() {
+   async function doSpin() {
   if (isSpinning) return;
   if (!backendReady) {
     centerToast('Please sign in', 'bet', 1200);
@@ -926,69 +926,36 @@ async function apiPlaceBet(spinId, lines, betPerLine){
   const isPaidSpin = !(isBonusActive && freeSpins > 0);
 
   // ✅ ابدأ التحريك فوراً بدون انتظار رد السيرفر
-  isSpi
+  isSpinning = true;
+  try { spinSound.currentTime = 0; spinSound.play().catch(() => {}); } catch (e) {}
+  displaySpinWithAnimation();
 
-
-      // تفعيل اللفة الخاصة
-      spinsSinceSpecial++;
-      if(spinsSinceSpecial >= nextSpecialAfter){
-        specialSpinActive = true;
-        spinsSinceSpecial = 0;
-        nextSpecialAfter  = pickFrom([2,3,4,5]);
-      }else{
-        specialSpinActive = false;
-      }
-
-      credits=fixNumber(credits,0);
-      spentThisSpin = 0;
-      lastDeductedBet = 0;
-
-      const lines=getActivePayLinesCount();
-      const betVal=getBetPerLine();
-      const totalBet=lines*betVal;
-
-      const isPaidSpin = !(isBonusActive && freeSpins>0);
-
-      // ===== خصم الرهان من السيرفر قبل البدء =====
-      if(isPaidSpin){
-        if(!Number.isFinite(totalBet) || totalBet<=0){ alert("Bet value is invalid."); return; }
-        try{
-          pendingSpinId = crypto.randomUUID();
-        }catch(_){ pendingSpinId = String(Date.now()) + '_' + Math.random().toString(16).slice(2); }
-
-        try{
-          spinBtn.disabled=true;
-          const res = await apiPlaceBet(pendingSpinId, lines, betVal);
-          const prev = credits;
-          credits = res.balance_after;
-          animateNumber(creditsTop, prev, credits, 300);
-          lastDeductedBet = totalBet;
-          spentThisSpin   = totalBet;
-        }catch(err){
-          console.error('[place-bet] error:', err);
-          spinBtn.disabled=false;
-          // رسائل شائعة من السيرفر
-          const msg = (err?.message || '').toUpperCase();
-          if (msg.includes('INSUFFICIENT_FUNDS')) alert('Insufficient credits!');
-          else if (msg.includes('BET_TOO_HIGH')) alert('Bet exceeds max 100!');
-          else alert('Bet failed. Please try again.');
-          return;
-        }
-      }else{
-        // لفة مجانية
-        spinBtn.disabled=true;
-      }
-
-      isSpinning=true;
-      try{ spinSound.currentTime=0; spinSound.play().catch(()=>{});}catch(e){}
-      displaySpinWithAnimation(); // 🔹 يخلي البكرات تبدأ فورًا
-
-
-      // النتيجة العشوائية وفق وزن الرموز (كما هي)
-      spinFinalResult = generateSpinResult();
-
-      
+  // 🔄 نفّذ خصم الرهان من السيرفر بالخلفية بدون تأخير الواجهة
+  if (isPaidSpin) {
+    if (!Number.isFinite(totalBet) || totalBet <= 0) return;
+    try {
+      pendingSpinId = crypto.randomUUID();
+    } catch (_) {
+      pendingSpinId = String(Date.now()) + '_' + Math.random().toString(16).slice(2);
     }
+
+    apiPlaceBet(pendingSpinId, lines, betVal)
+      .then((res) => {
+        const prev = credits;
+        credits = res.balance_after;
+        animateNumber(creditsTop, prev, credits, 300);
+        lastDeductedBet = totalBet;
+        spentThisSpin = totalBet;
+      })
+      .catch((err) => {
+        console.error('[place-bet] error:', err);
+      });
+  }
+
+  // 🎰 توليد النتيجة بشكل عشوائي
+  spinFinalResult = generateSpinResult();
+}
+
 
     spinBtn.addEventListener("click", ()=>{ if(isBonusActive&&freeSpins>0) return; doSpin(); });
 
