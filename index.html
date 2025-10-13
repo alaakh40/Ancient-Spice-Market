@@ -957,6 +957,8 @@ async function apiPlaceBet(spinId, lines, betPerLine){
 
       isSpinning=true;
       try{ spinSound.currentTime=0; spinSound.play().catch(()=>{});}catch(e){}
+      displaySpinWithAnimation(); // 🔹 يخلي البكرات تبدأ فورًا
+
 
       // النتيجة العشوائية وفق وزن الرموز (كما هي)
       spinFinalResult = generateSpinResult();
