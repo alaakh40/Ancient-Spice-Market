@@ -446,27 +446,46 @@ async function getAccessToken(){
     }
 async function apiPlaceBet(spinId, lines, betPerLine){
   const token = await getAccessToken();
-  if(!token) throw new Error('NOT_LOGGED_IN');
-  const totalBet = lines * betPerLine;
+  if (!token) throw new Error('NOT_LOGGED_IN');
+
+  const totalBet = Number(lines) * Number(betPerLine);
+
   const { data, error } = await sb.functions.invoke('place-bet', {
-    body: { spin_id: spinId, lines, bet_per_line: betPerLine, total_bet: totalBet },
+    body: {
+      spin_id: String(spinId),
+      lines: Number(lines),
+      bet_per_line: Number(betPerLine),
+      total_bet: Number(totalBet)
+    },
     headers: { Authorization: `Bearer ${token}` }
   });
+
   if (error) throw error;
   return { balance_after: Number(data?.balance_after) };
 }
 
 
+
     async function apiSettleSpin(spinId, winAmount, refund){
-      const token = await getAccessToken();
-      if(!token) throw new Error('NOT_LOGGED_IN');
-      const { data, error } = await sb.functions.invoke('settle-spin', {
-        body: { spin_id: spinId, win_amount: Number(winAmount||0), refund: Number(refund||0) },
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (error) throw error;
-      return { balance_after: Number(data?.balance_after), last_win: Number(data?.last_win||0) };
-    }
+  const token = await getAccessToken();
+  if(!token) throw new Error('NOT_LOGGED_IN');
+
+  const { data, error } = await sb.functions.invoke('settle-spin', {
+    body: { 
+      spin_id: String(spinId),
+      win_amount: Number(winAmount ?? 0),
+      refund: Number(refund ?? 0)
+    },
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  if (error) throw error;
+  return {
+    balance_after: Number(data?.balance_after),
+    last_win: Number(data?.last_win || 0)
+  };
+}
+
 
     let backendReady = false;
     async function initBackendAndLoadBalance(){
