@@ -494,7 +494,7 @@ async function apiPlaceBet(spinId, lines, betPerLine){
         const token = await getAccessToken();
         if(!token){
           centerToast('Please sign in first', 'bet', 1600);
-          spinBtn.disabled = true;
+         
           return;
         }
         const serverCredits = await apiGetBalance();
@@ -963,7 +963,7 @@ async function apiPlaceBet(spinId, lines, betPerLine){
       // النتيجة العشوائية وفق وزن الرموز (كما هي)
       spinFinalResult = generateSpinResult();
 
-      displaySpinWithAnimation();
+      
     }
 
     spinBtn.addEventListener("click", ()=>{ if(isBonusActive&&freeSpins>0) return; doSpin(); });
