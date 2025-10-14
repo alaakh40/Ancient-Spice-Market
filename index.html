@@ -90,7 +90,7 @@
     }
     .credits-pulse{ animation: creditsPulse .9s ease; }
     @keyframes creditsPulse{
-      0%{ box-shadow: 0 0 .6vmin rgba(255,178,0,.9), 0 0 1.2vmin rgba(255,178,0,.6) }
+      0%{ box-shadow: 0 0 .6vmin rgba(255,178,0,.9), 0 0 1.2vمن rgba(255,178,0,.6) }
       100%{ box-shadow: 0 0 0 rgba(0,0,0,0) }
     }
 
@@ -131,7 +131,7 @@
     .reel:not(:first-child)::before{
       content:""; position:absolute; top:var(--inset); bottom:var(--inset); left:-.2vmin; width:.5vmin; border-radius:.4vmin; z-index:2;
       background:linear-gradient(180deg, var(--gold-hi), var(--gold) 50%, var(--gold-dk));
-      box-shadow:0 0 1.2vmin rgba(255,215,0,.25), inset 0 0 .4vmin rgba(0,0,0,.35);
+      box-shadow:0 0 1.2vmin rgba(255,215,0,.25), inset 0 0 .4vمن rgba(0,0,0,.35);
       pointer-events:none;
     }
 
@@ -419,7 +419,6 @@
 
   <script>
     /* =================== SUPABASE BACKEND BINDING =================== */
-    // استخدمت بيانات مشروعك التي أرسلتها سابقًا. إن تغيّرت، حدّث القيم هنا:
     const SUPABASE_URL = 'https://pmdjkalkmsrwyoqeybeu.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtZGprYWxrbXNyd3lvcWV5YmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgyMTEwNDcsImV4cCI6MjA3Mzc4NzA0N30.jEAjMmHIsc9fnce1x5Yor_Vo-UnH_Z1HRN0FQ2YuY5M';
 
@@ -427,65 +426,44 @@
 
     const QS_TOKEN = new URLSearchParams(location.search).get('token');
 
-async function getAccessToken(){
-  if (QS_TOKEN) return QS_TOKEN;               // ✅ استخدم التوكن من URL
-  const { data: { session }, error } = await sb.auth.getSession();
-  return session?.access_token || null;
-}
-
+    async function getAccessToken(){
+      if (QS_TOKEN) return QS_TOKEN;
+      const { data: { session } } = await sb.auth.getSession();
+      return session?.access_token || null;
+    }
 
     async function apiGetBalance(){
       const token = await getAccessToken();
       if(!token) throw new Error('NOT_LOGGED_IN');
       const { data, error } = await sb.functions.invoke('get-balance', {
-  headers: { Authorization: `Bearer ${token}` }
-});
-
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (error) throw error;
       return Number(data?.credits ?? 0);
     }
-async function apiPlaceBet(spinId, lines, betPerLine){
-  const token = await getAccessToken();
-  if (!token) throw new Error('NOT_LOGGED_IN');
 
-  const totalBet = Number(lines) * Number(betPerLine);
-
-  const { data, error } = await sb.functions.invoke('place-bet', {
-    body: {
-      spin_id: String(spinId),
-      lines: Number(lines),
-      bet_per_line: Number(betPerLine),
-      total_bet: Number(totalBet)
-    },
-    headers: { Authorization: `Bearer ${token}` }
-  });
-
-  if (error) throw error;
-  return { balance_after: Number(data?.balance_after) };
-}
-
-
+    async function apiPlaceBet(spinId, lines, betPerLine){
+      const token = await getAccessToken();
+      if (!token) throw new Error('NOT_LOGGED_IN');
+      const totalBet = Number(lines) * Number(betPerLine);
+      const { data, error } = await sb.functions.invoke('place-bet', {
+        body: { spin_id: String(spinId), lines: Number(lines), bet_per_line: Number(betPerLine), total_bet: Number(totalBet) },
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (error) throw error;
+      return { balance_after: Number(data?.balance_after) };
+    }
 
     async function apiSettleSpin(spinId, winAmount, refund){
-  const token = await getAccessToken();
-  if(!token) throw new Error('NOT_LOGGED_IN');
-
-  const { data, error } = await sb.functions.invoke('settle-spin', {
-    body: { 
-      spin_id: String(spinId),
-      win_amount: Number(winAmount ?? 0),
-      refund: Number(refund ?? 0)
-    },
-    headers: { Authorization: `Bearer ${token}` }
-  });
-
-  if (error) throw error;
-  return {
-    balance_after: Number(data?.balance_after),
-    last_win: Number(data?.last_win || 0)
-  };
-}
-
+      const token = await getAccessToken();
+      if(!token) throw new Error('NOT_LOGGED_IN');
+      const { data, error } = await sb.functions.invoke('settle-spin', {
+        body: { spin_id: String(spinId), win_amount: Number(winAmount ?? 0), refund: Number(refund ?? 0) },
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (error) throw error;
+      return { balance_after: Number(data?.balance_after), last_win: Number(data?.last_win || 0) };
+    }
 
     let backendReady = false;
     async function initBackendAndLoadBalance(){
@@ -494,7 +472,6 @@ async function apiPlaceBet(spinId, lines, betPerLine){
         const token = await getAccessToken();
         if(!token){
           centerToast('Please sign in first', 'bet', 1600);
-         
           return;
         }
         const serverCredits = await apiGetBalance();
@@ -512,12 +489,12 @@ async function apiPlaceBet(spinId, lines, betPerLine){
     /* =================== SOUND & GLOBALS (كما هي) =================== */
     let freeSpins = 0;
     let isBonusActive = false;
-    // 🧠 إعداد نظام الذكاء (RTP الذكي)
-let totalSpent = 0;     // مجموع المبالغ اللي خسرها اللاعب
-let totalPaid = 0;      // مجموع الأرباح اللي فاز فيها اللاعب
-let lossStreak = 0;     // عدد اللفات الخاسرة المتتالية
-const TARGET_RTP = 0.88; // نسبة فوز اللاعب (يمكنك تغييرها 0.85-0.9)
 
+    // 🧠 إعداد نظام الذكاء (RTP الذكي)
+    let totalSpent = 0;     // مجموع ما أنفقه اللاعب
+    let totalPaid  = 0;     // مجموع ما دُفع للاعب
+    let lossStreak = 0;     // عدد الخسارات المتتالية
+    const TARGET_RTP = 0.88; // الهدف العام لـ RTP
 
     /* ===== ⭐ Special pattern ===== */
     function pickFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
@@ -838,53 +815,65 @@ const TARGET_RTP = 0.88; // نسبة فوز اللاعب (يمكنك تغيير�
     }
 
     /* ===== Spin flow: صار مرتبط بالسيرفر ===== */
-    
+    let lastDeductedBet = 0;
+    let spentThisSpin   = 0;
+    let pendingSpinId   = null;
+
+    // حماية بسيطة من سباق الشبكة: ننتظر خصم الرهان لو كان معلّقاً قبل التسوية
+    function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+    async function ensureBetApplied(timeoutMs=1200){
+      const start = performance.now();
+      while (pendingSpinId && lastDeductedBet===0 && (performance.now()-start)<timeoutMs){
+        await wait(60);
+      }
+    }
 
     async function finalizeSpin(){
       ddSound.pause(); ddSound.currentTime=0;
 
       const prevCredits = credits;
-      let winAmount = Math.max(0, Math.floor(fixNumber(evaluateWin(spinFinalResult),0)));
-      // 🧠 نظام الذكاء المالي لضبط الأرباح (Smart RTP)
-totalSpent += lastDeductedBet;
-let currentRTP = totalPaid / Math.max(totalSpent, 1);
+      const totalBet    = lastDeductedBet;
+      let winAmount     = Math.max(0, Math.floor(fixNumber(evaluateWin(spinFinalResult),0)));
 
-// إذا خسر اللاعب
-if (winAmount === 0) {
-  lossStreak++;
+      // 🧠 نظام الذكاء المالي (Smart RTP)
+      totalSpent += totalBet;
+      const currentRTP = totalPaid / Math.max(totalSpent, 1);
 
-  // 🎁 بعد 4 خسارات متتالية، أعطه فوز بسيط (لتحفيزه)
-  if (lossStreak >= 4 && Math.random() < 0.5) {
-    winAmount = Math.floor(lastDeductedBet * (0.8 + Math.random() * 1.2)); 
-    console.log('[SMART RTP] Compensation win:', winAmount);
-    lossStreak = 0;
-  }
-} else {
-  // فاز فعلاً، نعيد عداد الخسارات
-  lossStreak = 0;
-}
+      // تعويض بعد خسارات
+      if (winAmount === 0){
+        lossStreak++;
+        if (lossStreak >= 4 && Math.random() < 0.5){
+          winAmount = Math.floor(totalBet * (0.8 + Math.random()*1.2)); // 0.8x .. 2.0x
+          console.log('[SMART RTP] Compensation win:', winAmount);
+          lossStreak = 0;
+        }
+      } else {
+        lossStreak = 0;
+      }
 
-// ⚖️ ضبط نسبة الـ RTP العامّة
-if (currentRTP < TARGET_RTP * 0.85 && Math.random() < 0.25) {
-  // 🔹 إذا الأرباح قليلة → نعزز فرص الفوز
-  winAmount = Math.floor(lastDeductedBet * (1.0 + Math.random() * 2.0));
-  console.log('[RTP BOOST] Increasing win to fix RTP');
-}
-if (currentRTP > TARGET_RTP * 1.15 && winAmount > 0 && Math.random() < 0.3) {
-  // 🔹 إذا الأرباح كثيرة → نقلل الفوز القادم
-  winAmount = Math.floor(winAmount * 0.5);
-  console.log('[RTP CONTROL] Reducing big win for balance');
-}
+      // توازن عام للـRTP
+      if (currentRTP < TARGET_RTP * 0.85 && Math.random() < 0.25){
+        winAmount = Math.max(winAmount, Math.floor(totalBet * (1.0 + Math.random()*2.0)));
+        console.log('[RTP BOOST] Increasing win to fix RTP');
+      }
+      if (currentRTP > TARGET_RTP * 1.15 && winAmount > 0 && Math.random() < 0.30){
+        winAmount = Math.floor(winAmount * 0.5);
+        console.log('[RTP CONTROL] Reducing big win for balance');
+      }
 
-// تحديث مجموع الأرباح
-totalPaid += winAmount;
+      // حد الربح لكل لفة (حسب القاعدة)
+      if (totalBet > 0 && winAmount > MAX_WIN_MULTIPLIER * totalBet){
+        winAmount = MAX_WIN_MULTIPLIER * totalBet;
+      }
 
-      // 🧠 نظام ذكاء بسيط: بعد 4 خسارات متتالية، زِد احتمال الفوز
+      totalPaid += winAmount;
 
-
-      // في اللفات المدفوعة: عند الربح نرجّع الرهان refund = totalBet
-      // في اللفات المجانية (إن وجدت): refund = 0
+      // لو كان خصم الرهان تأخر عن السيرفر، انتظر لحظات قبل التسوية
       const isPaidSpin = !(isBonusActive && freeSpins>0);
+      if (isPaidSpin && pendingSpinId && lastDeductedBet===0){
+        await ensureBetApplied(1200);
+      }
+
       const refund = (isPaidSpin && winAmount > 0) ? totalBet : 0;
 
       try{
@@ -894,16 +883,14 @@ totalPaid += winAmount;
           lastWin = settle.last_win || winAmount;
           animateNumber(creditsTop, prevCredits, credits, 850);
           if(lastWin>0) showWinBadge(lastWin);
-          lossStreak = (lastWin>0) ? 0 : (lossStreak+1);
+          // لا نعدل lossStreak هنا — تم التحكم به سابقاً
         }else{
-          // إن كانت لفة مجانية، نحدّث محلي فقط (لا يوجد API لهذه الحالة الآن)
+          // لفة مجانية
           if (winAmount>0){
-            credits += winAmount; // ربح مجاني بلا رد رهان
+            credits += winAmount;
             animateNumber(creditsTop, prevCredits, credits, 850);
             showWinBadge(winAmount);
-            lossStreak = 0;
           }else{
-            lossStreak++;
             creditsTop.textContent = String(credits);
           }
           lastWin = winAmount;
@@ -911,7 +898,6 @@ totalPaid += winAmount;
       }catch(err){
         console.error('[settle-spin] error:', err);
         centerToast('Settle failed', 'bet', 1400);
-        // مزامنة الرصيد من السيرفر احتياطًا
         try{ credits = await apiGetBalance(); updateHUD(); }catch(e){}
       }
 
@@ -931,64 +917,63 @@ totalPaid += winAmount;
       lastWinSpan.textContent = String(lastWin);
     }
 
-  async function doSpin() {
-  if (isSpinning) return;
-  if (!backendReady) {
-    centerToast('Please sign in', 'bet', 1200);
-    return;
-  }
+    async function doSpin() {
+      if (isSpinning) return;
+      if (!backendReady) {
+        centerToast('Please sign in', 'bet', 1200);
+        return;
+      }
 
-  // 👇 تحديد إذا كانت لفة خاصة أو عادية
-  spinsSinceSpecial++;
-  if (spinsSinceSpecial >= nextSpecialAfter) {
-    specialSpinActive = true;
-    spinsSinceSpecial = 0;
-    nextSpecialAfter = pickFrom([2, 3, 4, 5]);
-  } else {
-    specialSpinActive = false;
-  }
+      // لفة خاصة أو عادية
+      spinsSinceSpecial++;
+      if (spinsSinceSpecial >= nextSpecialAfter) {
+        specialSpinActive = true;
+        spinsSinceSpecial = 0;
+        nextSpecialAfter = pickFrom([2, 3, 4, 5]);
+      } else {
+        specialSpinActive = false;
+      }
 
-  credits = fixNumber(credits, 0);
-  spentThisSpin = 0;
-  lastDeductedBet = 0;
+      credits=fixNumber(credits,0);
+      spentThisSpin   = 0;
+      lastDeductedBet = 0;
 
-  const lines = getActivePayLinesCount();
-  const betVal = getBetPerLine();
-  const totalBet = lines * betVal;
+      const lines = getActivePayLinesCount();
+      const betVal = getBetPerLine();
+      const totalBet = lines * betVal;
 
-  const isPaidSpin = !(isBonusActive && freeSpins > 0);
+      const isPaidSpin = !(isBonusActive && freeSpins > 0);
 
-  // ✅ ابدأ التحريك فوراً بدون انتظار رد السيرفر
-  isSpinning = true;
-  try { spinSound.currentTime = 0; spinSound.play().catch(() => {}); } catch (e) {}
-  displaySpinWithAnimation();
+      // ابدأ التحريك فوراً
+      isSpinning = true;
+      try { spinSound.currentTime = 0; spinSound.play().catch(() => {}); } catch (e) {}
+      displaySpinWithAnimation();
 
-  // 🔄 نفّذ خصم الرهان من السيرفر بالخلفية بدون تأخير الواجهة
-  if (isPaidSpin) {
-    if (!Number.isFinite(totalBet) || totalBet <= 0) return;
-    try {
-      pendingSpinId = crypto.randomUUID();
-    } catch (_) {
-      pendingSpinId = String(Date.now()) + '_' + Math.random().toString(16).slice(2);
+      // خصم الرهان بالخلفية
+      if (isPaidSpin) {
+        if (!Number.isFinite(totalBet) || totalBet <= 0) return;
+        try {
+          pendingSpinId = crypto.randomUUID();
+        } catch (_) {
+          pendingSpinId = String(Date.now()) + '_' + Math.random().toString(16).slice(2);
+        }
+
+        apiPlaceBet(pendingSpinId, lines, betVal)
+          .then((res) => {
+            const prev = credits;
+            credits = res.balance_after;
+            animateNumber(creditsTop, prev, credits, 300);
+            lastDeductedBet = totalBet;
+            spentThisSpin   = totalBet;
+          })
+          .catch((err) => {
+            console.error('[place-bet] error:', err);
+          });
+      }
+
+      // توليد النتيجة
+      spinFinalResult = generateSpinResult();
     }
-
-    apiPlaceBet(pendingSpinId, lines, betVal)
-      .then((res) => {
-        const prev = credits;
-        credits = res.balance_after;
-        animateNumber(creditsTop, prev, credits, 300);
-        lastDeductedBet = totalBet;
-        spentThisSpin = totalBet;
-      })
-      .catch((err) => {
-        console.error('[place-bet] error:', err);
-      });
-  }
-
-  // 🎰 توليد النتيجة بشكل عشوائي
-  spinFinalResult = generateSpinResult();
-}
-
 
     spinBtn.addEventListener("click", ()=>{ if(isBonusActive&&freeSpins>0) return; doSpin(); });
 
@@ -1109,7 +1094,6 @@ totalPaid += winAmount;
       createReelsLayout();
       spinFinalResult=generateSpinResult();
       renderReelsStatic();
-      // ✅ جلب الرصيد الحقيقي عند التحميل
       initBackendAndLoadBalance();
       fitToViewport();
     });
