@@ -512,6 +512,12 @@ async function apiPlaceBet(spinId, lines, betPerLine){
     /* =================== SOUND & GLOBALS (كما هي) =================== */
     let freeSpins = 0;
     let isBonusActive = false;
+    // 🧠 إعداد نظام الذكاء (RTP الذكي)
+let totalSpent = 0;     // مجموع المبالغ اللي خسرها اللاعب
+let totalPaid = 0;      // مجموع الأرباح اللي فاز فيها اللاعب
+let lossStreak = 0;     // عدد اللفات الخاسرة المتتالية
+const TARGET_RTP = 0.88; // نسبة فوز اللاعب (يمكنك تغييرها 0.85-0.9)
+
 
     /* ===== ⭐ Special pattern ===== */
     function pickFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
@@ -842,28 +848,42 @@ async function apiPlaceBet(spinId, lines, betPerLine){
 
       const prevCredits = credits;
       let winAmount = Math.max(0, Math.floor(fixNumber(evaluateWin(spinFinalResult),0)));
-      // 🧠 نظام ذكاء بسيط: بعد 4 خسارات متتالية، زِد احتمال الفوز
+      // 🧠 نظام الذكاء المالي لضبط الأرباح (Smart RTP)
+totalSpent += lastDeductedBet;
+let currentRTP = totalPaid / Math.max(totalSpent, 1);
+
+// إذا خسر اللاعب
 if (winAmount === 0) {
   lossStreak++;
 
+  // 🎁 بعد 4 خسارات متتالية، أعطه فوز بسيط (لتحفيزه)
   if (lossStreak >= 4 && Math.random() < 0.5) {
-    // ✅ نولد فوز بسيط لتعويض اللاعب
-    const totalBet = lastDeductedBet > 0 ? lastDeductedBet : 1;
-    winAmount = Math.floor(totalBet * (0.5 + Math.random() * 1.5)); // فوز عشوائي من ×0.5 إلى ×2
-    console.log('[SMART RTP] Player compensated win:', winAmount);
-    lossStreak = 0; // نعيد العداد بعد الفوز
+    winAmount = Math.floor(lastDeductedBet * (0.8 + Math.random() * 1.2)); 
+    console.log('[SMART RTP] Compensation win:', winAmount);
+    lossStreak = 0;
   }
 } else {
   // فاز فعلاً، نعيد عداد الخسارات
   lossStreak = 0;
 }
 
-      const totalBet = lastDeductedBet;
+// ⚖️ ضبط نسبة الـ RTP العامّة
+if (currentRTP < TARGET_RTP * 0.85 && Math.random() < 0.25) {
+  // 🔹 إذا الأرباح قليلة → نعزز فرص الفوز
+  winAmount = Math.floor(lastDeductedBet * (1.0 + Math.random() * 2.0));
+  console.log('[RTP BOOST] Increasing win to fix RTP');
+}
+if (currentRTP > TARGET_RTP * 1.15 && winAmount > 0 && Math.random() < 0.3) {
+  // 🔹 إذا الأرباح كثيرة → نقلل الفوز القادم
+  winAmount = Math.floor(winAmount * 0.5);
+  console.log('[RTP CONTROL] Reducing big win for balance');
+}
 
-      // تعزيز بسيط بعد خسارات متتالية (كما كان، لكن سنسوي تسوية على السيرفر)
-      if (winAmount === 0 && lossStreak >= 5){
-        winAmount = Math.floor(totalBet * 0.5);
-      }
+// تحديث مجموع الأرباح
+totalPaid += winAmount;
+
+      // 🧠 نظام ذكاء بسيط: بعد 4 خسارات متتالية، زِد احتمال الفوز
+
 
       // في اللفات المدفوعة: عند الربح نرجّع الرهان refund = totalBet
       // في اللفات المجانية (إن وجدت): refund = 0
