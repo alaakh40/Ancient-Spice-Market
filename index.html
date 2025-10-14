@@ -838,10 +838,7 @@ const TARGET_RTP = 0.88; // نسبة فوز اللاعب (يمكنك تغيير�
     }
 
     /* ===== Spin flow: صار مرتبط بالسيرفر ===== */
-    let lossStreak = 0;
-    let lastDeductedBet = 0;
-    let spentThisSpin = 0;
-    let pendingSpinId = null;
+    
 
     async function finalizeSpin(){
       ddSound.pause(); ddSound.currentTime=0;
