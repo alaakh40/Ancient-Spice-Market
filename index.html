@@ -842,6 +842,22 @@ async function apiPlaceBet(spinId, lines, betPerLine){
 
       const prevCredits = credits;
       let winAmount = Math.max(0, Math.floor(fixNumber(evaluateWin(spinFinalResult),0)));
+      // 🧠 نظام ذكاء بسيط: بعد 4 خسارات متتالية، زِد احتمال الفوز
+if (winAmount === 0) {
+  lossStreak++;
+
+  if (lossStreak >= 4 && Math.random() < 0.5) {
+    // ✅ نولد فوز بسيط لتعويض اللاعب
+    const totalBet = lastDeductedBet > 0 ? lastDeductedBet : 1;
+    winAmount = Math.floor(totalBet * (0.5 + Math.random() * 1.5)); // فوز عشوائي من ×0.5 إلى ×2
+    console.log('[SMART RTP] Player compensated win:', winAmount);
+    lossStreak = 0; // نعيد العداد بعد الفوز
+  }
+} else {
+  // فاز فعلاً، نعيد عداد الخسارات
+  lossStreak = 0;
+}
+
       const totalBet = lastDeductedBet;
 
       // تعزيز بسيط بعد خسارات متتالية (كما كان، لكن سنسوي تسوية على السيرفر)
