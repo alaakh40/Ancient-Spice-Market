@@ -835,36 +835,60 @@
       const totalBet    = lastDeductedBet;
       let winAmount     = Math.max(0, Math.floor(fixNumber(evaluateWin(spinFinalResult),0)));
 
-      // 🧠 نظام الذكاء المالي (Smart RTP)
-      totalSpent += totalBet;
-      const currentRTP = totalPaid / Math.max(totalSpent, 1);
+    // 🧠 نظام الربحية الذكي (House Edge Mode)
+totalSpent += totalBet;
+const currentRTP = totalPaid / Math.max(totalSpent, 1);
 
-      // تعويض بعد خسارات
-      if (winAmount === 0){
-        lossStreak++;
-        if (lossStreak >= 4 && Math.random() < 0.5){
-          winAmount = Math.floor(totalBet * (0.8 + Math.random()*1.2)); // 0.8x .. 2.0x
-          console.log('[SMART RTP] Compensation win:', winAmount);
-          lossStreak = 0;
-        }
-      } else {
-        lossStreak = 0;
-      }
+// نسبة الربحية العامة لصاحب اللعبة
+const BASE_RTP = 0.78;          // 78% = اللاعب يخسر تقريبا 22%
+const MAX_LOSS_STREAK = 8;      // أقصى عدد خسارات قبل فوز بسيط
+const SMALL_WIN_CHANCE = 0.22;  // فوز بسيط
+const MEDIUM_WIN_CHANCE = 0.07; // فوز متوسط نادر
+const BIG_WIN_CHANCE = 0.008;   // فوز كبير نادر جدًا
+const LOSS_BOOST = 0.04;        // كل خسارة ترفع الحظ شوي مؤقتًا
 
-      // توازن عام للـRTP
-      if (currentRTP < TARGET_RTP * 0.85 && Math.random() < 0.25){
-        winAmount = Math.max(winAmount, Math.floor(totalBet * (1.0 + Math.random()*2.0)));
-        console.log('[RTP BOOST] Increasing win to fix RTP');
-      }
-      if (currentRTP > TARGET_RTP * 1.15 && winAmount > 0 && Math.random() < 0.30){
-        winAmount = Math.floor(winAmount * 0.5);
-        console.log('[RTP CONTROL] Reducing big win for balance');
-      }
+let roll = Math.random();
+let dynamicBoost = Math.min(lossStreak * LOSS_BOOST, 0.20);
 
-      // حد الربح لكل لفة (حسب القاعدة)
-      if (totalBet > 0 && winAmount > MAX_WIN_MULTIPLIER * totalBet){
-        winAmount = MAX_WIN_MULTIPLIER * totalBet;
-      }
+// 🔸 بعد خسارات كثيرة، إجبار فوز بسيط فقط
+if (lossStreak >= MAX_LOSS_STREAK) {
+  roll = 0; // إجبار فوز بسيط بعد 8 خسارات
+  console.log('[HOUSE EDGE] Forced small win after long loss streak');
+}
+
+if (winAmount === 0) {
+  lossStreak++;
+
+  if (roll < SMALL_WIN_CHANCE + dynamicBoost) {
+    // فوز بسيط: يرجّع جزء من الخسارة
+    winAmount = Math.floor(totalBet * (0.4 + Math.random() * 0.7));  // 0.4x–1.1x
+  } else if (roll < SMALL_WIN_CHANCE + MEDIUM_WIN_CHANCE + dynamicBoost) {
+    // فوز متوسط
+    winAmount = Math.floor(totalBet * (1.5 + Math.random() * 2.5));  // 1.5x–4x
+  } else if (roll < SMALL_WIN_CHANCE + MEDIUM_WIN_CHANCE + BIG_WIN_CHANCE + dynamicBoost) {
+    // فوز كبير نادر جدًا
+    winAmount = Math.floor(totalBet * (8 + Math.random() * 10));     // 8x–18x
+    console.log('[HOUSE EDGE] Rare big win');
+  }
+
+} else {
+  // فاز للتو → خفّف حظه
+  lossStreak = Math.max(0, lossStreak - 3);
+}
+
+// 🔸 توازن الـRTP العام
+if (currentRTP > BASE_RTP * 1.1 && winAmount > 0) {
+  winAmount = Math.floor(winAmount * 0.6);
+}
+if (currentRTP < BASE_RTP * 0.65 && winAmount === 0 && Math.random() < 0.3) {
+  winAmount = Math.floor(totalBet * (0.8 + Math.random() * 1.2));
+}
+
+// 🔸 حد الربح الأعلى لكل لفة
+if (winAmount > MAX_WIN_MULTIPLIER * totalBet * 2.5) {
+  winAmount = Math.floor(MAX_WIN_MULTIPLIER * totalBet * 2.5);
+}
+
 
       totalPaid += winAmount;
 
