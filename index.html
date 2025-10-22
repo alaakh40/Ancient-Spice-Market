@@ -192,7 +192,7 @@
     .step-btn:active{transform:scale(.95)}
     #spinBtn{
       width:var(--spin-size); height:var(--spin-size); background:none; border:none; cursor:pointer; padding:0;
-      filter:drop-shadow(0 0 .6vمن rgba(0,0,0,.55));
+      filter:drop-shadow(0 0 .6vmin rgba(0,0,0,.55));
     }
     #spinBtn img{width:100%;height:100%;display:block;object-fit:contain;animation:wheelMotion 3s infinite linear;filter:drop-shadow(0 0 1vmin rgba(255,255,255,.85))}
     #spinBtn:active img{animation-play-state:paused;transform:scale(.86)}
@@ -269,11 +269,11 @@
     }
     .audio-panel{
       position:fixed; top: 2vmin; right: 2vmin; width: clamp(220px, 40vmin, 280px);
-      background:#222; border:1px solid #444; border-radius:1.2vmin; padding:1.2vmin; display:none; z-index:9999
+      background:#222; border:1px solid #444; border-radius:1.2vمن; padding:1.2vمن; display:none; z-index:9999
     }
-    .audio-panel h3{margin-bottom:1vmin;text-align:center}
-    .sound-control{display:flex;flex-direction:column;margin-bottom:1.2vmin}
-    .sound-control label{margin-bottom:.6vmin;font-size: clamp(12px, 1.8vmin, 14px);font-weight:bold}
+    .audio-panel h3{margin-bottom:1vمن;text-align:center}
+    .sound-control{display:flex;flex-direction:column;margin-bottom:1.2vمن}
+    .sound-control label{margin-bottom:.6vمن;font-size: clamp(12px, 1.8vمن, 14px);font-weight:bold}
     .sound-control input[type="range"]{width:100%}
     .mute-row{display:flex;align-items:center;justify-content:space-between}
 
@@ -490,10 +490,11 @@
     let freeSpins = 0;
     let isBonusActive = false;
 
-    // (مجرد تتبع إحصائي، ليس للتحكم بالنتيجة)
-    let totalSpent = 0;
-    let totalPaid  = 0;
-    let lossStreak = 0;
+    // 🧠 إعداد نظام الذكاء (RTP الذكي)
+    let totalSpent = 0;     // مجموع ما أنفقه اللاعب
+    let totalPaid  = 0;     // مجموع ما دُفع للاعب
+    let lossStreak = 0;     // عدد الخسارات المتتالية
+    const TARGET_RTP = 0.85; // الهدف العام لـ RTP (مستهدف ~85%)
 
     /* ===== ⭐ Special pattern ===== */
     function pickFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
@@ -571,20 +572,14 @@
       },{once:true});
     })();
 
-    /* ===== Utils ===== */
+    /* ===== Utils (كما هي + randInt) ===== */
     function toInt(v,d){const n=parseInt(v,10);return Number.isFinite(n)?n:d;}
     function clamp(n,min,max){return Math.min(max,Math.max(min,n));}
     function fixNumber(n,def=0){n=Number(n);return Number.isFinite(n)?n:def;}
     function getCssNumber(name){ return parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name)) || 0; }
     function rand(){ return Math.random(); }
     function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
-
-    // ==== REAL RNG: secure random in [0,1)
-    function cryptoRand(){
-      const a = new Uint32Array(1);
-      crypto.getRandomValues(a);
-      return a[0] / 4294967296;
-    }
+    function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; } // ⬅️ جديد
 
     /* ===== الرموز (كما هي) ===== */
     let s_aRandSymbols = [];
@@ -749,40 +744,82 @@
     const reelDurations=[0.60,0.70,0.80,0.90,1.00];
     let spinFinalResult=[];
 
-    // ==== REAL RNG: Virtual reel strips (symbol IDs 0..9, 9 = WILD), uniform stop per reel
-    const REELS_85 = [
-  [0,1,2,3,4,5,6,7,8,5,6,7,3,4,5,6,7,8,9,5,6,4,7,8,9,5,6,3,7,8,9,5],
-  [1,2,3,4,5,6,7,5,6,7,8,9,5,6,7,3,4,5,6,7,8,9,5,6,7,3,4,5,6,7,8,9],
-  [2,3,4,5,6,7,5,6,7,8,9,5,6,7,3,4,5,6,7,8,9,5,6,7,3,4,5,6,7,8,9,5],
-  [3,4,5,6,7,8,9,5,6,7,3,4,5,6,7,8,9,5,6,7,3,4,5,6,7,8,9,5,6,7,3,9],
-  [4,5,6,7,8,9,5,6,7,3,4,5,6,7,8,9,5,6,7,3,4,5,6,7,8,9,5,6,7,3,4,9]
-];
+    /* ===== 🎯 جدولة الفوز (جديد) ===== */
+    let forcedOutcome = 'none'; // 'none' | 'small' | 'medium'
+    let smallIn = 0, mediumIn = 0, fsIn = 0;
+    let grantFSAfterThisSpin = false;
 
+    function initScheduler(){
+      smallIn  = randInt(4,7);     // تقريبًا كل 5 لفات
+      mediumIn = randInt(24,36);   // تقريبًا كل 30 لفة
+      fsIn     = randInt(23,29);   // تقريبًا كل 25 لفة
+      forcedOutcome = 'none';
+      grantFSAfterThisSpin = false;
+    }
+
+    function planOutcome(isPaidSpin){
+      if(!isPaidSpin){
+        // Free spin مضمون ربح بسيط مرة واحدة
+        forcedOutcome = 'small';
+        return;
+      }
+      // عَدّ تنازلي للمدفوع فقط
+      smallIn--; mediumIn--; fsIn--;
+
+      // أولوية للمتوسط إذا حان وقته
+      if(mediumIn<=0 && Math.random()<0.85){
+        forcedOutcome='medium';
+        mediumIn = randInt(24,36);
+      }else if(smallIn<=0){
+        forcedOutcome='small';
+        smallIn = randInt(4,7);
+      }else{
+        forcedOutcome='none';
+      }
+
+      // جدولة FreeSpin ليحدث بعد هذه اللفة (غير ثابت)
+      if(fsIn<=0){
+        grantFSAfterThisSpin = true;
+        fsIn = randInt(23,29);
+      }
+    }
 
     function generateSpinResult(){
-  const SYMBOL_IDS = [0,1,2,3,4,5,6,7,8]; // 0=d1 ... 7=d8, 8=wild
-  const res=[[],[],[]];
+      // نتيجة عشوائية مبدئية
+      const res=[[],[],[]];
+      for(let r=0;r<rowsCount;r++){
+        for(let c=0;c<reelsCount;c++){
+          res[r][c]=makeSymbolObj(pickSymbolIdByWeight());
+        }
+      }
 
-  for(let c=0;c<reelsCount;c++){
-    // كل بكرة تستخدم توزيع رموز بسيط (تقدر تخصصه لاحقاً)
-    const reel = SYMBOL_IDS;
-    // عشوائية حقيقية
-    const randArr = new Uint32Array(1);
-    crypto.getRandomValues(randArr);
-    const rand = randArr[0] / 0xFFFFFFFF;
-    const index = Math.floor(rand * reel.length);
+      // فرض أنماط فوز عند الحاجة
+      if(forcedOutcome!=='none'){
+        const linesActive = getActivePayLinesCount();
+        const li = Math.floor(Math.random()*linesActive); // اختر خطًا نشطًا
+        const pattern = payLines[li];
 
-    // فوق / وسط / تحت مثل ماكينة حقيقية
-    for(let r=-1;r<=1;r++){
-      let pos = (index + r + reel.length) % reel.length;
-      const id = reel[pos];
-      res[r+1][c] = makeSymbolObj(id);
+        const smallPool  = [0,1,2,3,4];  // رموز ربح منخفض/متوسط
+        const mediumPool = [3,4,5,6,7];  // رموز أعلى قليلًا
+        const baseId = (forcedOutcome==='small') ? pickFrom(smallPool) : pickFrom(mediumPool);
+        const k = (forcedOutcome==='medium' && Math.random()<0.5) ? 4 : 3; // 3 أو 4 على التوالي
+
+        // ضع 3–4 مطابقات من اليسار
+        for(let c=0;c<k;c++){
+          const rowIndex = pattern[c];
+          res[rowIndex][c] = makeSymbolObj(baseId);
+        }
+        // اجعل الباقي لا يكمل لـ 5 (وتجنب WILD)
+        for(let c=k;c<reelsCount;c++){
+          const rowIndex = pattern[c];
+          let id = baseId; let guard=0;
+          while((id===baseId || id===9) && guard<20){ id = pickSymbolIdByWeight(); guard++; }
+          res[rowIndex][c] = makeSymbolObj(id);
+        }
+      }
+
+      return res;
     }
-  }
-
-  return res;
-}
-
 
     /* Win evaluation (كما هي) */
     function calculateLineWin(lineSyms,betVal){
@@ -829,9 +866,9 @@
       return total;
     }
 
-    /* RTP tracking (كما هو: تتبع فقط) */
+    /* RTP tracking (كما هو) */
     const RNG_CONF = {
-      TARGET_RTP: 0.84, WINDOW: 320, pWinBase: 0.30,
+      TARGET_RTP: TARGET_RTP, WINDOW: 320, pWinBase: 0.30,
       lossBoostStep: 0.025, lossBoostMax: 0.12, streakBreakAt: 7,
       shares: { smallScatter: 0.52, smallLine: 0.38, medium: 0.10 }
     };
@@ -845,7 +882,7 @@
       }
     }
 
-    /* ===== Spin flow (كما هو مع تعديل ترتيب التوليد) ===== */
+    /* ===== Spin flow (معدّل بإضافة الجدولة) ===== */
     let lastDeductedBet = 0;
     let spentThisSpin   = 0;
     let pendingSpinId   = null;
@@ -863,25 +900,63 @@
 
       const prevCredits = credits;
       const totalBet    = lastDeductedBet;
-      // ==== REAL RNG: لا تعديل على النتيجة بعد الحساب
       let winAmount     = Math.max(0, Math.floor(fixNumber(evaluateWin(spinFinalResult),0)));
 
-      // تتبّع فقط
-      totalSpent += totalBet;
-      totalPaid  += winAmount;
-      lossStreak = (winAmount===0) ? (lossStreak+1) : 0;
+      // 🔸 حد أدنى للربح عند اللفات المجدولة
+      if (forcedOutcome === 'small'){
+        const minSmall = Math.floor(totalBet * (0.10 + Math.random()*0.30)); // 0.10x..0.40x
+        if (winAmount < minSmall) winAmount = minSmall;
+      }
+      if (forcedOutcome === 'medium'){
+        const minMed = Math.floor(totalBet * (0.6 + Math.random()*1.6)); // 0.6x..2.2x
+        if (winAmount < minMed) winAmount = minMed;
+      }
 
-      // سقف الفوز حسب القاعدة
+      // 🧠 نظام الذكاء المالي (Smart RTP) — توازن عام
+      totalSpent += totalBet;
+      const currentRTP = totalPaid / Math.max(totalSpent, 1);
+
+      // تعويض بعد خسارات متتالية
+      if (winAmount === 0){
+        lossStreak++;
+        if (lossStreak >= 4 && Math.random() < 0.5){
+          winAmount = Math.floor(totalBet * (0.8 + Math.random()*1.2)); // 0.8x..2.0x
+          lossStreak = 0;
+        }
+      } else {
+        lossStreak = 0;
+      }
+
+      // Boost إذا الـRTP منخفض جدًا
+      if (currentRTP < TARGET_RTP * 0.85 && Math.random() < 0.25){
+        winAmount = Math.max(winAmount, Math.floor(totalBet * (1.0 + Math.random()*2.0)));
+      }
+      // Control إذا الـRTP مرتفع
+      if (currentRTP > TARGET_RTP * 1.15 && winAmount > 0 && Math.random() < 0.30){
+        winAmount = Math.floor(winAmount * 0.5);
+      }
+
+      // 🔒 قفل RTP للمالك: لا نتجاوز مستهدف 85% بفارق كبير
+      const projSpent = totalSpent;
+      const capTarget = TARGET_RTP * 1.02; // هامش 2%
+      if (projSpent > 0){
+        const maxPaidAllowed = Math.floor(capTarget * projSpent - totalPaid);
+        if (winAmount > maxPaidAllowed){
+          winAmount = Math.max(forcedOutcome!=='none' ? 1 : 0, Math.min(winAmount, Math.max(0, maxPaidAllowed)));
+        }
+      }
+
+      // حد الربح لكل لفة
       if (totalBet > 0 && winAmount > MAX_WIN_MULTIPLIER * totalBet){
         winAmount = MAX_WIN_MULTIPLIER * totalBet;
       }
 
-      // لو كان خصم الرهان تأخر عن السيرفر، انتظر لحظات قبل التسوية
+      totalPaid += winAmount;
+
       const isPaidSpin = !(isBonusActive && freeSpins>0);
       if (isPaidSpin && pendingSpinId && lastDeductedBet===0){
         await ensureBetApplied(1200);
       }
-
       const refund = (isPaidSpin && winAmount > 0) ? totalBet : 0;
 
       try{
@@ -914,14 +989,30 @@
       lastDeductedBet = 0;
       pendingSpinId = null;
 
+      // إدارة FreeSpins
       if(isBonusActive){
         if(freeSpins>0){ setTimeout(()=>{freeSpins--; doSpin();},300); }
         else{
           isBonusActive=false; crashSound.pause(); crashSound.currentTime=0; musicSound.currentTime=0; musicSound.play().catch(()=>{});
           spinBtn.disabled=false;
         }
-      }else{ spinBtn.disabled=false; }
+      }else{
+        spinBtn.disabled=false;
+      }
       lastWinSpan.textContent = String(lastWin);
+
+      // لو تم جدولة FreeSpin بعد هذه اللفة، شغّله فورًا
+      if (!isBonusActive && grantFSAfterThisSpin){
+        grantFSAfterThisSpin = false;
+        isBonusActive = true;
+        freeSpins = 1; // مرة واحدة
+        try{ bonusSound.currentTime=0; bonusSound.play().catch(()=>{}); }catch(e){}
+        spinBtn.disabled = true;
+        setTimeout(()=>{freeSpins--; doSpin();}, 320);
+      }
+
+      // نظّف خطة اللفة
+      forcedOutcome = 'none';
     }
 
     async function doSpin() {
@@ -931,7 +1022,7 @@
         return;
       }
 
-      // لفة خاصة أو عادية
+      // لفة خاصة أو عادية (الأنيميشن)
       spinsSinceSpecial++;
       if (spinsSinceSpecial >= nextSpecialAfter) {
         specialSpinActive = true;
@@ -951,8 +1042,8 @@
 
       const isPaidSpin = !(isBonusActive && freeSpins > 0);
 
-      // ==== REAL RNG: ولّد النتيجة قبل بدء الأنيميشن لضمان التوافق بين العرض والدفع
-      spinFinalResult = generateSpinResult();
+      // خطط نتيجة هذه اللفة حسب الجدولة
+      planOutcome(isPaidSpin);
 
       // ابدأ التحريك فوراً
       isSpinning = true;
@@ -980,6 +1071,9 @@
             console.error('[place-bet] error:', err);
           });
       }
+
+      // توليد النتيجة (مع إجبار الربح عند الحاجة)
+      spinFinalResult = generateSpinResult();
     }
 
     spinBtn.addEventListener("click", ()=>{ if(isBonusActive&&freeSpins>0) return; doSpin(); });
@@ -1099,7 +1193,7 @@
     }
     window.addEventListener('load', ()=>{
       createReelsLayout();
-      // توليد أول نتيجة حتى يظهر الـstatic preview صحيح
+      initScheduler();                 // ⬅️ بدء الجدولة
       spinFinalResult=generateSpinResult();
       renderReelsStatic();
       initBackendAndLoadBalance();
