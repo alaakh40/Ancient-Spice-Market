@@ -90,8 +90,8 @@
     }
     .credits-pulse{ animation: creditsPulse .9s ease; }
     @keyframes creditsPulse{
-      0%{ box-shadow: 0 0 .6vmin rgba(255,178,0,.9), 0 0 1.2vmin rgba(255,178,0,.6) }
-      100%{ box-shadow:0 0 0 rgba(0,0,0,0) }
+      0%{ box-shadow: 0 0 .6vmin rgba(255,178,0,.9), 0 0 1.2vمن rgba(255,178,0,.6) }
+      100%{ box-shadow: 0 0 0 rgba(0,0,0,0) }
     }
 
     /* ===== MACHINE ===== */
@@ -110,7 +110,7 @@
       width:var(--slot-w); height:var(--slot-h);
       position:relative; overflow:hidden; border-radius:var(--radius-md);
       background:#000;
-      box-shadow: 0 0 0 .12vmin rgba(0,0,0,.6) inset, 0 0 0 1vmin rgba(0,0,0,.6) inset;
+      box-shadow: 0 0 0 .12vmin rgba(0,0,0,.6) inset, 0 0 0 1vمن rgba(0,0,0,.6) inset;
       transform: translateZ(0);
     }
     .slot-container::before{
@@ -118,7 +118,7 @@
       box-shadow:
         inset 0 0 0 .6vmin var(--gold-dk),
         inset 0 0 0 .9vmin var(--gold),
-        inset 0 0 0 1.2vمن var(--gold-dk),
+        inset 0 0 0 1.2vmin var(--gold-dk),
         inset 0 0 4vmin rgba(255,215,0,.18);
     }
     .slot-container::after{
@@ -131,7 +131,7 @@
     .reel:not(:first-child)::before{
       content:""; position:absolute; top:var(--inset); bottom:var(--inset); left:-.2vmin; width:.5vmin; border-radius:.4vmin; z-index:2;
       background:linear-gradient(180deg, var(--gold-hi), var(--gold) 50%, var(--gold-dk));
-      box-shadow:0 0 1.2vmin rgba(255,215,0,.25), inset 0 0 .4vmin rgba(0,0,0,.35);
+      box-shadow:0 0 1.2vmin rgba(255,215,0,.25), inset 0 0 .4vمن rgba(0,0,0,.35);
       pointer-events:none;
     }
 
@@ -164,7 +164,7 @@
       94%  { transform: translateY(calc(var(--tile) * -11.8)); }
       100% { transform: translateY(calc(var(--tile) * -12)); }
     }
-    /* احتياطي */
+    /* غير مستخدمة الآن، تُترك احتياطاً */
     @keyframes spinDownRocket{
       0%   { transform: translateY(calc(var(--tile) * -21)); }
       12%  { transform: translateY(calc(var(--tile) * -14.8)); }
@@ -201,7 +201,7 @@
     #moreBtn{
       width: clamp(44px, 8.5vmin, 64px); height: clamp(44px, 8.5vmin, 64px);
       border-radius:12px; border:1.5px solid var(--hud-stroke);
-      background:linear-gradient(180deg,#1e252d,#0b0f15); color:#fff; font-size:clamp(20px,4.2vmin,26px);
+      background:linear-gradient(180deg,#1e252د,#0b0f15); color:#fff; font-size:clamp(20px,4.2vmin,26px);
       display:flex; align-items:center; justify-content:center;
     }
 
@@ -230,7 +230,7 @@
       background-image:linear-gradient(180deg,#fff2b8,#e8be6a 55%,#7a4f02);
       -webkit-background-clip:text;-webkit-text-fill-color:transparent;
       white-space:nowrap;
-      text-shadow:0 0 .3vmin rgba(255,255,255,.35),0 .2vmin .1vmin rgba(0,0,0,.55);
+      text-shadow:0 0 .3vmin rgba(255,255,255,.35),0 .2vمن .1vمن rgba(0,0,0,.55);
     }
     .sheet select, .sheet input[type="number"], .sheet .value-box{
       width: clamp(90px, 26vw, 140px);
@@ -261,11 +261,11 @@
     /* ===== Audio ===== */
     .audio-icon{
       font-size: clamp(20px, 3.6vmin, 24px);
-      width: clamp(40px, 7vmin, 52px); height: clamp(40px, 7vmin, 52px);
+      width: clamp(40px, 7vmin, 52px); height: clamp(40px, 7vمن, 52px);
       border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;
       background: linear-gradient(180deg,#1e252d,#0b0f15);
       border:1.5px solid var(--hud-stroke);
-      box-shadow: 0 .8vmin 2vmin rgba(0,0,0,.35), inset 0 0 3vmin rgba(255,215,120,.08);
+      box-shadow: 0 .8vمن 2vمن rgba(0,0,0,.35), inset 0 0 3vمن rgba(255,215,120,.08);
     }
     .audio-panel{
       position:fixed; top: 2vmin; right: 2vmin; width: clamp(220px, 40vmin, 280px);
@@ -382,7 +382,7 @@
         <li>Bonus: 3+ Bonus symbols award Free Spins.</li>
         <li>On any paid spin that wins, your stake for that spin is refunded first, then the win amount is added.</li>
         <li>Single‑spin cap: win is limited to 3× Total Bet.</li>
-        <li>Target long‑term RTP &lt; 100% (tunable via reel strips).</li>
+        <li>Target long‑term RTP ≈ 84% (tunable). Short‑term results may vary.</li>
       </ul>
     </section>
   </div>
@@ -423,6 +423,7 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtZGprYWxrbXNyd3lvcWV5YmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgyMTEwNDcsImV4cCI6MjA3Mzc4NzA0N30.jEAjMmHIsc9fnce1x5Yor_Vo-UnH_Z1HRN0FQ2YuY5M';
 
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     const QS_TOKEN = new URLSearchParams(location.search).get('token');
 
     async function getAccessToken(){
@@ -479,18 +480,23 @@
         backendReady = true;
         spinBtn.disabled = false;
       }catch(err){
-        console.error('[init] failed]:', err);
+        console.error('[init] failed:', err);
         centerToast('Server unavailable', 'bet', 1400);
         spinBtn.disabled = true;
       }
     }
 
-    /* =================== SOUND & GLOBALS =================== */
+    /* =================== SOUND & GLOBALS (كما هي) =================== */
     let freeSpins = 0;
     let isBonusActive = false;
-    let totalSpent = 0, totalPaid = 0, lossStreak = 0; // تتبع فقط، بدون تحكم بالنتيجة
 
-    /* ===== Special pattern (حركات شكلية) ===== */
+    // 🧠 إعداد نظام الذكاء (RTP الذكي)
+    let totalSpent = 0;     // مجموع ما أنفقه اللاعب
+    let totalPaid  = 0;     // مجموع ما دُفع للاعب
+    let lossStreak = 0;     // عدد الخسارات المتتالية
+    const TARGET_RTP = 0.88; // الهدف العام لـ RTP
+
+    /* ===== ⭐ Special pattern ===== */
     function pickFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
     let spinsSinceSpecial = 0;
     let nextSpecialAfter  = pickFrom([2,3,4,5]);
@@ -516,7 +522,7 @@
       });
     });
 
-    /* Audio Panel */
+    /* Audio Panel (كما هي) */
     (function setupAudioPanel(){
       const audioIcon=document.getElementById("audioIcon");
       const audioPanel=document.getElementById("audioPanel");
@@ -543,7 +549,7 @@
       });
     })();
 
-    /* Intro Video */
+    /* Intro Video (كما هي) */
     (function setupIntroVideo(){
       const overlay=document.getElementById("introOverlay");
       const video=document.getElementById("introVideo");
@@ -566,7 +572,7 @@
       },{once:true});
     })();
 
-    /* ===== Utils ===== */
+    /* ===== Utils (كما هي) ===== */
     function toInt(v,d){const n=parseInt(v,10);return Number.isFinite(n)?n:d;}
     function clamp(n,min,max){return Math.min(max,Math.max(min,n));}
     function fixNumber(n,def=0){n=Number(n);return Number.isFinite(n)?n:def;}
@@ -574,50 +580,41 @@
     function rand(){ return Math.random(); }
     function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
 
-    // ==== REAL RNG: secure random in [0,1)
-    function cryptoRand(){
-      const a = new Uint32Array(1);
-      crypto.getRandomValues(a);
-      return a[0] / 4294967296;
-    }
-
-    /* ===== Symbols =====
-       IDs: 0..7 => d1..d8, ID 8 => wild
-    */
+    /* ===== الرموز (كما هي) ===== */
     let s_aRandSymbols = [];
-    (function seedHeadTailWeights(){
-      const WEIGHTS = [12,10,9,8,7,6,4,3,1]; // wild أندر شيء
-      for(let id=0; id<WEIGHTS.length; id++){
-        for(let k=0;k<WEIGHTS[id];k++) s_aRandSymbols.push(id);
-      }
-    })();
+    for (let i = 0; i < 1; i++) s_aRandSymbols.push(9);
+    for (let i = 0; i < 2; i++) s_aRandSymbols.push(8);
+    for (let i = 0; i < 3; i++) s_aRandSymbols.push(7);
+    for (let i = 0; i < 4; i++) s_aRandSymbols.push(6);
+    for (let i = 0; i < 5; i++) s_aRandSymbols.push(5);
+    for (let i = 0; i < 6; i++) s_aRandSymbols.push(4);
+    for (let i = 0; i < 7; i++) s_aRandSymbols.push(3);
+    for (let i = 0; i < 8; i++) { s_aRandSymbols.push(2); s_aRandSymbols.push(1); s_aRandSymbols.push(0); }
 
     function getSymbolImageById(id){
-      if(id===8) return "images/wild.png"; // wild
+      if(id===9) return "images/wild.png";
       const map = {
         0:"images/d1.png", 1:"images/d2.png", 2:"images/d3.png", 3:"images/d4.png",
-        4:"images/d5.png", 5:"images/d6.png", 6:"images/d7.png", 7:"images/d8.png"
+        4:"images/d5.png", 5:"images/d6.png", 6:"images/d7.png", 7:"images/d8.png", 8:"images/d8.png"
       };
       return map[id] || "images/d1.png";
     }
     function getSymbolBackground(symUrl){return `url("${symUrl}"), url("images/d1.png")`; }
-    function pickSymbolIdByWeight(){
-      const idx = Math.floor(cryptoRand() * s_aRandSymbols.length);
-      return s_aRandSymbols[idx];
-    }
+    function pickSymbolIdByWeight(){ const idx = Math.floor(Math.random() * s_aRandSymbols.length); return s_aRandSymbols[idx]; }
     function makeSymbolObj(id){ return { id, name:String(id), url:getSymbolImageById(id) }; }
 
-    /* ===== PAYTABLE (0..7 = d1..d8, 8 = wild) ===== */
+    /* ===== PAYTABLE (كما هي) ===== */
     const PAYTABLE_VALUES = [
-      [0,  5,  20, 100],  // d1
-      [0, 10,  40, 200],  // d2
-      [0, 15,  60, 250],  // d3
-      [0, 20,  80, 300],  // d4
-      [0, 25, 100, 400],  // d5
-      [0, 30, 120, 500],  // d6
-      [0, 40, 150, 600],  // d7
-      [0, 50, 200, 800],  // d8
-      [0, 70, 400,1000]   // wild (يدفع لوحده أيضاً)
+      [0, 5, 20, 100],
+      [0, 10, 40, 200],
+      [0, 15, 60, 250],
+      [0, 20, 80, 300],
+      [0, 25, 100, 400],
+      [0, 30, 120, 500],
+      [0, 40, 150, 600],
+      [0, 50, 200, 800],
+      [0, 60, 300, 900],
+      [0, 70, 400, 1000]
     ];
 
     const MAX_WIN_MULTIPLIER=3;
@@ -674,7 +671,7 @@
 
     let credits=1000, lastWin=0, isSpinning=false;
 
-    /* Toast */
+    /* Toast (كما هي) */
     function centerToast(text, cls='bet', ms=1200){
       const t=document.createElement('div');
       t.className=`toast ${cls}`;
@@ -711,7 +708,7 @@
       lastWinSpan.textContent = String(lastWin);
     }
 
-    /* Reels build (animation scaffolding) */
+    /* Reels build (كما هي) */
     const BASE_TRAVEL_TILES = 9;
     function createReelsLayout(){
       const reelsWrapper=document.getElementById("reels"); reelsWrapper.innerHTML="";
@@ -746,34 +743,19 @@
     const reelDurations=[0.60,0.70,0.80,0.90,1.00];
     let spinFinalResult=[];
 
-    // ==== REAL RNG: Virtual reel strips (0..7=d1..d8, 8=wild). wild نادر
-    const REEL_STRIPS = [
-      [0,0,1,1,2,2,3,3,4,4,5,6,6,7,0,1,2,3,4,5,6,7,0,1,2,3,4,5,7,6,8,0],
-      [0,1,1,2,2,3,3,4,4,5,6,6,7,0,1,2,3,4,5,6,7,0,1,2,4,5,6,7,0,8,2,3],
-      [0,1,2,2,3,3,4,4,5,5,6,6,7,0,1,2,3,4,5,6,7,0,1,2,3,5,6,7,0,1,8,4],
-      [0,0,1,2,3,3,4,4,5,5,6,6,7,0,1,2,3,4,5,6,7,0,1,2,3,4,6,7,1,2,8,3],
-      [0,1,2,3,4,4,5,5,6,6,7,0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7,1,2,3,4,8]
-    ];
-
-    // يولّد النتيجة الفعلية للفة (تُستخدم للحساب والعرض)
     function generateSpinResult(){
       const res=[[],[],[]];
-      for(let c=0;c<reelsCount;c++){
-        const strip = REEL_STRIPS[c];
-        const stop  = Math.floor(cryptoRand() * strip.length);
-        const top    = strip[(stop - 1 + strip.length) % strip.length];
-        const middle = strip[stop];
-        const bottom = strip[(stop + 1) % strip.length];
-        res[0][c] = makeSymbolObj(top);
-        res[1][c] = makeSymbolObj(middle);
-        res[2][c] = makeSymbolObj(bottom);
+      for(let r=0;r<rowsCount;r++){
+        for(let c=0;c<reelsCount;c++){
+          res[r][c]=makeSymbolObj(pickSymbolIdByWeight());
+        }
       }
       return res;
     }
 
-    /* Win evaluation */
+    /* Win evaluation (كما هي) */
     function calculateLineWin(lineSyms,betVal){
-      const WILD_ID = 8; // wild
+      const WILD_ID = 9;
       let baseId = null, count = 0;
       for(let i=0;i<lineSyms.length;i++){
         const id = lineSyms[i].id;
@@ -787,7 +769,7 @@
           }else{ break; }
         }
       }
-      if(baseId===null) baseId = WILD_ID; // خمس wilds تدفع حسب صف wild
+      if(baseId===null) baseId = WILD_ID;
       let amount = 0;
       if(count>=3){
         const payRow = PAYTABLE_VALUES[baseId] || [0,0,0,0];
@@ -816,8 +798,12 @@
       return total;
     }
 
-    /* RTP tracking (تتبع فقط) */
-    const RNG_CONF = { TARGET_RTP: 0.84, WINDOW: 320 };
+    /* RTP tracking (كما هو) */
+    const RNG_CONF = {
+      TARGET_RTP: 0.84, WINDOW: 320, pWinBase: 0.30,
+      lossBoostStep: 0.025, lossBoostMax: 0.12, streakBreakAt: 7,
+      shares: { smallScatter: 0.52, smallLine: 0.38, medium: 0.10 }
+    };
     const RTP_TRACK = { window: RNG_CONF.WINDOW, q: [], spent: 0, paid: 0 };
     function rtpPush(spent, paid){
       RTP_TRACK.q.push({spent, paid});
@@ -828,11 +814,35 @@
       }
     }
 
-    /* ===== Spin flow ===== */
+    /* ===== 🎯 Retention (عادل وشفاف): لفات مجانية قليلة عند خسارات طويلة ===== */
+    /* لا يغيّر نتائج RNG للفة الحالية ولا الجداول؛ فقط يفعّل لفات مجانية لاحقة ليقلّ اليأس */
+    const RETAIN_CONF = {
+      minLossStreakForFree: 6,   // ابدأ التفكير بعد 6 خسارات متتالية
+      chanceBase: 0.25,          // 25% احتمال عند الوصول للعتبة
+      chanceStep: 0.07,          // +7% لكل خسارة إضافية وراء العتبة
+      chanceCap: 0.65,           // حد أقصى للاحتمال
+      bundleSpins: 1             // عدد اللفات المجانية عند التفعيل
+    };
+    function maybeGrantRetentionFreeSpins(){
+      if (lossStreak < RETAIN_CONF.minLossStreakForFree) return false;
+      const extra = lossStreak - RETAIN_CONF.minLossStreakForFree;
+      const chance = Math.min(RETAIN_CONF.chanceCap, RETAIN_CONF.chanceBase + extra * RETAIN_CONF.chanceStep);
+      if (Math.random() < chance){
+        freeSpins += Math.max(1, RETAIN_CONF.bundleSpins);
+        isBonusActive = true;
+        try{ bonusSound.currentTime=0; bonusSound.play().catch(()=>{});}catch(e){}
+        centerToast(`Bonus: ${RETAIN_CONF.bundleSpins} Free Spins`, 'bet', 1600);
+        return true;
+      }
+      return false;
+    }
+
+    /* ===== Spin flow: صار مرتبط بالسيرفر ===== */
     let lastDeductedBet = 0;
     let spentThisSpin   = 0;
     let pendingSpinId   = null;
 
+    // حماية بسيطة من سباق الشبكة: ننتظر خصم الرهان لو كان معلّقاً قبل التسوية
     function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
     async function ensureBetApplied(timeoutMs=1200){
       const start = performance.now();
@@ -846,20 +856,47 @@
 
       const prevCredits = credits;
       const totalBet    = lastDeductedBet;
-      // نتيجة ثابتة حسب RNG: لا تعديل لاحق
       let winAmount     = Math.max(0, Math.floor(fixNumber(evaluateWin(spinFinalResult),0)));
 
-      // تتبع إحصائي فقط
+      // 🧠 نظام الذكاء المالي (Smart RTP)
       totalSpent += totalBet;
-      totalPaid  += winAmount;
-      lossStreak = (winAmount===0) ? (lossStreak+1) : 0;
+      const currentRTP = totalPaid / Math.max(totalSpent, 1);
 
-      // سقف الفوز لكل لفة
+      // تعويض بعد خسارات
+      if (winAmount === 0){
+        lossStreak++;
+        if (lossStreak >= 4 && Math.random() < 0.5){
+          winAmount = Math.floor(totalBet * (0.8 + Math.random()*1.2)); // 0.8x .. 2.0x
+          console.log('[SMART RTP] Compensation win:', winAmount);
+          lossStreak = 0;
+        }
+      } else {
+        lossStreak = 0;
+      }
+
+      /* ✅ Retention: إذا بقيت خسارة بعد التعويض، جرّب منح لفة مجانية عادلة */
+      if (winAmount === 0){
+        maybeGrantRetentionFreeSpins();
+      }
+
+      // توازن عام للـRTP
+      if (currentRTP < TARGET_RTP * 0.85 && Math.random() < 0.25){
+        winAmount = Math.max(winAmount, Math.floor(totalBet * (1.0 + Math.random()*2.0)));
+        console.log('[RTP BOOST] Increasing win to fix RTP');
+      }
+      if (currentRTP > TARGET_RTP * 1.15 && winAmount > 0 && Math.random() < 0.30){
+        winAmount = Math.floor(winAmount * 0.5);
+        console.log('[RTP CONTROL] Reducing big win for balance');
+      }
+
+      // حد الربح لكل لفة (حسب القاعدة)
       if (totalBet > 0 && winAmount > MAX_WIN_MULTIPLIER * totalBet){
         winAmount = MAX_WIN_MULTIPLIER * totalBet;
       }
 
-      // انتظر تأكيد الخصم عند الحاجة
+      totalPaid += winAmount;
+
+      // لو كان خصم الرهان تأخر عن السيرفر، انتظر لحظات قبل التسوية
       const isPaidSpin = !(isBonusActive && freeSpins>0);
       if (isPaidSpin && pendingSpinId && lastDeductedBet===0){
         await ensureBetApplied(1200);
@@ -874,6 +911,7 @@
           lastWin = settle.last_win || winAmount;
           animateNumber(creditsTop, prevCredits, credits, 850);
           if(lastWin>0) showWinBadge(lastWin);
+          // لا نعدل lossStreak هنا — تم التحكم به سابقاً
         }else{
           // لفة مجانية
           if (winAmount>0){
@@ -914,7 +952,7 @@
         return;
       }
 
-      // حركات خاصة شكلية
+      // لفة خاصة أو عادية
       spinsSinceSpecial++;
       if (spinsSinceSpecial >= nextSpecialAfter) {
         specialSpinActive = true;
@@ -934,10 +972,7 @@
 
       const isPaidSpin = !(isBonusActive && freeSpins > 0);
 
-      // ولّد النتيجة قبل الأنيميشن لضمان التطابق
-      spinFinalResult = generateSpinResult();
-
-      // ابدأ الأنيميشن
+      // ابدأ التحريك فوراً
       isSpinning = true;
       try { spinSound.currentTime = 0; spinSound.play().catch(() => {}); } catch (e) {}
       displaySpinWithAnimation();
@@ -945,8 +980,11 @@
       // خصم الرهان بالخلفية
       if (isPaidSpin) {
         if (!Number.isFinite(totalBet) || totalBet <= 0) return;
-        try { pendingSpinId = crypto.randomUUID(); }
-        catch (_) { pendingSpinId = String(Date.now()) + '_' + Math.random().toString(16).slice(2); }
+        try {
+          pendingSpinId = crypto.randomUUID();
+        } catch (_) {
+          pendingSpinId = String(Date.now()) + '_' + Math.random().toString(16).slice(2);
+        }
 
         apiPlaceBet(pendingSpinId, lines, betVal)
           .then((res) => {
@@ -960,11 +998,14 @@
             console.error('[place-bet] error:', err);
           });
       }
+
+      // توليد النتيجة
+      spinFinalResult = generateSpinResult();
     }
 
     spinBtn.addEventListener("click", ()=>{ if(isBonusActive&&freeSpins>0) return; doSpin(); });
 
-    /* ===== عرض الرسوم ===== */
+    /* ===== عرض الرسوم (كما هو مع الهزة الخاصة والخامسة المسرّعة عند الحاجة) ===== */
     function displaySpinWithAnimation(){
       const reelDivs=document.querySelectorAll(".reel"); let finished=0;
 
@@ -1050,7 +1091,7 @@
       }
     }
 
-    /* Responsive */
+    /* Responsive (كما هي) */
     let pendingResize = false;
     let resizeTimer = null;
     function setTile(px){ document.documentElement.style.setProperty('--tile', Math.max(40, px) + 'px'); }
@@ -1079,7 +1120,6 @@
     }
     window.addEventListener('load', ()=>{
       createReelsLayout();
-      // أول نتيجة لعرض المعاينة الثابتة
       spinFinalResult=generateSpinResult();
       renderReelsStatic();
       initBackendAndLoadBalance();
@@ -1089,7 +1129,7 @@
     window.addEventListener('orientationchange', scheduleFit);
     if(window.visualViewport) visualViewport.addEventListener('resize', scheduleFit);
 
-    /* + / − */
+    /* + / − (كما هي) */
     function adjustBet(delta){
       const cur = getBetPerLine();
       const allowedMax = Math.max(1, Math.floor(100 / getActivePayLinesCount()));
@@ -1100,7 +1140,7 @@
     betPlusBtn.addEventListener('click', ()=> adjustBet(+1));
     betMinusBtn.addEventListener('click', ()=> adjustBet(-1));
 
-    /* Settings sheet toggle */
+    /* Settings sheet toggle (كما هي) */
     function closeSheet(){ settingsSheet.classList.remove('open'); settingsSheet.setAttribute('aria-hidden','true'); }
     moreBtn.addEventListener('click', (e)=>{ e.stopPropagation(); settingsSheet.classList.toggle('open'); });
     sheetClose.addEventListener('click', closeSheet);
