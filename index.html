@@ -90,8 +90,8 @@
     }
     .credits-pulse{ animation: creditsPulse .9s ease; }
     @keyframes creditsPulse{
-      0%{ box-shadow: 0 0 .6vmin rgba(255,178,0,.9), 0 0 1.2vمن rgba(255,178,0,.6) }
-      100%{ box-shadow: 0 0 0 rgba(0,0,0,0) }
+      0%{ box-shadow: 0 0 .6vmin rgba(255,178,0,.9), 0 0 1.2vmin rgba(255,178,0,.6) }
+      100%{ box-shadow:0 0 0 rgba(0,0,0,0) }
     }
 
     /* ===== MACHINE ===== */
@@ -110,7 +110,7 @@
       width:var(--slot-w); height:var(--slot-h);
       position:relative; overflow:hidden; border-radius:var(--radius-md);
       background:#000;
-      box-shadow: 0 0 0 .12vmin rgba(0,0,0,.6) inset, 0 0 0 1vمن rgba(0,0,0,.6) inset;
+      box-shadow: 0 0 0 .12vmin rgba(0,0,0,.6) inset, 0 0 0 1vmin rgba(0,0,0,.6) inset;
       transform: translateZ(0);
     }
     .slot-container::before{
@@ -118,7 +118,7 @@
       box-shadow:
         inset 0 0 0 .6vmin var(--gold-dk),
         inset 0 0 0 .9vmin var(--gold),
-        inset 0 0 0 1.2vmin var(--gold-dk),
+        inset 0 0 0 1.2vمن var(--gold-dk),
         inset 0 0 4vmin rgba(255,215,0,.18);
     }
     .slot-container::after{
@@ -131,7 +131,7 @@
     .reel:not(:first-child)::before{
       content:""; position:absolute; top:var(--inset); bottom:var(--inset); left:-.2vmin; width:.5vmin; border-radius:.4vmin; z-index:2;
       background:linear-gradient(180deg, var(--gold-hi), var(--gold) 50%, var(--gold-dk));
-      box-shadow:0 0 1.2vmin rgba(255,215,0,.25), inset 0 0 .4vمن rgba(0,0,0,.35);
+      box-shadow:0 0 1.2vmin rgba(255,215,0,.25), inset 0 0 .4vmin rgba(0,0,0,.35);
       pointer-events:none;
     }
 
@@ -164,7 +164,7 @@
       94%  { transform: translateY(calc(var(--tile) * -11.8)); }
       100% { transform: translateY(calc(var(--tile) * -12)); }
     }
-    /* غير مستخدمة الآن، تُترك احتياطاً */
+    /* احتياطي */
     @keyframes spinDownRocket{
       0%   { transform: translateY(calc(var(--tile) * -21)); }
       12%  { transform: translateY(calc(var(--tile) * -14.8)); }
@@ -192,7 +192,7 @@
     .step-btn:active{transform:scale(.95)}
     #spinBtn{
       width:var(--spin-size); height:var(--spin-size); background:none; border:none; cursor:pointer; padding:0;
-      filter:drop-shadow(0 0 .6vمن rgba(0,0,0,.55));
+      filter:drop-shadow(0 0 .6vmin rgba(0,0,0,.55));
     }
     #spinBtn img{width:100%;height:100%;display:block;object-fit:contain;animation:wheelMotion 3s infinite linear;filter:drop-shadow(0 0 1vmin rgba(255,255,255,.85))}
     #spinBtn:active img{animation-play-state:paused;transform:scale(.86)}
@@ -201,7 +201,7 @@
     #moreBtn{
       width: clamp(44px, 8.5vmin, 64px); height: clamp(44px, 8.5vmin, 64px);
       border-radius:12px; border:1.5px solid var(--hud-stroke);
-      background:linear-gradient(180deg,#1e252د,#0b0f15); color:#fff; font-size:clamp(20px,4.2vmin,26px);
+      background:linear-gradient(180deg,#1e252d,#0b0f15); color:#fff; font-size:clamp(20px,4.2vmin,26px);
       display:flex; align-items:center; justify-content:center;
     }
 
@@ -261,11 +261,11 @@
     /* ===== Audio ===== */
     .audio-icon{
       font-size: clamp(20px, 3.6vmin, 24px);
-      width: clamp(40px, 7vmin, 52px); height: clamp(40px, 7vمن, 52px);
+      width: clamp(40px, 7vmin, 52px); height: clamp(40px, 7vmin, 52px);
       border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;
       background: linear-gradient(180deg,#1e252d,#0b0f15);
       border:1.5px solid var(--hud-stroke);
-      box-shadow: 0 .8vمن 2vمن rgba(0,0,0,.35), inset 0 0 3vمن rgba(255,215,120,.08);
+      box-shadow: 0 .8vmin 2vmin rgba(0,0,0,.35), inset 0 0 3vmin rgba(255,215,120,.08);
     }
     .audio-panel{
       position:fixed; top: 2vmin; right: 2vmin; width: clamp(220px, 40vmin, 280px);
@@ -382,7 +382,7 @@
         <li>Bonus: 3+ Bonus symbols award Free Spins.</li>
         <li>On any paid spin that wins, your stake for that spin is refunded first, then the win amount is added.</li>
         <li>Single‑spin cap: win is limited to 3× Total Bet.</li>
-        <li>Target long‑term RTP ≈ 84% (tunable). Short‑term results may vary.</li>
+        <li>Target long‑term RTP &lt; 100% (tunable via reel strips).</li>
       </ul>
     </section>
   </div>
@@ -423,7 +423,6 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtZGprYWxrbXNyd3lvcWV5YmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgyMTEwNDcsImV4cCI6MjA3Mzc4NzA0N30.jEAjMmHIsc9fnce1x5Yor_Vo-UnH_Z1HRN0FQ2YuY5M';
 
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
     const QS_TOKEN = new URLSearchParams(location.search).get('token');
 
     async function getAccessToken(){
@@ -480,22 +479,18 @@
         backendReady = true;
         spinBtn.disabled = false;
       }catch(err){
-        console.error('[init] failed:', err);
+        console.error('[init] failed]:', err);
         centerToast('Server unavailable', 'bet', 1400);
         spinBtn.disabled = true;
       }
     }
 
-    /* =================== SOUND & GLOBALS (كما هي) =================== */
+    /* =================== SOUND & GLOBALS =================== */
     let freeSpins = 0;
     let isBonusActive = false;
+    let totalSpent = 0, totalPaid = 0, lossStreak = 0; // تتبع فقط، بدون تحكم بالنتيجة
 
-    // (مجرد تتبع إحصائي، ليس للتحكم بالنتيجة)
-    let totalSpent = 0;
-    let totalPaid  = 0;
-    let lossStreak = 0;
-
-    /* ===== ⭐ Special pattern ===== */
+    /* ===== Special pattern (حركات شكلية) ===== */
     function pickFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
     let spinsSinceSpecial = 0;
     let nextSpecialAfter  = pickFrom([2,3,4,5]);
@@ -521,7 +516,7 @@
       });
     });
 
-    /* Audio Panel (كما هي) */
+    /* Audio Panel */
     (function setupAudioPanel(){
       const audioIcon=document.getElementById("audioIcon");
       const audioPanel=document.getElementById("audioPanel");
@@ -548,7 +543,7 @@
       });
     })();
 
-    /* Intro Video (كما هي) */
+    /* Intro Video */
     (function setupIntroVideo(){
       const overlay=document.getElementById("introOverlay");
       const video=document.getElementById("introVideo");
@@ -586,41 +581,43 @@
       return a[0] / 4294967296;
     }
 
-    /* ===== الرموز (كما هي) ===== */
+    /* ===== Symbols =====
+       IDs: 0..7 => d1..d8, ID 8 => wild
+    */
     let s_aRandSymbols = [];
-    for (let i = 0; i < 1; i++) s_aRandSymbols.push(9);
-    for (let i = 0; i < 2; i++) s_aRandSymbols.push(8);
-    for (let i = 0; i < 3; i++) s_aRandSymbols.push(7);
-    for (let i = 0; i < 4; i++) s_aRandSymbols.push(6);
-    for (let i = 0; i < 5; i++) s_aRandSymbols.push(5);
-    for (let i = 0; i < 6; i++) s_aRandSymbols.push(4);
-    for (let i = 0; i < 7; i++) s_aRandSymbols.push(3);
-    for (let i = 0; i < 8; i++) { s_aRandSymbols.push(2); s_aRandSymbols.push(1); s_aRandSymbols.push(0); }
+    (function seedHeadTailWeights(){
+      const WEIGHTS = [12,10,9,8,7,6,4,3,1]; // wild أندر شيء
+      for(let id=0; id<WEIGHTS.length; id++){
+        for(let k=0;k<WEIGHTS[id];k++) s_aRandSymbols.push(id);
+      }
+    })();
 
     function getSymbolImageById(id){
-      if(id===9) return "images/wild.png";
+      if(id===8) return "images/wild.png"; // wild
       const map = {
         0:"images/d1.png", 1:"images/d2.png", 2:"images/d3.png", 3:"images/d4.png",
-        4:"images/d5.png", 5:"images/d6.png", 6:"images/d7.png", 7:"images/d8.png", 8:"images/d8.png"
+        4:"images/d5.png", 5:"images/d6.png", 6:"images/d7.png", 7:"images/d8.png"
       };
       return map[id] || "images/d1.png";
     }
     function getSymbolBackground(symUrl){return `url("${symUrl}"), url("images/d1.png")`; }
-    function pickSymbolIdByWeight(){ const idx = Math.floor(Math.random() * s_aRandSymbols.length); return s_aRandSymbols[idx]; }
+    function pickSymbolIdByWeight(){
+      const idx = Math.floor(cryptoRand() * s_aRandSymbols.length);
+      return s_aRandSymbols[idx];
+    }
     function makeSymbolObj(id){ return { id, name:String(id), url:getSymbolImageById(id) }; }
 
-    /* ===== PAYTABLE (كما هي) ===== */
+    /* ===== PAYTABLE (0..7 = d1..d8, 8 = wild) ===== */
     const PAYTABLE_VALUES = [
-      [0, 5, 20, 100],
-      [0, 10, 40, 200],
-      [0, 15, 60, 250],
-      [0, 20, 80, 300],
-      [0, 25, 100, 400],
-      [0, 30, 120, 500],
-      [0, 40, 150, 600],
-      [0, 50, 200, 800],
-      [0, 60, 300, 900],
-      [0, 70, 400, 1000]
+      [0,  5,  20, 100],  // d1
+      [0, 10,  40, 200],  // d2
+      [0, 15,  60, 250],  // d3
+      [0, 20,  80, 300],  // d4
+      [0, 25, 100, 400],  // d5
+      [0, 30, 120, 500],  // d6
+      [0, 40, 150, 600],  // d7
+      [0, 50, 200, 800],  // d8
+      [0, 70, 400,1000]   // wild (يدفع لوحده أيضاً)
     ];
 
     const MAX_WIN_MULTIPLIER=3;
@@ -677,7 +674,7 @@
 
     let credits=1000, lastWin=0, isSpinning=false;
 
-    /* Toast (كما هي) */
+    /* Toast */
     function centerToast(text, cls='bet', ms=1200){
       const t=document.createElement('div');
       t.className=`toast ${cls}`;
@@ -714,7 +711,7 @@
       lastWinSpan.textContent = String(lastWin);
     }
 
-    /* Reels build (كما هي) */
+    /* Reels build (animation scaffolding) */
     const BASE_TRAVEL_TILES = 9;
     function createReelsLayout(){
       const reelsWrapper=document.getElementById("reels"); reelsWrapper.innerHTML="";
@@ -749,23 +746,24 @@
     const reelDurations=[0.60,0.70,0.80,0.90,1.00];
     let spinFinalResult=[];
 
-    // ==== REAL RNG: Virtual reel strips (symbol IDs 0..9, 9 = WILD), uniform stop per reel
+    // ==== REAL RNG: Virtual reel strips (0..7=d1..d8, 8=wild). wild نادر
     const REEL_STRIPS = [
-      [0,0,1,1,1,2,2,2,3,3,4,4,4,5,5,6,6,6,7,7,8,8,0,1,2,3,4,5,6,7,8,9],
-      [0,1,1,2,2,2,3,3,3,4,4,5,5,6,6,7,7,8,8,0,1,2,3,4,5,6,7,8,0,9,1,2],
-      [0,1,2,2,3,3,3,4,4,5,5,6,6,7,7,8,8,0,1,2,3,4,5,6,7,8,0,1,2,9,3,4],
-      [0,0,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,0,1,2,3,4,5,6,7,8,0,1,9,2,3,4],
-      [0,1,2,3,3,4,4,5,5,6,6,7,7,8,8,0,1,2,3,4,5,6,7,8,0,1,2,3,4,9,5,6]
+      [0,0,1,1,2,2,3,3,4,4,5,6,6,7,0,1,2,3,4,5,6,7,0,1,2,3,4,5,7,6,8,0],
+      [0,1,1,2,2,3,3,4,4,5,6,6,7,0,1,2,3,4,5,6,7,0,1,2,4,5,6,7,0,8,2,3],
+      [0,1,2,2,3,3,4,4,5,5,6,6,7,0,1,2,3,4,5,6,7,0,1,2,3,5,6,7,0,1,8,4],
+      [0,0,1,2,3,3,4,4,5,5,6,6,7,0,1,2,3,4,5,6,7,0,1,2,3,4,6,7,1,2,8,3],
+      [0,1,2,3,4,4,5,5,6,6,7,0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7,1,2,3,4,8]
     ];
 
+    // يولّد النتيجة الفعلية للفة (تُستخدم للحساب والعرض)
     function generateSpinResult(){
       const res=[[],[],[]];
       for(let c=0;c<reelsCount;c++){
         const strip = REEL_STRIPS[c];
-        const idx   = Math.floor(cryptoRand()*strip.length);
-        const top    = strip[(idx - 1 + strip.length) % strip.length];
-        const middle = strip[idx];
-        const bottom = strip[(idx + 1) % strip.length];
+        const stop  = Math.floor(cryptoRand() * strip.length);
+        const top    = strip[(stop - 1 + strip.length) % strip.length];
+        const middle = strip[stop];
+        const bottom = strip[(stop + 1) % strip.length];
         res[0][c] = makeSymbolObj(top);
         res[1][c] = makeSymbolObj(middle);
         res[2][c] = makeSymbolObj(bottom);
@@ -773,9 +771,9 @@
       return res;
     }
 
-    /* Win evaluation (كما هي) */
+    /* Win evaluation */
     function calculateLineWin(lineSyms,betVal){
-      const WILD_ID = 9;
+      const WILD_ID = 8; // wild
       let baseId = null, count = 0;
       for(let i=0;i<lineSyms.length;i++){
         const id = lineSyms[i].id;
@@ -789,7 +787,7 @@
           }else{ break; }
         }
       }
-      if(baseId===null) baseId = WILD_ID;
+      if(baseId===null) baseId = WILD_ID; // خمس wilds تدفع حسب صف wild
       let amount = 0;
       if(count>=3){
         const payRow = PAYTABLE_VALUES[baseId] || [0,0,0,0];
@@ -818,12 +816,8 @@
       return total;
     }
 
-    /* RTP tracking (كما هو: تتبع فقط) */
-    const RNG_CONF = {
-      TARGET_RTP: 0.84, WINDOW: 320, pWinBase: 0.30,
-      lossBoostStep: 0.025, lossBoostMax: 0.12, streakBreakAt: 7,
-      shares: { smallScatter: 0.52, smallLine: 0.38, medium: 0.10 }
-    };
+    /* RTP tracking (تتبع فقط) */
+    const RNG_CONF = { TARGET_RTP: 0.84, WINDOW: 320 };
     const RTP_TRACK = { window: RNG_CONF.WINDOW, q: [], spent: 0, paid: 0 };
     function rtpPush(spent, paid){
       RTP_TRACK.q.push({spent, paid});
@@ -834,7 +828,7 @@
       }
     }
 
-    /* ===== Spin flow (كما هو مع تعديل ترتيب التوليد) ===== */
+    /* ===== Spin flow ===== */
     let lastDeductedBet = 0;
     let spentThisSpin   = 0;
     let pendingSpinId   = null;
@@ -852,20 +846,20 @@
 
       const prevCredits = credits;
       const totalBet    = lastDeductedBet;
-      // ==== REAL RNG: لا تعديل على النتيجة بعد الحساب
+      // نتيجة ثابتة حسب RNG: لا تعديل لاحق
       let winAmount     = Math.max(0, Math.floor(fixNumber(evaluateWin(spinFinalResult),0)));
 
-      // تتبّع فقط
+      // تتبع إحصائي فقط
       totalSpent += totalBet;
       totalPaid  += winAmount;
       lossStreak = (winAmount===0) ? (lossStreak+1) : 0;
 
-      // سقف الفوز حسب القاعدة
+      // سقف الفوز لكل لفة
       if (totalBet > 0 && winAmount > MAX_WIN_MULTIPLIER * totalBet){
         winAmount = MAX_WIN_MULTIPLIER * totalBet;
       }
 
-      // لو كان خصم الرهان تأخر عن السيرفر، انتظر لحظات قبل التسوية
+      // انتظر تأكيد الخصم عند الحاجة
       const isPaidSpin = !(isBonusActive && freeSpins>0);
       if (isPaidSpin && pendingSpinId && lastDeductedBet===0){
         await ensureBetApplied(1200);
@@ -920,7 +914,7 @@
         return;
       }
 
-      // لفة خاصة أو عادية
+      // حركات خاصة شكلية
       spinsSinceSpecial++;
       if (spinsSinceSpecial >= nextSpecialAfter) {
         specialSpinActive = true;
@@ -940,10 +934,10 @@
 
       const isPaidSpin = !(isBonusActive && freeSpins > 0);
 
-      // ==== REAL RNG: ولّد النتيجة قبل بدء الأنيميشن لضمان التوافق بين العرض والدفع
+      // ولّد النتيجة قبل الأنيميشن لضمان التطابق
       spinFinalResult = generateSpinResult();
 
-      // ابدأ التحريك فوراً
+      // ابدأ الأنيميشن
       isSpinning = true;
       try { spinSound.currentTime = 0; spinSound.play().catch(() => {}); } catch (e) {}
       displaySpinWithAnimation();
@@ -951,11 +945,8 @@
       // خصم الرهان بالخلفية
       if (isPaidSpin) {
         if (!Number.isFinite(totalBet) || totalBet <= 0) return;
-        try {
-          pendingSpinId = crypto.randomUUID();
-        } catch (_) {
-          pendingSpinId = String(Date.now()) + '_' + Math.random().toString(16).slice(2);
-        }
+        try { pendingSpinId = crypto.randomUUID(); }
+        catch (_) { pendingSpinId = String(Date.now()) + '_' + Math.random().toString(16).slice(2); }
 
         apiPlaceBet(pendingSpinId, lines, betVal)
           .then((res) => {
@@ -973,7 +964,7 @@
 
     spinBtn.addEventListener("click", ()=>{ if(isBonusActive&&freeSpins>0) return; doSpin(); });
 
-    /* ===== عرض الرسوم (كما هو مع الهزة الخاصة والخامسة المسرّعة عند الحاجة) ===== */
+    /* ===== عرض الرسوم ===== */
     function displaySpinWithAnimation(){
       const reelDivs=document.querySelectorAll(".reel"); let finished=0;
 
@@ -1059,7 +1050,7 @@
       }
     }
 
-    /* Responsive (كما هي) */
+    /* Responsive */
     let pendingResize = false;
     let resizeTimer = null;
     function setTile(px){ document.documentElement.style.setProperty('--tile', Math.max(40, px) + 'px'); }
@@ -1088,7 +1079,7 @@
     }
     window.addEventListener('load', ()=>{
       createReelsLayout();
-      // توليد أول نتيجة حتى يظهر الـstatic preview صحيح
+      // أول نتيجة لعرض المعاينة الثابتة
       spinFinalResult=generateSpinResult();
       renderReelsStatic();
       initBackendAndLoadBalance();
@@ -1098,7 +1089,7 @@
     window.addEventListener('orientationchange', scheduleFit);
     if(window.visualViewport) visualViewport.addEventListener('resize', scheduleFit);
 
-    /* + / − (كما هي) */
+    /* + / − */
     function adjustBet(delta){
       const cur = getBetPerLine();
       const allowedMax = Math.max(1, Math.floor(100 / getActivePayLinesCount()));
@@ -1109,7 +1100,7 @@
     betPlusBtn.addEventListener('click', ()=> adjustBet(+1));
     betMinusBtn.addEventListener('click', ()=> adjustBet(-1));
 
-    /* Settings sheet toggle (كما هي) */
+    /* Settings sheet toggle */
     function closeSheet(){ settingsSheet.classList.remove('open'); settingsSheet.setAttribute('aria-hidden','true'); }
     moreBtn.addEventListener('click', (e)=>{ e.stopPropagation(); settingsSheet.classList.toggle('open'); });
     sheetClose.addEventListener('click', closeSheet);
