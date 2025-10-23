@@ -300,6 +300,17 @@
       80%  { transform: translateX( 0.35vmin) rotate( 0.3deg); }
       100% { transform: translateX(0) rotate(0deg); }
     }
+    /* ===== تصغير اللعبة فقط على الشاشات الكبيرة (Desktop) ===== */
+@media (min-width: 1024px) {
+  .machine-frame {
+    transform: scale(0.8);
+    transform-origin: top center;
+  }
+  .spin-row {
+    margin-top: 0;
+  }
+}
+
   </style>
 
   <!-- Supabase JS SDK -->
