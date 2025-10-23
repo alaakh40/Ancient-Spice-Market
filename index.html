@@ -136,9 +136,7 @@
     }
 
     .reel-inner{position:relative; width:100%; will-change:transform}
-    .symbol{
-      width:100%; height:var(--tile); position:absolute; left:0; transform:none;
-    }
+    .symbol{ width:100%; height:var(--tile); position:absolute; left:0; transform:none; }
     .symbol-img{
       width:100%; height:100%;
       background-size:100% 100%;
@@ -155,7 +153,7 @@
       100%{transform:scale(1);filter:hue-rotate(360deg)}
     }
 
-    /* الأصلية */
+    /* الدوران */
     @keyframes spinDown{
       0%   { transform: translateY(calc(var(--tile) * -21)); }
       10%  { transform: translateY(calc(var(--tile) * -19)); }
@@ -344,10 +342,10 @@
       <div class="info">
         <label for="linesCount">Lines:</label>
         <select id="linesCount">
-          <option value="20">20</option>
+          <option value="20" selected>20</option>
           <option value="10">10</option>
           <option value="5">5</option>
-          <option value="1" selected>1</option>
+          <option value="1">1</option>
         </select>
       </div>
       <div class="info">
@@ -360,17 +358,17 @@
       </div>
     </div>
 
-    <!-- Game Rules (مطابقة للمنطق الحالي) -->
+    <!-- Game Rules -->
     <section class="rules" aria-label="Game Rules">
       <h4>Game Rules</h4>
       <ul>
         <li>Layout: 5 reels × 3 rows, up to 20 lines.</li>
         <li>Total Bet = Lines × Bet per Line.</li>
-        <li>Each active line has a small independent chance to win. Chance slightly increases after losses (boost).</li>
-        <li>Every 10 paid spins: 1 Free Spin. Also a 40% chance for a Lucky Bonus (+5× Bet/Line × Lines).</li>
-        <li>On any paid spin that wins: your stake for that spin is refunded first, then the win amount is added.</li>
-        <li>Single‑spin cap: win is limited to 3× Total Bet.</li>
         <li>Visual symbols are decorative; outcome is determined by the line‑chance engine.</li>
+        <li>On any paid spin that wins: your stake for that spin is refunded first, then the win amount is added.</li>
+        <li>Every 10 paid spins: 1 Free Spin. Also 40% chance for a Lucky Bonus on that spin (capped by 3× total bet).</li>
+        <li>Single‑spin cap: win is limited to 3× Total Bet.</li>
+        <li>House balance: dynamic RTP aims around ~70% baseline (auto‑adjusts a bit if your balance is very low/high).</li>
       </ul>
     </section>
   </div>
@@ -406,7 +404,7 @@
   </div>
 
   <script>
-    /* =================== SUPABASE (كما أرسلتَ بالضبط) =================== */
+    /* =================== SUPABASE (كما هو) =================== */
     const SUPABASE_URL = 'https://pmdjkalkmsrwyoqeybeu.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtZGprYWxrbXNyd3lvcWV5YmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgyMTEwNDcsImV4cCI6MjA3Mzc4NzA0N30.jEAjMmHIsc9fnce1x5Yor_Vo-UnH_Z1HRN0FQ2YuY5M';
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -452,7 +450,8 @@
     }
 
     let backendReady = false;
-    let startCredits = 0; // baseline للحد من الحظ إذا الرصيد صار أعلى من 120%
+    let startCredits = 0;
+
     async function initBackendAndLoadBalance(){
       try{
         creditsTop.textContent = '...';
@@ -477,15 +476,6 @@
     /* =================== SOUND & GLOBALS =================== */
     let freeSpins = 0;
     let isBonusActive = false;
-
-    // تتبّع (إحصائي فقط)
-    let totalSpent = 0;
-    let totalPaid  = 0;
-
-    // منطقنا القديم:
-    let boost = 0;               // يرفع فرصة الفوز بعد الخسارات
-    let spinCount = 0;           // عدّ اللفات المدفوعة
-    let lastSpinWasPaid = false; // هل اللفة الحالية مدفوعة؟
 
     function pickFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
     let spinsSinceSpecial = 0;
@@ -592,7 +582,7 @@
     function pickSymbolIdByWeight(){ const idx = Math.floor(Math.random() * s_aRandSymbols.length); return s_aRandSymbols[idx]; }
     function makeSymbolObj(id){ return { id, name:String(id), url:getSymbolImageById(id) }; }
 
-    /* ===== PAYTABLE (غير مستخدم فعلياً بالحساب) ===== */
+    /* ===== PAYTABLE (ديكور فقط) ===== */
     const PAYTABLE_VALUES = [
       [0, 5, 20, 100],
       [0, 10, 40, 200],
@@ -622,14 +612,19 @@
     const winBadge         = document.getElementById("winBadge");
 
     const reelsCount=5, rowsCount=3;
+
+    /* 20 خطوط (للديكور / الهايلايت فقط) */
     const payLines=[
-      [0,0,0,0,0],[1,1,1,1,1],[2,2,2,2,2],[0,1,2,1,0],[2,1,0,1,2],
-      [0,0,1,2,2],[2,2,1,0,0],[1,0,0,0,1],[1,2,2,2,1],[1,0,1,2,1]
+      [0,0,0,0,0], [1,1,1,1,1], [2,2,2,2,2], [0,1,2,1,0], [2,1,0,1,2],
+      [0,0,1,0,0], [2,2,1,2,2], [1,0,0,0,1], [1,2,2,2,1], [0,1,1,1,2],
+      [2,1,1,1,0], [0,2,1,2,0], [2,0,1,0,2], [1,0,1,2,1], [1,2,1,0,1],
+      [0,1,0,1,0], [2,1,2,1,2], [0,2,2,2,0], [2,0,0,0,2], [0,2,0,2,0]
     ];
 
     function getActivePayLinesCount(){
-      const raw = toInt(linesCountSelect.value,1);
-      const n = clamp(raw,1,payLines.length);
+      const raw = toInt(linesCountSelect.value,20);
+      const allowed=[1,5,10,20];
+      const n = allowed.includes(raw)?raw:20;
       if(String(n)!==linesCountSelect.value) linesCountSelect.value=String(n);
       return n;
     }
@@ -696,6 +691,7 @@
       lastWinSpan.textContent = String(lastWin);
     }
 
+    /* Reels build */
     const BASE_TRAVEL_TILES = 9;
     function createReelsLayout(){
       const reelsWrapper=document.getElementById("reels"); reelsWrapper.innerHTML="";
@@ -740,47 +736,82 @@
       return res;
     }
 
-    /* ===== منطق الفوز (قوانين لعبتنا القديمة) ===== */
-    function evaluateWin(spinResult){
+    /* ===== محرك الفوز الذكي ===== */
+    function expectedFactor(weights, factors){
+      let s=0; for(let i=0;i<weights.length;i++) s += weights[i]*factors[i];
+      return s;
+    }
+    function weightedPick(weights){
+      const total=weights.reduce((a,b)=>a+b,0);
+      let r=Math.random()*total;
+      for(let i=0;i<weights.length;i++){
+        if(r<weights[i]) return i;
+        r-=weights[i];
+      }
+      return weights.length-1;
+    }
+    function currentTargetRTPBase(){
+      // أساس 0.70 + تعديل بسيط حسب الرصيد
+      let t = 0.70;
+      if (startCredits>0){
+        const ratio = credits/Math.max(1,startCredits);
+        if (ratio <= 0.40) t = 0.90;       // إنقاذ بسيط
+        else if (ratio <= 0.70) t = 0.80;
+        else if (ratio >= 1.30) t = 0.62;  // تقليل لما الرصيد عالي
+        else if (ratio >= 1.15) t = 0.66;
+      }
+      return t;
+    }
+    function solvePlineForRTP(target, lines, E){
+      // نحل للـ p_line بحيث RTP ≈ target حيث: RTP = (1 - (1 - p)^lines) + p * E
+      let lo=0, hi=0.9;
+      const f=(p)=> (1 - Math.pow(1 - p, lines)) + p*E;
+      // مد Binary Search
+      for(let i=0;i<36;i++){
+        const mid=(lo+hi)/2, val=f(mid);
+        if(val<target) lo=mid; else hi=mid;
+      }
+      return Math.max(0, Math.min(0.9, hi));
+    }
+
+    function evaluateWin(spinResult, isPaidSpin){
       const linesActive = getActivePayLinesCount();
       const betVal = getBetPerLine();
-      let totalWin = 0;
+      const totalBet = linesActive * betVal;
 
-      // فرصة أساسية + boost
-      let chance = 0.18 + (boost / 150);
-      // تقليل الحظ إذا صار الرصيد أكبر من 120% من البداية
-      if (startCredits && credits > startCredits * 1.2) {
-        chance *= 0.5;
-      }
+      // توزيع المضاعفات (ربح إضافي فوق استرجاع الرهان عند الفوز)
+      const factors = [1, 2, 3, 5, 8];
+      const weights = [0.60, 0.25, 0.10, 0.04, 0.01];
+      const E = expectedFactor(weights, factors);
 
-      // المضاعفات و الأوزان
-      const factors = [0, 2, 3, 5, 8];
-      const weights = [0.6, 0.25, 0.1, 0.04, 0.01];
+      // استهداف RTP أساسي
+      let target = currentTargetRTPBase();
+      // ملاحظة: Lucky Bonus يُضاف لاحقًا وقد يرفع الرزق قليلاً، لذا الأساس 0.70 مناسب.
 
-      function weightedPick(ws) {
-        const total = ws.reduce((a, b) => a + b, 0);
-        let r = Math.random() * total;
-        for (let i = 0; i < ws.length; i++) {
-          if (r < ws[i]) return i;
-          r -= ws[i];
-        }
-        return ws.length - 1;
-      }
+      // احسب p_line التي تحقق الهدف بصرف النظر عن عدد الخطوط
+      const pLine = solvePlineForRTP(target, linesActive, E);
 
-      // محاولة لكل خط مفعّل
-      for (let i = 0; i < linesActive; i++) {
-        if (Math.random() < chance) {
-          const idx = weightedPick(weights);
-          totalWin += betVal * factors[idx];
+      let winAmount = 0;
+      for(let i=0;i<linesActive;i++){
+        if(Math.random() < pLine){
+          const k=weightedPick(weights);
+          winAmount += factors[k]*betVal;
         }
       }
-      return Math.floor(totalWin);
+
+      // سقف الربح لكل لفة
+      const cap = MAX_WIN_MULTIPLIER * totalBet;
+      if (isPaidSpin && winAmount > cap) winAmount = cap;
+
+      return Math.floor(winAmount);
     }
 
     /* ===== تدفق اللفة مع Supabase ===== */
     let lastDeductedBet = 0;
     let spentThisSpin   = 0;
     let pendingSpinId   = null;
+    let betError        = false;
+    let paidSpinCounter = 0; // لاحتساب كل 10 لفات مدفوعة
 
     function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
     async function ensureBetApplied(timeoutMs=1200){
@@ -795,38 +826,46 @@
 
       const prevCredits = credits;
       const totalBet    = lastDeductedBet;
-      const isPaidSpin  = lastSpinWasPaid;
+      const isPaidSpin  = lastDeductedBet > 0;
 
-      if (isPaidSpin) spinCount++;
-
-      let winAmount = Math.max(0, Math.floor(fixNumber(evaluateWin(spinFinalResult),0)));
-
-      // Lucky Bonus كل 10 لفات مدفوعة (40%)
-      const isMilestone = isPaidSpin && (spinCount % 10 === 0);
-      if (isMilestone && Math.random() < 0.40) {
-        const bonusAdd = Math.floor((getActivePayLinesCount() * getBetPerLine()) * 5);
-        winAmount += bonusAdd;
-        centerToast("🎁 Lucky Bonus! +" + bonusAdd, "bet", 1400);
-        try{ winSound.currentTime=0; winSound.play().catch(()=>{});}catch(e){}
+      // إذا فشل خصم الرهان، لا نسدد
+      if (isPaidSpin && betError){
+        isSpinning=false;
+        betError=false; pendingSpinId=null; lastDeductedBet=0; spentThisSpin=0;
+        centerToast('Bet failed', 'bet', 1200);
+        spinBtn.disabled=false;
+        return;
       }
 
-      // Free Spin تلقائي كل 10 لفات مدفوعة
+      if (isPaidSpin) paidSpinCounter++;
+
+      // حساب الفوز الأساسي
+      let winAmount = Math.max(0, Math.floor(fixNumber(evaluateWin(spinFinalResult, isPaidSpin),0)));
+
+      // Lucky Bonus كل 10 لفات مدفوعة (40%)
+      const isMilestone = isPaidSpin && (paidSpinCounter % 10 === 0);
+      if (isMilestone && Math.random() < 0.40) {
+        const bonusAdd = Math.floor(totalBet * 5); // سيُقص بالقيد 3x
+        winAmount += bonusAdd;
+        try{ winSound.currentTime=0; winSound.play().catch(()=>{});}catch(e){}
+        centerToast("🎁 Lucky Bonus!", "bet", 1200);
+      }
+
+      // Free Spin تلقائي كل 10 لفات مدفوعة (واحدة)
       if (isMilestone) {
         isBonusActive = true;
         freeSpins = (freeSpins || 0) + 1;
-        centerToast("🎁 Free Spin!", "bet", 1200);
         try{ bonusSound.currentTime=0; bonusSound.play().catch(()=>{});}catch(e){}
+        centerToast("🎁 Free Spin!", "bet", 1200);
       }
 
-      // سقف الربح لكل لفة
-      if (isPaidSpin && totalBet > 0 && winAmount > MAX_WIN_MULTIPLIER * totalBet){
-        winAmount = MAX_WIN_MULTIPLIER * totalBet;
+      // تطبيق السقف النهائي
+      if (isPaidSpin){
+        const cap = MAX_WIN_MULTIPLIER * totalBet;
+        if (winAmount > cap) winAmount = cap;
       }
 
-      // إدارة boost
-      if (winAmount === 0) boost += 3; else boost -= 5;
-      if (boost < 0) boost = 0; if (boost > 25) boost = 25;
-
+      // إن تأخر خصم الرهان من السيرفر، انتظر قليلًا قبل التسوية
       if (isPaidSpin && pendingSpinId && lastDeductedBet===0){
         await ensureBetApplied(1200);
       }
@@ -862,6 +901,7 @@
       lastDeductedBet = 0;
       pendingSpinId = null;
 
+      // إدارة اللفات المجانية
       if(isBonusActive){
         if(freeSpins>0){ setTimeout(()=>{freeSpins--; doSpin();},300); }
         else{
@@ -881,7 +921,7 @@
         return;
       }
 
-      // لفة خاصة أو عادية (للأنيميشن فقط)
+      // تحريك خاص للعرض فقط
       spinsSinceSpecial++;
       if (spinsSinceSpecial >= nextSpecialAfter) {
         specialSpinActive = true;
@@ -894,19 +934,20 @@
       credits=fixNumber(credits,0);
       spentThisSpin   = 0;
       lastDeductedBet = 0;
+      betError        = false;
 
       const lines = getActivePayLinesCount();
       const betVal = getBetPerLine();
       const totalBet = lines * betVal;
 
       const isPaidSpin = !(isBonusActive && freeSpins > 0);
-      lastSpinWasPaid = isPaidSpin;
 
-      // 🔒 ولّد النتيجة قبل بدء الأنيميشن لضمان التطابق بين العرض والدفع
+      // ولّد النتيجة قبل الأنيميشن
       spinFinalResult = generateSpinResult();
 
       // ابدأ التحريك
       isSpinning = true;
+      spinBtn.disabled = true;
       try { spinSound.currentTime = 0; spinSound.play().catch(() => {}); } catch (e) {}
       displaySpinWithAnimation();
 
@@ -929,6 +970,7 @@
           })
           .catch((err) => {
             console.error('[place-bet] error:', err);
+            betError = true;
           });
       }
     }
