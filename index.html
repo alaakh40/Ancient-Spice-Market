@@ -625,7 +625,7 @@
     function getActivePayLinesCount(){
       const raw = toInt(linesCountSelect.value,1);
       const allowed=[1,5,10,20];
-      const n = allowed.includes(raw)?raw:20;
+      const n = allowed.includes(raw)?raw:1;
       if(String(n)!==linesCountSelect.value) linesCountSelect.value=String(n);
       return n;
     }
