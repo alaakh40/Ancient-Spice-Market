@@ -103,7 +103,7 @@
       box-shadow:
         0 3vmin 8vmin rgba(0,0,0,.75),
         inset 0 0 0 .2vmin rgba(255,215,0,.12),
-        0 0 4vmin rgba(255,215,0,.08);
+        0 0 4vمن rgba(255,215,0,.08);
       margin-top: calc(48px + env(safe-area-inset-top, 0px));
     }
     .slot-container{
@@ -224,7 +224,7 @@
       height: clamp(40px, 7vmin, 54px);
       color:var(--led-amber);
       background:linear-gradient(180deg,#11161d,#0b0f15 60%,#090d13);
-      border:1px solid rgba(255,178,0,.4); border-radius:10px; padding:.6vmin 1vmin; font-family:"Orbitron",system-ui,sans-serif;
+      border:1px solid rgba(255,178,0,.4); border-radius:10px; padding:.6vmin 1vمن; font-family:"Orbitron",system-ui,sans-serif;
     }
     .sheet .value-box{display:flex; align-items:center; justify-content:center; font-weight:700;}
 
@@ -342,11 +342,10 @@
       <div class="info">
         <label for="linesCount">Lines:</label>
         <select id="linesCount">
-         <option value="20">20</option>
-<option value="10">10</option>
-<option value="5">5</option>
-<option value="1" selected>1</option>
-
+          <option value="20">20</option>
+          <option value="10">10</option>
+          <option value="5">5</option>
+          <option value="1" selected>1</option>
         </select>
       </div>
       <div class="info">
@@ -698,7 +697,8 @@
       const reelsWrapper=document.getElementById("reels"); reelsWrapper.innerHTML="";
       for(let c=0;c<reelsCount;c++){const reel=document.createElement("div");reel.className="reel";reelsWrapper.appendChild(reel);}
     }
-    function TILE(){ return getCssNumber('--tile'); }
+    function getCssNumberProp(name){ return parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name)) || 0; }
+    function TILE(){ return getCssNumberProp('--tile'); }
     function buildReelSymbolsArray(reelIndex, headCountOverride=null){
       const arr=[];
       const head = (headCountOverride && headCountOverride>12) ? Math.floor(headCountOverride) : 12;
@@ -752,22 +752,19 @@
       return weights.length-1;
     }
     function currentTargetRTPBase(){
-      // أساس 0.70 + تعديل بسيط حسب الرصيد
       let t = 0.70;
       if (startCredits>0){
         const ratio = credits/Math.max(1,startCredits);
-        if (ratio <= 0.40) t = 0.90;       // إنقاذ بسيط
+        if (ratio <= 0.40) t = 0.90;
         else if (ratio <= 0.70) t = 0.80;
-        else if (ratio >= 1.30) t = 0.62;  // تقليل لما الرصيد عالي
+        else if (ratio >= 1.30) t = 0.62;
         else if (ratio >= 1.15) t = 0.66;
       }
       return t;
     }
     function solvePlineForRTP(target, lines, E){
-      // نحل للـ p_line بحيث RTP ≈ target حيث: RTP = (1 - (1 - p)^lines) + p * E
       let lo=0, hi=0.9;
       const f=(p)=> (1 - Math.pow(1 - p, lines)) + p*E;
-      // مد Binary Search
       for(let i=0;i<36;i++){
         const mid=(lo+hi)/2, val=f(mid);
         if(val<target) lo=mid; else hi=mid;
@@ -780,16 +777,11 @@
       const betVal = getBetPerLine();
       const totalBet = linesActive * betVal;
 
-      // توزيع المضاعفات (ربح إضافي فوق استرجاع الرهان عند الفوز)
       const factors = [1, 2, 3, 5, 8];
       const weights = [0.60, 0.25, 0.10, 0.04, 0.01];
       const E = expectedFactor(weights, factors);
 
-      // استهداف RTP أساسي
       let target = currentTargetRTPBase();
-      // ملاحظة: Lucky Bonus يُضاف لاحقًا وقد يرفع الرزق قليلاً، لذا الأساس 0.70 مناسب.
-
-      // احسب p_line التي تحقق الهدف بصرف النظر عن عدد الخطوط
       const pLine = solvePlineForRTP(target, linesActive, E);
 
       let winAmount = 0;
@@ -800,7 +792,6 @@
         }
       }
 
-      // سقف الربح لكل لفة
       const cap = MAX_WIN_MULTIPLIER * totalBet;
       if (isPaidSpin && winAmount > cap) winAmount = cap;
 
@@ -812,7 +803,7 @@
     let spentThisSpin   = 0;
     let pendingSpinId   = null;
     let betError        = false;
-    let paidSpinCounter = 0; // لاحتساب كل 10 لفات مدفوعة
+    let paidSpinCounter = 0;
 
     function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
     async function ensureBetApplied(timeoutMs=1200){
@@ -829,7 +820,6 @@
       const totalBet    = lastDeductedBet;
       const isPaidSpin  = lastDeductedBet > 0;
 
-      // إذا فشل خصم الرهان، لا نسدد
       if (isPaidSpin && betError){
         isSpinning=false;
         betError=false; pendingSpinId=null; lastDeductedBet=0; spentThisSpin=0;
@@ -840,19 +830,16 @@
 
       if (isPaidSpin) paidSpinCounter++;
 
-      // حساب الفوز الأساسي
       let winAmount = Math.max(0, Math.floor(fixNumber(evaluateWin(spinFinalResult, isPaidSpin),0)));
 
-      // Lucky Bonus كل 10 لفات مدفوعة (40%)
       const isMilestone = isPaidSpin && (paidSpinCounter % 10 === 0);
       if (isMilestone && Math.random() < 0.40) {
-        const bonusAdd = Math.floor(totalBet * 5); // سيُقص بالقيد 3x
+        const bonusAdd = Math.floor(totalBet * 5);
         winAmount += bonusAdd;
         try{ winSound.currentTime=0; winSound.play().catch(()=>{});}catch(e){}
         centerToast("🎁 Lucky Bonus!", "bet", 1200);
       }
 
-      // Free Spin تلقائي كل 10 لفات مدفوعة (واحدة)
       if (isMilestone) {
         isBonusActive = true;
         freeSpins = (freeSpins || 0) + 1;
@@ -860,13 +847,11 @@
         centerToast("🎁 Free Spin!", "bet", 1200);
       }
 
-      // تطبيق السقف النهائي
       if (isPaidSpin){
         const cap = MAX_WIN_MULTIPLIER * totalBet;
         if (winAmount > cap) winAmount = cap;
       }
 
-      // إن تأخر خصم الرهان من السيرفر، انتظر قليلًا قبل التسوية
       if (isPaidSpin && pendingSpinId && lastDeductedBet===0){
         await ensureBetApplied(1200);
       }
@@ -881,7 +866,6 @@
           animateNumber(creditsTop, prevCredits, credits, 850);
           if(lastWin>0) showWinBadge(lastWin);
         }else{
-          // لفة مجانية
           if (winAmount>0){
             credits += winAmount;
             animateNumber(creditsTop, prevCredits, credits, 850);
@@ -902,7 +886,6 @@
       lastDeductedBet = 0;
       pendingSpinId = null;
 
-      // إدارة اللفات المجانية
       if(isBonusActive){
         if(freeSpins>0){ setTimeout(()=>{freeSpins--; doSpin();},300); }
         else{
@@ -922,7 +905,6 @@
         return;
       }
 
-      // تحريك خاص للعرض فقط
       spinsSinceSpecial++;
       if (spinsSinceSpecial >= nextSpecialAfter) {
         specialSpinActive = true;
@@ -943,16 +925,13 @@
 
       const isPaidSpin = !(isBonusActive && freeSpins > 0);
 
-      // ولّد النتيجة قبل الأنيميشن
       spinFinalResult = generateSpinResult();
 
-      // ابدأ التحريك
       isSpinning = true;
       spinBtn.disabled = true;
       try { spinSound.currentTime = 0; spinSound.play().catch(() => {}); } catch (e) {}
       displaySpinWithAnimation();
 
-      // خصم الرهان بالخلفية
       if (isPaidSpin) {
         if (!Number.isFinite(totalBet) || totalBet <= 0) return;
         try {
@@ -992,9 +971,9 @@
         let headCountOverride = null;
 
         if (specialSpinActive && c === 4){
-          const firstTilesPerSec = BASE_TRAVEL_TILES / reelDurations[0];
+          const tilePxPerSecFirst = BASE_TRAVEL_TILES / reelDurations[0];
           const finishAfter = (reelDurations[3] + SPECIAL_GAP_SEC);
-          const requiredTiles = Math.ceil(firstTilesPerSec * finishAfter);
+          const requiredTiles = Math.ceil(tilePxPerSecFirst * finishAfter);
           startTiles = 12 + requiredTiles;
           headCountOverride = startTiles + 3;
           useWA = true;
@@ -1093,12 +1072,15 @@
     }
 
     window.addEventListener('load', async ()=>{
-  createReelsLayout();
-  spinFinalResult = generateSpinResult();
-  renderReelsStatic();
-  await initBackendAndLoadBalance();
-  fitToViewport();
-});
+      createReelsLayout();
+      spinFinalResult = generateSpinResult();
+      renderReelsStatic();
+      await initBackendAndLoadBalance();
+      fitToViewport();
+
+      linesCountSelect.value = "1";              // ← ضمان البدء بخط 1
+      betPerLineInput.value  = String(getBetPerLine()); // مزامنة الحد الأقصى للـ Bet
+    });
 
     window.addEventListener('resize', scheduleFit);
     window.addEventListener('orientationchange', scheduleFit);
