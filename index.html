@@ -24,6 +24,9 @@
       --radius-lg: clamp(12px, 2.2vmin, 24px);
       --radius-md: clamp(10px, 1.8vmin, 16px);
       --inset: clamp(8px, 1.2vmin, 12px);
+
+      /* === NEW: ring thickness for the spin loader === */
+      --spin-ring: clamp(4px, 0.9vmin, 8px);
     }
 
     *{margin:0;padding:0;box-sizing:border-box}
@@ -179,6 +182,8 @@
     #spinBtn{
       width:var(--spin-size); height:var(--spin-size); background:none; border:none; cursor:pointer; padding:0;
       filter:drop-shadow(0 0 .6vmin rgba(0,0,0,.55));
+      position:relative; /* <-- needed for the loader ring */
+      isolation:isolate;
     }
     #spinBtn img{width:100%;height:100%;display:block;object-fit:contain;animation:wheelMotion 3s infinite linear;filter:drop-shadow(0 0 1vmin rgba(255,255,255,.85))}
     #spinBtn:active img{animation-play-state:paused;transform:scale(.86)}
@@ -190,6 +195,57 @@
       background:linear-gradient(180deg,#1e252d,#0b0f15); color:#fff; font-size:clamp(20px,4.2vmin,26px);
       display:flex; align-items:center; justify-content:center;
     }
+
+    /* === NEW: Sweet‑Bonanza‑like loader ring on the Spin button === */
+    #spinBtn.spinning img{
+      /* أسرع قليلاً أثناء السبين لتعطي إحساس النشاط */
+      animation-duration: .9s !important;
+      filter: drop-shadow(0 0 1.4vmin rgba(255,255,255,.95));
+      transform: none;
+    }
+    #spinBtn.spinning::before{
+      content:"";
+      position:absolute;
+      inset:-8%;                 /* حلقة أكبر بقليل من الزر */
+      border-radius:50%;
+      pointer-events:none;
+      z-index:2;
+      /* لمعة تدور (شرائح بيضاء شفافة) */
+      background:
+        conic-gradient(from 0deg,
+          rgba(255,255,255,0)   0deg,
+          rgba(255,255,255,.95) 40deg,
+          rgba(255,255,255,0)   80deg,
+          rgba(255,255,255,.85) 120deg,
+          rgba(255,255,255,0)   160deg,
+          rgba(255,255,255,.95) 200deg,
+          rgba(255,255,255,0)   240deg,
+          rgba(255,255,255,.85) 280deg,
+          rgba(255,255,255,0)   360deg);
+      animation: spinRing 1.05s linear infinite;
+      filter: drop-shadow(0 0 10px rgba(255,255,255,.65));
+      /* قصّ الوسط ليصبح حلقة */
+      -webkit-mask: radial-gradient(closest-side,
+                        transparent calc(50% - var(--spin-ring)),
+                        #000 calc(50% - var(--spin-ring)));
+              mask: radial-gradient(closest-side,
+                        transparent calc(50% - var(--spin-ring)),
+                        #000 calc(50% - var(--spin-ring)));
+    }
+    #spinBtn.spinning::after{
+      /* هالة خفيفة حول الزر أثناء السبين */
+      content:"";
+      position:absolute;
+      inset:-10%;
+      border-radius:50%;
+      pointer-events:none;
+      z-index:1;
+      box-shadow:
+        0 0 24px rgba(255,255,255,.28),
+        inset 0 0 10px rgba(255,255,255,.2);
+    }
+    @keyframes spinRing{ to{ transform: rotate(360deg); } }
+    /* === END loader ring === */
 
     /* ===== Bottom sheet ===== */
     .sheet{ position:fixed; left:50%; transform:translateX(-50%) translateY(100%); bottom:0; width:min(96vw, 520px);
@@ -250,7 +306,7 @@
     }
     .audio-panel{
       position:fixed; top: 2vmin; right: 2vmin; width: clamp(220px, 40vmin, 280px);
-      background:#222; border:1px solid #444; border-radius:1.2vmin; padding:1.2vmin; display:none; z-index:9999
+      background:#222; border:1px solid #444; border-radius:1.2vمن; padding:1.2vmin; display:none; z-index:9999
     }
     .audio-panel h3{margin-bottom:1vmin;text-align:center}
     .sound-control{display:flex;flex-direction:column;margin-bottom:1.2vmin}
@@ -473,8 +529,8 @@
     let freeSpins = 0;
     let isBonusActive = false;
 
-    let lossStreak = 0;         // لتلطيف الخسارات الطويلة (بدون boost قديم)
-    let paidSpinCount = 0;      // عدّ اللفات المدفوعة (اختياري)
+    let lossStreak = 0;
+    let paidSpinCount = 0;
 
     const musicSound = new Audio("sounds/music.mp3"); musicSound.loop = true; musicSound.muted = true;
     const spinSound  = new Audio("sounds/spin.mp3");
@@ -599,7 +655,7 @@
     function pickSymbolIdByWeight(){ const idx = Math.floor(Math.random() * s_aRandSymbols.length); return s_aRandSymbols[idx]; }
     function makeSymbolObj(id){ return { id, name:String(id), url:getSymbolImageById(id) }; }
 
-    /* =================== PAYTABLE (للتوافق البصري فقط) =================== */
+    /* =================== PAYTABLE (visual only) =================== */
     const PAYTABLE_VALUES = [
       [0, 5, 20, 100],
       [0, 10, 40, 200],
@@ -696,11 +752,10 @@
       }
     }
 
-    // توليد نتيجة شكلية (ديكور) مستقرة قبل الأنيميشن
+    // decorative stable result before animation
     function generateSpinResult(){
       const res=[[],[],[]];
       for(let c=0;c<reelsCount;c++){
-        // استخدم عشوائية قوية
         const arr = [0,1,2,3,4,5,6,7,8];
         const idx = Math.floor(cryptoRand() * arr.length);
         for(let r=-1;r<=1;r++){
@@ -711,13 +766,12 @@
       return res;
     }
 
-    /* =================== الفوز المتوازن (RTP ~ 84%) =================== */
+    /* =================== Balanced win (≈84% RTP) =================== */
     const TARGET_RTP = 0.84;
     const FACTORS = [0, 2, 3, 5, 8];
-    const WEIGHTS = [0.6, 0.25, 0.1, 0.04, 0.01]; // must sum to 1
+    const WEIGHTS = [0.6, 0.25, 0.1, 0.04, 0.01];
     const EXPECTED_FACTOR = FACTORS.reduce((s,v,i)=>s+v*WEIGHTS[i],0); // 1.08
 
-    // p_per_line لكل عدد خطوط لضبط RTP ≈84% (مع EXPECTED_FACTOR=1.08)
     const P_LINE_BY_LINES = {
       1:  0.4038461538,
       5:  0.1849311708,
@@ -738,19 +792,16 @@
       const L = getActivePayLinesCount();
       const betVal = getBetPerLine();
 
-      // أساس الاحتمال لكل خط لضبط الـRTP
       let pLine = P_LINE_BY_LINES[L] || P_LINE_BY_LINES[20];
-
-      // تلطيف سلاسل الخسارة: نرفع pLine قليلاً بعد 3 خسارات متتالية (بدون boost قديم)
       if (lossStreak >= 3){
-        const mult = 1 + Math.min(0.60, (lossStreak - 2) * 0.18); // حتى +60% كحد أقصى
+        const mult = 1 + Math.min(0.60, (lossStreak - 2) * 0.18);
         pLine = Math.min(0.95, pLine * mult);
       }
 
       let totalWin = 0;
       for(let i=0;i<L;i++){
         if (Math.random() < pLine){
-          const idx = weightedPick(WEIGHTS.slice()); // weights sum=1
+          const idx = weightedPick(WEIGHTS.slice());
           totalWin += betVal * FACTORS[idx];
         }
       }
@@ -759,7 +810,7 @@
 
     /* =================== Spin flow (Optimistic + Non-blocking) =================== */
     const BASE_TRAVEL_TILES = 9;
-    let spinCtx = null; // {id,isPaid,totalBet,placeState:'pending'|'ok'|'fail'}
+    let spinCtx = null;
 
     function displaySpinWithAnimation(specialSpin=false){
       const reelDivs=document.querySelectorAll(".reel"); let finished=0;
@@ -851,7 +902,6 @@
       if (isSpinning) return;
       if (!backendReady){ centerToast('Please sign in', 'bet', 1200); return; }
 
-      // حضّر النتيجة الشكلية قبل أي شيء
       spinFinalResult = generateSpinResult();
 
       const lines = getActivePayLinesCount();
@@ -864,29 +914,29 @@
         return;
       }
 
-      // جهّز سياق اللفة
       let spinId;
       try{ spinId = crypto.randomUUID(); }catch(_){ spinId = Date.now()+'_'+Math.random().toString(16).slice(2); }
       spinCtx = { id: spinId, isPaid, totalBet, placeState: isPaid ? 'pending':'skip' };
 
-      // ابدأ فوراً (بدون انتظار الشبكة)
       isSpinning = true;
       spinBtn.disabled = true;
+
+      /* === NEW: show the loader ring on the Spin button while spinning === */
+      spinBtn.classList.add('spinning');
+      spinBtn.setAttribute('aria-busy','true');
+
       try { spinSound.currentTime = 0; spinSound.play().catch(() => {}); } catch (e) {}
       displaySpinWithAnimation(rollSpecial());
 
-      // خصم متفائل محلي فورًا
       if (isPaid){
         const prev = credits;
         credits = Math.max(0, credits - totalBet);
         lastDeductedBet = totalBet;
         animateNumber(creditsTop, prev, credits, 240);
 
-        // خصم حقيقي بالخلفية مع مهلة صغيرة (لا توقف الواجهة)
         withTimeout(apiPlaceBet(spinId, lines, betVal), 2500)
           .then(res => {
             spinCtx.placeState = 'ok';
-            // مزامنة الرصيد من السيرفر (إن اختلف)
             if (Number.isFinite(res.balance_after)){
               const cur = Math.floor(credits);
               const next = Math.floor(res.balance_after);
@@ -896,7 +946,6 @@
           })
           .catch(err => {
             console.warn('[place-bet] failed:', err?.message || err);
-            // لا نوقف الأنيميشن—نعلّم أنها فشلت لنسترجع الرهان عند النهاية
             spinCtx.placeState = 'fail';
           });
       }
@@ -909,25 +958,21 @@
       const isPaid = !!(spinCtx && spinCtx.isPaid);
       const totalBet = spinCtx ? spinCtx.totalBet : 0;
 
-      // حساب الربح
       let winAmount = Math.max(0, Math.floor(fixNumber(evaluateWin(),0)));
-      // سقف الربح
       if (isPaid && totalBet > 0 && winAmount > MAX_WIN_MULTIPLIER * totalBet){
         winAmount = MAX_WIN_MULTIPLIER * totalBet;
       }
 
-      // إذا فشل خصم الرهان من السيرفر، نلغي اللفة ونسترجع الرهان فوراً
       if (isPaid && spinCtx.placeState === 'fail'){
-        credits += totalBet; // استرجاع الرهان لأنه لم يُخصم في السيرفر
+        credits += totalBet;
         animateNumber(creditsTop, prevCredits, credits, 500);
         lastWin = 0;
-        lossStreak++; // تعتبر خسارة/إلغاء
+        lossStreak++;
         cleanupAfterSpin();
         centerToast('Connection issue. Spin cancelled.', 'bet', 1500);
         return;
       }
 
-      // انتظار وجيز فقط إذا كان place-bet لازال pending (بدون تجميد الواجهة)
       if (isPaid && spinCtx.placeState === 'pending'){
         const t0 = performance.now();
         while (spinCtx.placeState === 'pending' && (performance.now() - t0) < 300){
@@ -935,7 +980,6 @@
         }
       }
 
-      // حسَب القاعدة: لو في ربح تُسترد الكلفة ثم يُضاف الربح
       const refund = (isPaid && winAmount > 0) ? totalBet : 0;
 
       try{
@@ -946,7 +990,6 @@
           animateNumber(creditsTop, prevCredits, credits, 850);
           if(lastWin>0) showWinBadge(lastWin);
         }else{
-          // لفة مجانية
           if (winAmount>0){
             credits += winAmount;
             animateNumber(creditsTop, prevCredits, credits, 850);
@@ -964,14 +1007,10 @@
           if (next !== cur) animateNumber(creditsTop, cur, next, 600);
           credits = next;
           lastWin = winAmount;
-        }catch(e){
-          // إبقاء القيم المحلية كما هي عند الفشل
-        }
+        }catch(e){}
       }
 
-      // إدارة سلسلة الخسارة
       if (winAmount>0) lossStreak = 0; else lossStreak++;
-
       lastWinSpan.textContent = String(lastWin);
       cleanupAfterSpin();
     }
@@ -981,13 +1020,17 @@
       spinBtn.disabled=false;
       lastDeductedBet = 0;
       spinCtx = null;
+
+      /* === NEW: hide the loader ring === */
+      spinBtn.classList.remove('spinning');
+      spinBtn.removeAttribute('aria-busy');
     }
 
     /* =================== Responsive =================== */
     let resizeTimer = null;
     function setTile(px){ document.documentElement.style.setProperty('--tile', Math.max(40, px) + 'px'); }
     function fitToViewport(){
-      if (isSpinning) return; // لا نعيد بناء اللفات أثناء الدوران
+      if (isSpinning) return;
       const vw = Math.max(1, window.innerWidth || document.documentElement.clientWidth || 0);
       const vh = Math.max(1, (window.visualViewport ? visualViewport.height : window.innerHeight) || window.innerHeight);
       const side = Math.max(8, vw * 0.04);
