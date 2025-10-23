@@ -6,6 +6,8 @@
   <title>Slot Game - White Spin Wheel</title>
 
   <style>
+    /* خطوط */
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600;800&family=Orbitron:wght@500;700&display=swap');
 
     :root{
@@ -39,6 +41,36 @@
       background: url("images/background.png") no-repeat center center fixed;
       background-size: cover;
     }
+
+    /* ===== عنوان اللعبة (خارج المكنة) ===== */
+   .machine-title {
+  position: relative;
+  display: block;
+  text-align: center;
+  font-family: 'Cairo', sans-serif; /* خط عربي-لاتيني أنيق وواضح */
+  font-weight: 800;
+  font-size: clamp(30px, 4.6vmin, 54px);
+  color: #f8e29a;
+  text-shadow:
+    0 0 6px #fff8c9,
+    0 0 14px #f0c86e,
+    0 0 24px #d89a00,
+    0 2px 4px rgba(0, 0, 0, 0.6);
+  letter-spacing: 1.5px;
+  margin-top: calc(72px + env(safe-area-inset-top, 0px));
+  margin-bottom: 8px;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+/* على الكمبيوتر نضبط الحجم والمسافة */
+@media (min-width: 1024px) and (pointer:fine) {
+  .machine-title {
+    font-size: clamp(36px, 3.8vmin, 58px);
+    margin-top: calc(60px + env(safe-area-inset-top, 0px));
+  }
+}
+
 
     /* ===== HUD ===== */
     .top-hud{
@@ -95,21 +127,22 @@
     }
 
     /* ===== MACHINE ===== */
-   .machine-frame {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  padding: clamp(18px, 3vmin, 36px);
-  border-radius: 20px;
-  background: linear-gradient(180deg, #8b3f00 0%, #4e2200 100%);
-  border: 6px solid #d4a741;
-  box-shadow:
-    0 10px 25px rgba(0, 0, 0, 0.9),
-    inset 0 0 8px rgba(255, 220, 150, 0.4),
-    inset 0 0 30px rgba(255, 180, 60, 0.3);
-  position: relative;
-  margin-top: calc(60px + env(safe-area-inset-top, 0px));
-}
+    .machine-frame {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      padding: clamp(18px, 3vmin, 36px);
+      border-radius: 20px;
+      background: linear-gradient(180deg, #8b3f00 0%, #4e2200 100%);
+      border: 6px solid #d4a741;
+      box-shadow:
+        0 10px 25px rgba(0, 0, 0, 0.9),
+        inset 0 0 8px rgba(255, 220, 150, 0.4),
+        inset 0 0 30px rgba(255, 180, 60, 0.3);
+      position: relative;
+      /* لم نعد نحتاج مسافة كبيرة من أعلى الصفحة لأن العنوان صار قبلها */
+      margin-top: 12px;
+    }
 
     .slot-container{
       width:var(--slot-w); height:var(--slot-h);
@@ -229,7 +262,9 @@
       height: clamp(40px, 7vmin, 54px);
       color:var(--led-amber);
       background:linear-gradient(180deg,#11161d,#0b0f15 60%,#090d13);
-      border:1px solid rgba(255,178,0,.4); border-radius:10px; padding:.6vmin 1vمن; font-family:"Orbitron",system-ui,sans-serif;
+      border:1px solid rgba(255,178,0,.4); border-radius:10px;
+      padding:.6vmin 1vmin; /* ✅ تصحيح الخطأ المطبعي */
+      font-family:"Orbitron",system-ui,sans-serif;
     }
     .sheet .value-box{display:flex; align-items:center; justify-content:center; font-weight:700;}
 
@@ -286,7 +321,7 @@
       .spin-row-inner{ gap: calc(var(--gap) * .85); }
       #moreBtn, .audio-icon{ width: clamp(36px, 3.2vmin, 46px); height: clamp(36px, 3.2vmin, 46px); font-size: clamp(16px, 2vmin, 20px); }
       .top-hud{ top: 12px; }
-      .machine-frame{ margin-top: 68px; }
+      .machine-frame{ margin-top: 12px; } /* ✅ بدل 68px */
     }
 
     /* ===== ⭐ Special: shake the 4th reel ===== */
@@ -300,17 +335,20 @@
       80%  { transform: translateX( 0.35vmin) rotate( 0.3deg); }
       100% { transform: translateX(0) rotate(0deg); }
     }
-    /* ===== تصغير اللعبة فقط على الشاشات الكبيرة (Desktop) ===== */
-@media (min-width: 1024px) {
-  .machine-frame {
-    transform: scale(0.8);
-    transform-origin: top center;
-  }
-  .spin-row {
-    margin-top: 0;
-  }
-}
 
+    /* ===== تحسين عرض الكمبيوتر فقط ===== */
+    @media (min-width: 1024px) {
+      .machine-frame {
+        transform: scale(0.8);
+        transform-origin: top center;
+        margin-bottom: -60px; /* يرفع زر SPIN للأعلى */
+      }
+      .spin-row {
+        margin-top: 0;
+        position: relative;
+        top: -40px; /* قرب زر SPIN للمكنة */
+      }
+    }
   </style>
 
   <!-- Supabase JS SDK -->
@@ -329,12 +367,13 @@
   <div id="introOverlay" class="intro-overlay">
     <video id="introVideo" src="aa.mp4" preload="auto" autoplay muted playsinline webkit-playsinline></video>
   </div>
-  <h1 class="machine-title">Ancient Spice Market</h1>
 
+  <!-- 👇 العنوان الآن خارج المكنة وبينه وبين HUD مسافة كافية -->
+  <h1 class="machine-title">Ancient Spice Market</h1>
 
   <div class="machine-frame">
     <div class="slot-container">
-      <div class="reels" id="reels"><!-- built by JS --></div>
+      <div class="reels" id="reels"></div>
     </div>
   </div>
 
@@ -1121,4 +1160,3 @@
   </script>
 </body>
 </html>
-
