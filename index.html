@@ -43,34 +43,33 @@
     }
 
     /* ===== عنوان اللعبة (خارج المكنة) ===== */
-   .machine-title {
-  position: relative;
-  display: block;
-  text-align: center;
-  font-family: 'Cairo', sans-serif; /* خط عربي-لاتيني أنيق وواضح */
-  font-weight: 800;
-  font-size: clamp(30px, 4.6vmin, 54px);
-  color: #f8e29a;
-  text-shadow:
-    0 0 6px #fff8c9,
-    0 0 14px #f0c86e,
-    0 0 24px #d89a00,
-    0 2px 4px rgba(0, 0, 0, 0.6);
-  letter-spacing: 1.5px;
-  margin-top: calc(72px + env(safe-area-inset-top, 0px));
-  margin-bottom: 8px;
-  z-index: 10000;
-  pointer-events: none;
-}
+    .machine-title {
+      position: relative;
+      display: block;
+      text-align: center;
+      font-family: 'Cairo', sans-serif; /* خط عربي-لاتيني أنيق وواضح */
+      font-weight: 800;
+      font-size: clamp(30px, 4.6vmin, 54px);
+      color: #f8e29a;
+      text-shadow:
+        0 0 6px #fff8c9,
+        0 0 14px #f0c86e,
+        0 0 24px #d89a00,
+        0 2px 4px rgba(0, 0, 0, 0.6);
+      letter-spacing: 1.5px;
+      margin-top: calc(72px + env(safe-area-inset-top, 0px));
+      margin-bottom: 8px;
+      z-index: 10000;
+      pointer-events: none;
+    }
 
-/* على الكمبيوتر نضبط الحجم والمسافة */
-@media (min-width: 1024px) and (pointer:fine) {
-  .machine-title {
-    font-size: clamp(36px, 3.8vmin, 58px);
-    margin-top: calc(60px + env(safe-area-inset-top, 0px));
-  }
-}
-
+    /* على الكمبيوتر نضبط الحجم والمسافة */
+    @media (min-width: 1024px) and (pointer:fine) {
+      .machine-title {
+        font-size: clamp(36px, 3.8vmin, 58px);
+        margin-top: calc(60px + env(safe-area-inset-top, 0px));
+      }
+    }
 
     /* ===== HUD ===== */
     .top-hud{
@@ -167,7 +166,7 @@
     .reels{display:flex; width:100%; height:100%}
     .reel{flex:1; overflow:hidden; position:relative}
     .reel:not(:first-child)::before{
-      content:""; position:absolute; top:var(--inset); bottom:var(--inset); left:-.2vmin; width:.5vmin; border-radius:.4vmin; z-index:2;
+      content:""; position:absolute; top:var(--inset); bottom:var(--inset); left:-.2vmin; width:.5vmin; border-radius:.4vمن; z-index:2;
       background:linear-gradient(180deg, var(--gold-hi), var(--gold) 50%, var(--gold-dk));
       box-shadow:0 0 1.2vmin rgba(255,215,0,.25), inset 0 0 .4vmin rgba(0,0,0,.35);
       pointer-events:none;
@@ -262,8 +261,7 @@
       height: clamp(40px, 7vmin, 54px);
       color:var(--led-amber);
       background:linear-gradient(180deg,#11161d,#0b0f15 60%,#090d13);
-      border:1px solid rgba(255,178,0,.4); border-radius:10px;
-      padding:.6vmin 1vmin; /* ✅ تصحيح الخطأ المطبعي */
+      border:1px solid rgba(255,178,0,.4); border-radius:10px; padding:.6vmin 1vmin; /* ✅ تصحيح الخطأ المطبعي */
       font-family:"Orbitron",system-ui,sans-serif;
     }
     .sheet .value-box{display:flex; align-items:center; justify-content:center; font-weight:700;}
@@ -343,10 +341,16 @@
         transform-origin: top center;
         margin-bottom: -60px; /* يرفع زر SPIN للأعلى */
       }
+      /* ⬇️ التعديل الوحيد: تثبيت صف أزرار SPIN أسفل الشاشة ورفعه قليلاً */
       .spin-row {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: clamp(26px, 4.6vmin, 50px); /* مسافة آمنة ليتجنب القص */
         margin-top: 0;
-        position: relative;
-        top: -40px; /* قرب زر SPIN للمكنة */
+        top: auto;
+        z-index: 10015; /* أقل من الشيت (10020) حتى يظهر فوقه عند الفتح */
+        width: 100%;
       }
     }
   </style>
@@ -407,7 +411,7 @@
       </div>
       <div class="info">
         <label for="betPerLine">Bet/Line:</label>
-        <input type="number" id="betPerLine" value="1" min="1" />
+       <input type="number" id="betPerLine" value="1" min="1" />
       </div>
       <div class="info">
         <label>Last Win:</label>
@@ -577,6 +581,7 @@
         });
       });
       document.querySelectorAll("input[type='checkbox'][data-mute]").forEach(ch=>{
+
         ch.addEventListener("change",(e)=>{
           const k=e.target.dataset.mute; const muted=!!e.target.checked;
           if(k==="dd"){ ddSound.muted=muted; tickSound.muted=muted; }
