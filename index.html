@@ -335,25 +335,40 @@
     }
 
     /* ===== تحسين عرض الكمبيوتر فقط ===== */
-    @media (min-width: 1024px) {
-      .machine-frame {
-        transform: scale(0.8);
-        transform-origin: top center;
-        margin-bottom: -60px; /* يرفع زر SPIN للأعلى */
-      }
-      /* ⬇️ التعديل الوحيد: تثبيت صف أزرار SPIN أسفل الشاشة ورفعه قليلاً */
-      .spin-row {
-        position: fixed;
-        left: 50%;
-        transform: translateX(-50%);
-        bottom: clamp(16px, 2.6vmin, 32px); /* ✅ نزلناه شوي لتحت */
+  /* ===== تحسين عرض الكمبيوتر فقط ===== */
+@media (min-width: 1024px) {
+  .machine-frame {
+    transform: scale(0.8);
+    transform-origin: top center;
+    margin-bottom: -60px; /* يرفع زر SPIN للأعلى */
+  }
 
-        margin-top: 0;
-        top: auto;
-        z-index: 10015; /* أقل من الشيت (10020) حتى يظهر فوقه عند الفتح */
-        width: 100%;
-      }
-    }
+  /* ✅ فقط على الكمبيوتر: تعديل مكان صف الأزرار */
+  .spin-row {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: clamp(18px, 2.8vmin, 34px); /* مسافة ممتازة فوق الحافة */
+    margin-top: 0;
+    top: auto;
+    z-index: 10015;
+    width: 100%;
+  }
+}
+
+/* ✅ على الموبايل نعيد الوضع الطبيعي */
+@media (max-width: 1023px) {
+  .machine-frame {
+    transform: scale(1); /* حجم طبيعي */
+    margin-top: 10px;
+  }
+  .spin-row {
+    position: relative;
+    bottom: auto;
+    margin-top: var(--gap);
+  }
+}
+
   </style>
 
   <!-- Supabase JS SDK -->
