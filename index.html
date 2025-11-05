@@ -65,7 +65,6 @@
       opacity: 1;
     }
 
-    /* على الكمبيوتر نضبط الحجم والمسافة */
     @media (min-width: 1024px) and (pointer:fine) {
       .machine-title {
         font-size: clamp(36px, 3.8vmin, 58px);
@@ -148,7 +147,7 @@
       width:var(--slot-w); height:var(--slot-h);
       position:relative; overflow:hidden; border-radius:var(--radius-md);
       background:#000;
-      box-shadow: 0 0 0 .12vmin rgba(0,0,0,.6) inset, 0 0 0 1vمن rgba(0,0,0,.6) inset;
+      box-shadow: 0 0 0 .12vmin rgba(0,0,0,.6) inset, 0 0 0 1vmin rgba(0,0,0,.6) inset; /* ← إصلاح vmin */
       transform: translateZ(0);
     }
     .slot-container::before{
@@ -167,7 +166,7 @@
     .reels{display:flex; width:100%; height:100%}
     .reel{flex:1; overflow:hidden; position:relative}
     .reel:not(:first-child)::before{
-      content:""; position:absolute; top:var(--inset); bottom:var(--inset); left:-.2vmin; width:.5vمن; border-radius:.4vمن; z-index:2;
+      content:""; position:absolute; top:var(--inset); bottom:var(--inset); left:-.2vmin; width:.5vmin; border-radius:.4vmin; z-index:2; /* ← إصلاح vmin */
       background:linear-gradient(180deg, var(--gold-hi), var(--gold) 50%, var(--gold-dk));
       box-shadow:0 0 1.2vmin rgba(255,215,0,.25), inset 0 0 .4vmin rgba(0,0,0,.35);
       pointer-events:none;
@@ -191,9 +190,8 @@
       100%{transform:scale(1);filter:hue-rotate(360deg)}
     }
 
-    /* ===== دوران الريلز (تم تحسين الإحساس فقط) ===== */
+    /* ===== دوران الريلز (إحساس أقرب للفيديو) ===== */
     @keyframes spinDown{
-      /* نفس مواضع البلاطات لضمان نفس التموضع */
       0%   { transform: translateY(calc(var(--tile) * -21));    animation-timing-function: cubic-bezier(.25,.90,.30,1) }
       10%  { transform: translateY(calc(var(--tile) * -19));    animation-timing-function: cubic-bezier(.10,.30,.20,1) }
       70%  { transform: translateY(calc(var(--tile) * -13.5));  animation-timing-function: cubic-bezier(.15,.90,.25,1) }
@@ -211,7 +209,7 @@
       width:var(--step-size); height:var(--step-size);
       border-radius:50%; border:1.5px solid var(--hud-stroke);
       background:linear-gradient(180deg,#1e252d,#0b0f15);
-      box-shadow: 0 .8vmin 2vmin rgba(0,0,0,.35), inset 0 0 3vmin rgba(255,215,120,.08);
+      box-shadow: 0 .8vmin 2vمن rgba(0,0,0,.35), inset 0 0 3vmin rgba(255,215,120,.08);
       color:#fff; font-size:clamp(22px,4.8vmin,30px); line-height:1; cursor:pointer;
       display:flex; align-items:center; justify-content:center; user-select:none;
     }
@@ -221,14 +219,14 @@
       filter:drop-shadow(0 0 .6vmin rgba(0,0,0,.55));
     }
 
-    /* الحركة الافتراضية كما هي (idle) */
+    /* حركة idle الافتراضية */
     #spinBtn img{
       width:100%;height:100%;display:block;object-fit:contain;
       animation:wheelMotion 3s infinite linear;
       filter:drop-shadow(0 0 1vmin rgba(255,255,255,.85));
       transform-origin:center;
     }
-    /* أثناء اللفة نعطّل الـ idle ونشغّل حركة أدق عبر WAAPI */
+    /* أثناء اللفة نعطّل idle ونستخدم WAAPI */
     #spinBtn[data-spinning="1"] img{ animation: none !important; }
     #spinBtn:active img{animation-play-state:paused;transform:scale(.86)}
     @keyframes wheelMotion{0%{transform:rotate(0)}50%{transform:rotate(180deg)}100%{transform:rotate(360deg)}}
@@ -265,7 +263,7 @@
       background-image:linear-gradient(180deg,#fff2b8,#e8be6a 55%,#7a4f02);
       -webkit-background-clip:text;-webkit-text-fill-color:transparent;
       white-space:nowrap;
-      text-shadow:0 0 .3vmin rgba(255,255,255,.35),0 .2vمن .1vمن rgba(0,0,0,.55);
+      text-shadow:0 0 .3vmin rgba(255,255,255,.35),0 .2vmin .1vmin rgba(0,0,0,.55); /* ← إصلاح vmin */
     }
     .sheet select, .sheet input[type="number"], .sheet .value-box{
       width: clamp(90px, 26vw, 140px);
@@ -304,8 +302,8 @@
       box-shadow: 0 .8vmin 2vmin rgba(0,0,0,.35), inset 0 0 3vmin rgba(255,215,120,.08);
     }
     .audio-panel{
-      position:fixed; top: 2vmin; right: 2vmin; width: clamp(220px, 40vmin, 280px);
-      background:#222; border:1px solid #444; border-radius:1.2vmin; padding:1.2vmin; display:none; z-index:9999
+      position:fixed; top: 2vmin; right: 2vمن; width: clamp(220px, 40vmin, 280px);
+      background:#222; border:1px solid #444; border-radius:1.2vمن; padding:1.2vمن; display:none; z-index:9999
     }
     .audio-panel h3{margin-bottom:1vmin;text-align:center}
     .sound-control{display:flex;flex-direction:column;margin-bottom:1.2vmin}
@@ -346,21 +344,11 @@
     }
 
     /* ===== تحسين عرض الكمبيوتر فقط ===== */
-    @media (min-width: 1024px) {
-      .machine-frame {
-        transform: scale(0.8);
-        transform-origin: top center;
-        margin-bottom: -60px;
-      }
+    @media (min-width: 1023px) {
+      .machine-frame { transform: scale(0.8); transform-origin: top center; margin-bottom: -60px; }
       .spin-row {
-        position: fixed;
-        left: 50%;
-        transform: translateX(-50%);
-        bottom: clamp(18px, 2.8vmin, 34px);
-        margin-top: 0;
-        top: auto;
-        z-index: 10015;
-        width: 100%;
+        position: fixed; left: 50%; transform: translateX(-50%);
+        bottom: clamp(18px, 2.8vmin, 34px); margin-top: 0; top: auto; z-index: 10015; width: 100%;
       }
     }
 
@@ -372,9 +360,6 @@
       .spin-row { position: relative; bottom: auto; margin-top: 10px; transform: scale(0.9); transform-origin: top center; }
       .top-hud { top: 8px; }
     }
-
-    /* (باقي الثيمات كما هي في كودك الأصلي … لم ألمسها) */
-
   </style>
 
   <!-- Supabase JS SDK -->
@@ -394,7 +379,7 @@
     <video id="introVideo" src="aa.mp4" preload="auto" autoplay muted playsinline webkit-playsinline></video>
   </div>
 
-  <!-- 👇 العنوان الآن خارج المكنة وبينه وبين HUD مسافة كافية -->
+  <!-- العنوان -->
   <h1 class="machine-title">the mumy</h1>
 
   <div class="machine-frame">
@@ -591,10 +576,8 @@
       if(!btn) return;
       const img = btn.querySelector('img');
       if(!img || typeof img.animate!=='function') { btn.setAttribute('data-spinning','1'); return; }
-      stopWheelSpin(true);            // ألغِ أي حركة سابقة
-      btn.setAttribute('data-spinning','1'); // تعطيل idle CSS مؤقتًا
-
-      /* تسارع → دوران شبه ثابت → تباطؤ مع ارتداد خفيف */
+      stopWheelSpin(true);
+      btn.setAttribute('data-spinning','1');
       const kf = [
         { offset: 0.00, transform: 'rotate(0deg) scale(1)',      easing:'cubic-bezier(.25,.70,.20,1)' },
         { offset: 0.50, transform: 'rotate(720deg) scale(1.02)',  easing:'linear' },
@@ -612,7 +595,7 @@
         __wheelAnim = null;
       }
       if(!cancelOnly){
-        btn.removeAttribute('data-spinning'); // رجّع idle CSS
+        btn.removeAttribute('data-spinning');
       }
     }
 
@@ -789,7 +772,7 @@
       }
     }
 
-    /* ===== مدد اللفة (تمت معايرتها ~3s للتوافق مع الفيديو) ===== */
+    /* ===== مدد اللفة (قريبة من 3 ثواني) ===== */
     const reelDurations=[1.80, 2.10, 2.40, 2.70, 3.00];
 
     let spinFinalResult=[];
@@ -892,7 +875,7 @@
         betError=false; pendingSpinId=null; lastDeductedBet=0; spentThisSpin=0;
         centerToast('Bet failed', 'bet', 1200);
         spinBtn.disabled=false;
-        stopWheelSpin(false); // أوقف حركة العجلة
+        stopWheelSpin(false);
         return;
       }
 
@@ -954,12 +937,10 @@
       lastDeductedBet = 0;
       pendingSpinId = null;
 
-      // إذا ما في Free Spin و لا Special، أوقف دوران العجلة وأعد تفعيل الزر
       if(!(isBonusActive && freeSpins>0)){
         stopWheelSpin(false);
         spinBtn.disabled=false;
       }else{
-        // Free spin لاحقة: خلّي العجلة على وضع الدوران، وكمّل تلقائي
         setTimeout(()=>{freeSpins--; doSpin();},300);
       }
 
@@ -1000,7 +981,6 @@
       try { spinSound.currentTime = 0; spinSound.play().catch(() => {}); } catch (e) {}
       displaySpinWithAnimation();
 
-      // شغّل حركة العجلة بنفس زمن توقّف آخر ريل (+ هامش بسيط)
       const baseMs = Math.max(...reelDurations) * 1000;
       const extra  = specialSpinActive ? (SPECIAL_GAP_SEC * 1000) : 0;
       startWheelSpin(baseMs + extra + 180);
@@ -1115,6 +1095,31 @@
         }
       }
     }
+
+    /* ===== Intro video: أضفنا “انقر للتخطي” ===== */
+    (function setupIntroVideo(){
+      const overlay=document.getElementById("introOverlay");
+      const video=document.getElementById("introVideo");
+      if(!overlay||!video) return;
+      video.muted=true; video.setAttribute('playsinline',''); video.setAttribute('webkit-playsinline',''); video.autoplay=true;
+
+      function finishIntro(){
+        overlay.style.display="none";
+        try{ video.pause(); }catch(e){}
+        try{ musicSound.muted=false; musicSound.currentTime=0; musicSound.play().catch(()=>{}); }catch(e){}
+      }
+
+      window.addEventListener("load",()=>{
+        try{ musicSound.pause(); }catch(e){}
+        const p=video.play();
+        if(p && typeof p.catch==="function"){
+          p.catch(()=>{ /* لو المتصفح منع autoplay، المستخدم حيقدر ينقر للتخطي */ });
+        }
+      });
+
+      overlay.addEventListener("click", finishIntro);        // ← انقر للتخطي
+      video.addEventListener("ended", finishIntro, {once:true});
+    })();
 
     /* Responsive */
     let pendingResize = false;
