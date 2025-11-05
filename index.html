@@ -43,25 +43,36 @@
     }
 
     /* ===== عنوان اللعبة (خارج المكنة) ===== */
-    .machine-title {
-      position: relative;
-      display: block;
-      text-align: center;
-      font-family: 'Cairo', sans-serif; /* خط عربي-لاتيني أنيق وواضح */
-      font-weight: 800;
-      font-size: clamp(30px, 4.6vmin, 54px);
-      color: #f8e29a;
-      text-shadow:
-        0 0 6px #fff8c9,
-        0 0 14px #f0c86e,
-        0 0 24px #d89a00,
-        0 2px 4px rgba(0, 0, 0, 0.6);
-      letter-spacing: 1.5px;
-      margin-top: calc(72px + env(safe-area-inset-top, 0px));
-      margin-bottom: 8px;
-      z-index: 10000;
-      pointer-events: none;
-    }
+    /* 🎯 عنوان اللعبة بلون ذهبي واضح تمامًا بدون أي غبش */
+/* 🎯 عنوان اللعبة بلون ذهبي أصفر واضح */
+.machine-title {
+  position: relative;
+  display: block;
+  text-align: center;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: clamp(36px, 5vmin, 68px);
+  letter-spacing: 2px;
+
+  /* 💛 التدرج الذهبي الأصفر */
+  background: linear-gradient(180deg, #fff8b0 0%, #ffd84a 45%, #c89d00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  /* ✨ لمعة خفيفة بدون أي غبش */
+  text-shadow:
+    0 0 10px rgba(255, 230, 120, 0.8),
+    0 2px 4px rgba(0, 0, 0, 0.6);
+
+  margin-top: 70px;
+  margin-bottom: 12px;
+  z-index: 9999;
+  pointer-events: none;
+  filter: none;
+  opacity: 1;
+}
+
+
 
     /* على الكمبيوتر نضبط الحجم والمسافة */
     @media (min-width: 1024px) and (pointer:fine) {
@@ -387,6 +398,147 @@
     top: 8px;                       /* ✅ مسافة صغيرة من الأعلى */
   }
 }
+/* 🎨 ثيم لعبة Aurora Aegis */
+:root {
+  --machine-color: #00b7c2; /* 💎 لون شفق سماوي رائع */
+}
+
+/* الإطار والخلفية */
+.machine-frame,
+.slot-container {
+  background: var(--machine-color) !important;
+  border-color: var(--machine-color) !important;
+  box-shadow:
+    0 0 20px var(--machine-color),
+    inset 0 0 25px var(--machine-color) !important;
+}
+
+/* الفواصل بين الرموز - نفس اللون تمامًا */
+.reel:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -0.25vmin;
+  width: 0.5vmin;
+  border-radius: 0.4vmin;
+  background: var(--machine-color);
+  box-shadow:
+    0 0 4px var(--machine-color),
+    inset 0 0 6px var(--machine-color);
+  opacity: 1;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* إزالة أي animation أو تأثير سابق */
+.machine-frame::before,
+.machine-frame::after,
+.slot-container::before,
+.slot-container::after {
+  content: none !important;
+  animation: none !important;
+}
+/* 🎨 ثيم لعبة Aztec */
+:root {
+  --machine-color: #b8860b; /* 🟡 ذهبي زيتوني معتّق */
+}
+
+/* الإطار والخلفية */
+.machine-frame,
+.slot-container {
+  background: var(--machine-color) !important;
+  border-color: var(--machine-color) !important;
+  box-shadow:
+    0 0 20px var(--machine-color),
+    inset 0 0 25px var(--machine-color) !important;
+}
+
+/* الفواصل بين الرموز - نفس اللون بالضبط */
+.reel:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -0.25vmin;
+  width: 0.5vmin;
+  border-radius: 0.4vmin;
+  background: var(--machine-color);
+  box-shadow:
+    0 0 4px var(--machine-color),
+    inset 0 0 6px var(--machine-color);
+  opacity: 1;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* إزالة أي animation أو تأثير سابق */
+.machine-frame::before,
+.machine-frame::after,
+.slot-container::before,
+.slot-container::after {
+  content: none !important;
+  animation: none !important;
+}
+/* 🎨 ثيم لعبة Aztec */
+/* 🎨 لون المكنة والفواصل */
+:root {
+  --machine-color: #a04f00; /* 🔧 غيّر هذا الكود اللوني حسب كل لعبة */
+}
+
+/* المكنة نفسها */
+.machine-frame {
+  background: radial-gradient(circle at 50% 30%, var(--machine-color) 0%, #000 100%) !important;
+  border-color: var(--machine-color) !important;
+  box-shadow:
+    0 0 15px var(--machine-color),
+    inset 0 0 20px var(--machine-color) !important;
+}
+
+/* الشاشة الداخلية */
+.slot-container {
+  background: radial-gradient(circle at 50% 50%, var(--machine-color) 10%, #000 90%) !important;
+  border: 2px solid var(--machine-color) !important;
+  box-shadow:
+    inset 0 0 10px var(--machine-color),
+    0 0 20px var(--machine-color) !important;
+}
+
+/* الفواصل بين الرموز */
+.reel:not(:first-child)::before {
+  background: var(--machine-color) !important;
+  box-shadow:
+    0 0 6px var(--machine-color),
+    inset 0 0 6px var(--machine-color) !important;
+}
+
+
+/* الفواصل بين الرموز - نفس اللون بالضبط */
+.reel:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -0.25vmin;
+  width: 0.5vmin;
+  border-radius: 0.4vmin;
+  background: var(--machine-color);
+  box-shadow:
+    0 0 4px var(--machine-color),
+    inset 0 0 6px var(--machine-color);
+  opacity: 1;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* إزالة أي animation أو تأثير سابق */
+.machine-frame::before,
+.machine-frame::after,
+.slot-container::before,
+.slot-container::after {
+  content: none !important;
+  animation: none !important;
+}
 
 
   </style>
@@ -409,7 +561,7 @@
   </div>
 
   <!-- 👇 العنوان الآن خارج المكنة وبينه وبين HUD مسافة كافية -->
-  <h1 class="machine-title">Ancient Spice Market</h1>
+  <h1 class="machine-title">Book of Vikings</h1>
 
   <div class="machine-frame">
     <div class="slot-container">
@@ -1201,4 +1353,3 @@
   </script>
 </body>
 </html>
-
